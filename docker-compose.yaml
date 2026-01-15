@@ -1,0 +1,124 @@
+# ==========================================================
+# DOCKER COMPOSE - POSTGRESQL (LOCAL / DEVELOPMENT)
+# Project: MiVoto
+# ==========================================================
+
+# -------------------------
+# Custom Networks
+# -------------------------
+# Dedicated bridge network to isolate MiVoto services
+# and allow container-to-container communication
+networks:
+  mivoto:
+    driver: bridge
+
+# -------------------------
+# Persistent Volumes
+# -------------------------
+# Docker-managed volume (recommended over bind mounts)
+# Prevents permission issues and data corruption,
+# especially on Windows / WSL environments
+volumes:
+  postgres_data:
+
+# -------------------------
+# Services
+# -------------------------
+services:
+
+  # ==========================================================
+  # PostgreSQL Service
+  # ==========================================================
+  postgresql:
+    # Explicit container name
+    container_name: mivoto-postgres
+
+    # Official lightweight PostgreSQL image (Alpine-based)
+    image: postgres:17-alpine
+
+    # Automatically restart unless manually stopped
+    restart: unless-stopped
+
+    # -------------------------
+    # Resource Limits
+    # -------------------------
+    # Prevents PostgreSQL from over-consuming host resources
+    mem_limit: 1g             # Maximum RAM usage
+    mem_reservation: 512m     # Guaranteed minimum RAM
+    cpus: "1.0"               # Maximum CPU cores
+
+    # Shared memory size (CRITICAL for PostgreSQL)
+    # Required for stable performance and query execution
+    shm_size: 256mb
+
+    # -------------------------
+    # Environment Variables
+    # -------------------------
+    environment:
+      POSTGRES_USER: postgres             # PostgreSQL admin user
+      POSTGRES_PASSWORD: RX5gvMCQGIYvndSI # Admin password
+      POSTGRES_DB: mivotodb               # Default database created at startup
+
+      # Timezone configuration
+      TZ: America/Lima                    # Container system timezone
+      PGTZ: America/Lima                  # PostgreSQL internal timezone
+
+      # Database initialization arguments
+      # Forces UTF-8 encoding and Spanish locale (supports ñ, accents, Unicode)
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=es_PE.UTF-8"
+
+    # -------------------------
+    # PostgreSQL Internal Configuration
+    # -------------------------
+    # Memory tuning aligned with container limits
+    # Prevents OOM (Out Of Memory) kills by Docker
+    command:
+      - "postgres"
+      - "-c"
+      - "shared_buffers=256MB"             # Memory cache for data pages
+      - "-c"
+      - "work_mem=16MB"                    # Memory per query operation
+      - "-c"
+      - "maintenance_work_mem=64MB"        # Maintenance operations memory
+      - "-c"
+      - "max_connections=100"              # Maximum concurrent connections
+
+    # -------------------------
+    # Port Exposure
+    # -------------------------
+    # Exposed only to localhost for security
+    ports:
+      - "127.0.0.1:5432:5432"
+
+    # -------------------------
+    # Data Persistence
+    # -------------------------
+    # PostgreSQL data directory mapped to Docker volume
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    # -------------------------
+    # Network Attachment
+    # -------------------------
+    networks:
+      - mivoto
+
+    # -------------------------
+    # Healthcheck
+    # -------------------------
+    # Ensures PostgreSQL is ready before other services connect
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d mivotodb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    # -------------------------
+    # Logging Configuration
+    # -------------------------
+    # Prevents logs from growing indefinitely and filling disk space
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"     # Maximum log file size
+        max-file: "3"       # Number of rotated log files
