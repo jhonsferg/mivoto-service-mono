@@ -1,0 +1,20 @@
+spring:
+  jpa:
+    show-sql: false
+
+  flyway:
+    enabled: true
+
+logging:
+  level:
+    root: WARN
+    com.votingsystem.backend: INFO
+    org.springframework.web: WARN
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

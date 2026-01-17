@@ -1,0 +1,250 @@
+package pe.com.mivoto.service.application.services;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import pe.com.mivoto.service.domain.enums.AuditAction;
+import pe.com.mivoto.service.domain.model.AuditLog;
+import pe.com.mivoto.service.domain.ports.out.AuditRepository;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class AuditService {
+    private final AuditRepository auditRepository;
+    private final ObjectMapper objectMapper;
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public AuditLog logAction(Long userId, AuditAction action, String entity, Long entityId, String description, String ipAddress, String userAgent, Map<String, Object> metadata) {
+
+        AuditLog auditLog = AuditLog.builder()
+                .userId(userId)
+                .action(action)
+                .entity(entity)
+                .entityId(entityId)
+                .description(description)
+                .ipAddress(ipAddress)
+                .userAgent(userAgent)
+                .timestamp(LocalDateTime.now())
+                .metadata(serializeMetadata(metadata))
+                .build();
+
+        AuditLog saved = this.auditRepository.save(auditLog);
+
+        log.info("Auditoría registrada - Usuario: {}, Acción: {}, Entidad: {}/{}", userId, action, entity, entityId);
+        return saved;
+    }
+
+    public void logSuccessfulLogin(Long userId, String ipAddress) {
+        logAction(userId, AuditAction.LOGIN, "User", userId, "Inicio de sesión exitoso", ipAddress, null, null);
+    }
+
+    public void logFailedLogin(String username, String ipAddress) {
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("username", username);
+        logAction(null, AuditAction.LOGIN_FAILED, "User", null, "Intento de inicio de sesión fallido", ipAddress, null, metadata);
+    }
+
+    public void logLogout(Long userId) {
+        logAction(userId, AuditAction.LOGOUT, "User", userId, "Cierre de sesión", null, null, null);
+    }
+
+    public void logPasswordChange(Long userId) {
+        logAction(userId, AuditAction.PASSWORD_CHANGED, "User", userId, "Contraseña cambiada", null, null, null);
+    }
+
+    public void logVoteCast(Long userId, Long electionId, Long candidateId) {
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("electionId", electionId);
+        metadata.put("candidateId", candidateId);
+        logAction(userId, AuditAction.VOTE_CAST, "Vote", null, "Voto emitido", null, null, metadata);
+    }
+
+    public void logVoteVerification(Long voteId, String voteHash) {
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("voteHash", voteHash);
+        logAction(null, AuditAction.VOTE_VERIFIED, "Vote", voteId, "Voto verificado", null, null, metadata);
+    }
+
+    public void logVoteInvalidation(Long voteId, String reason) {
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("reason", reason);
+        logAction(null, AuditAction.VOTE_REJECTED, "Vote", voteId, "Voto invalidado", null, null, metadata);
+    }
+
+    public void logElectionCreated(Long electionId, Long userId) {
+        logAction(userId, AuditAction.ELECTION_CREATED, "Election", electionId, "Elección creada", null, null, null);
+    }
+
+    public void logElectionUpdated(Long electionId) {
+        logAction(null, AuditAction.ELECTION_UPDATED, "Election", electionId, "Elección actualizada", null, null, null);
+    }
+
+    public void logElectionStarted(Long electionId) {
+        logAction(null, AuditAction.ELECTION_STARTED, "Election", electionId, "Elección iniciada", null, null, null);
+    }
+
+    public void logElectionClosed(Long electionId) {
+        logAction(null, AuditAction.ELECTION_CLOSED, "Election", electionId, "Elección cerrada", null, null, null);
+    }
+
+    public void logElectionCancelled(Long electionId, String reason) {
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("reason", reason);
+        logAction(null, AuditAction.ELECTION_CANCELLED, "Election", electionId, "Elección cancelada", null, null, metadata);
+    }
+
+    public void logCandidateAdded(Long candidateId, Long electionId) {
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("electionId", electionId);
+        logAction(null, AuditAction.CANDIDATE_ADDED, "Candidate", candidateId, "Candidato agregado", null, null, metadata);
+    }
+
+    public void logCandidateUpdated(Long candidateId) {
+        logAction(null, AuditAction.CANDIDATE_UPDATED, "Candidate", candidateId, "Candidato actualizado", null, null, null);
+    }
+
+    public void logCandidateDeleted(Long candidateId) {
+        logAction(null, AuditAction.CANDIDATE_REMOVED, "Candidate", candidateId, "Candidato eliminado", null, null, null);
+    }
+
+    public void logCandidateActivated(Long candidateId) {
+        logAction(null, AuditAction.CANDIDATE_UPDATED, "Candidate", candidateId, "Candidato activado", null, null, null);
+    }
+
+    public void logCandidateDeactivated(Long candidateId) {
+        logAction(null, AuditAction.CANDIDATE_UPDATED, "Candidate", candidateId, "Candidato desactivado", null, null, null);
+    }
+
+    public void logUserCreated(Long userId) {
+        logAction(null, AuditAction.USER_CREATED, "User", userId, "Usuario creado", null, null, null);
+    }
+
+    public void logUserUpdated(Long userId) {
+        logAction(userId, AuditAction.USER_UPDATED, "User", userId, "Usuario actualizado", null, null, null);
+    }
+
+    public void logUserDeleted(Long userId) {
+        logAction(null, AuditAction.USER_DELETED, "User", userId, "Usuario eliminado", null, null, null);
+    }
+
+    public void logUserActivated(Long userId) {
+        logAction(null, AuditAction.USER_ACTIVATED, "User", userId, "Usuario activado", null, null, null);
+    }
+
+    public void logUserDeactivated(Long userId) {
+        logAction(null, AuditAction.USER_DEACTIVATED, "User", userId, "Usuario desactivado", null, null, null);
+    }
+
+    public void logUnauthorizedAccess(Long userId, String resource, String ipAddress) {
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("resource", resource);
+        logAction(userId, AuditAction.UNAUTHORIZED_ACCESS, "Security", null, "Intento de acceso no autorizado", ipAddress, null, metadata);
+    }
+
+    public void logDataAccessed(Long userId, String entity, Long entityId) {
+        logAction(userId, AuditAction.DATA_ACCESSED, entity, entityId, "Datos accedidos", null, null, null);
+    }
+
+    public void logDataModified(Long userId, String entity, Long entityId) {
+        logAction(userId, AuditAction.DATA_MODIFIED, entity, entityId, "Datos modificados", null, null, null);
+    }
+
+    public List<AuditLog> getAuditTrailByUser(Long userId) {
+        return this.auditRepository.findByUserId(userId);
+    }
+
+    public List<AuditLog> getAuditTrailByEntity(String entity, Long entityId) {
+        return this.auditRepository.findByEntityAndEntityId(entity, entityId);
+    }
+
+    public List<AuditLog> getAuditTrailByAction(AuditAction action) {
+        return this.auditRepository.findByAction(action);
+    }
+
+    public List<AuditLog> getAuditTrailByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        return this.auditRepository.findByTimestampBetween(startDate, endDate);
+    }
+
+    public List<AuditLog> getCriticalAuditLogs() {
+        List<AuditLog> allLogs = this.auditRepository.findAll();
+        return allLogs.stream()
+                .filter(AuditLog::isCritical)
+                .toList();
+    }
+
+    public List<AuditLog> getSecurityAuditLogs() {
+        List<AuditLog> allLogs = this.auditRepository.findAll();
+        return allLogs.stream()
+                .filter(AuditLog::isSecurityRelated)
+                .toList();
+    }
+
+    public List<AuditLog> getVotingAuditLogs() {
+        List<AuditLog> allLogs = this.auditRepository.findAll();
+        return allLogs.stream()
+                .filter(AuditLog::isVoteRelated)
+                .toList();
+    }
+
+    public AuditReport generateAuditReport(LocalDateTime startDate, LocalDateTime endDate) {
+        List<AuditLog> logs = getAuditTrailByDateRange(startDate, endDate);
+
+        long totalActions = logs.size();
+        long totalUsers = logs.stream()
+                .map(AuditLog::getUserId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .count();
+        long criticalActions = logs.stream()
+                .filter(AuditLog::isCritical)
+                .count();
+        long securityIncidents = logs.stream()
+                .filter(AuditLog::isSecurityRelated)
+                .count();
+
+        List<AuditLog> recentLogs = logs.stream()
+                .sorted((a, b) -> b.getTimestamp().compareTo(a.getTimestamp()))
+                .limit(50)
+                .toList();
+
+        return new AuditReport(
+                totalActions,
+                totalUsers,
+                criticalActions,
+                securityIncidents,
+                recentLogs
+        );
+    }
+
+    private String serializeMetadata(Map<String, Object> metadata) {
+        if (metadata == null || metadata.isEmpty()) {
+            return null;
+        }
+
+        try {
+            return this.objectMapper.writeValueAsString(metadata);
+        } catch (Exception e) {
+            log.error("Error serializando metadata", e);
+            return null;
+        }
+    }
+
+    public record AuditReport(
+            Long totalActions,
+            Long totalUsers,
+            Long criticalActions,
+            Long securityIncidents,
+            List<AuditLog> recentLogs
+    ) {
+    }
+}
