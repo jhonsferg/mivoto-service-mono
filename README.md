@@ -4,16 +4,16 @@ API REST desarrollada con Spring Boot 3.x que implementa estructuras de datos pe
 
 ## 📋 Tabla de Contenidos
 
-- [Características](#características)
-- [Arquitectura](#arquitectura)
-- [Estructuras de Datos](#estructuras-de-datos)
-- [Tecnologías](#tecnologías)
-- [Requisitos](#requisitos)
-- [Instalación](#instalación)
-- [Configuración](#configuración)
-- [Ejecución](#ejecución)
-- [API Documentation](#api-documentation)
-- [Testing](#testing)
+- [Características](#-características)
+- [Arquitectura](#-arquitectura)
+- [Estructuras de Datos](#-estructuras-de-datos)
+- [Tecnologías](#-tecnologías)
+- [Requisitos](#-requisitos)
+- [Instalación](#-instalación)
+- [Configuración](#-configuración)
+- [Ejecución](#-ejecución)
+- [API Documentation](#-api-documentation)
+- [Testing](#-testing)
 
 ## ✨ Características
 
