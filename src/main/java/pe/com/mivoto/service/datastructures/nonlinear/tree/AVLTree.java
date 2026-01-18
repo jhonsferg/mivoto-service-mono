@@ -1,5 +1,6 @@
 package pe.com.mivoto.service.datastructures.nonlinear.tree;
 
+import lombok.Getter;
 import pe.com.mivoto.service.datastructures.interfaces.CustomTree;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
  */
 public class AVLTree<T extends Comparable<T>> implements CustomTree<T> {
 
+    @Getter
     private TreeNode<T> root;
     private int size;
 
@@ -296,15 +298,6 @@ public class AVLTree<T extends Comparable<T>> implements CustomTree<T> {
         if (isEmpty())
             return null;
         return maxValueNode(root).getValue();
-    }
-
-    /**
-     * Retrieves the root node of the tree.
-     *
-     * @return The root TreeNode.
-     */
-    public TreeNode<T> getRoot() {
-        return root;
     }
 
     /**
