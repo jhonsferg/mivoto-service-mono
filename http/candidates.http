@@ -1,0 +1,86 @@
+### Candidates
+@host = http://localhost:8080/api
+@contentType = application/json
+@token = {{login.response.body.data.accessToken}}
+
+# @name getCandidateById
+GET {{host}}/candidates/1
+Authorization: Bearer {{token}}
+
+###
+
+# @name getCandidatesByElection
+GET {{host}}/candidates/election/1
+Authorization: Bearer {{token}}
+
+###
+
+# @name getActiveCandidates
+GET {{host}}/candidates/election/1/active
+Authorization: Bearer {{token}}
+
+###
+
+# @name registerCandidate
+POST {{host}}/candidates
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Juan Perez",
+  "electionId": 1,
+  "party": "Partido del Futuro",
+  "number": 1,
+  "information": "Candidato a la presidencia"
+}
+
+###
+
+# @name updateCandidate
+PUT {{host}}/candidates/1
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Juan Perez Updated",
+  "electionId": 1,
+  "party": "Partido del Futuro Renovado",
+  "number": 1,
+  "information": "Actualización de información"
+}
+
+###
+
+# @name findByNumber
+GET {{host}}/candidates/election/1/number/1
+Authorization: Bearer {{token}}
+
+###
+
+# @name findByParty
+GET {{host}}/candidates/party/Partido del Futuro
+Authorization: Bearer {{token}}
+
+###
+
+# @name getOrderedCandidates
+GET {{host}}/candidates/election/1/ordered
+Authorization: Bearer {{token}}
+
+###
+
+# @name activateCandidate
+POST {{host}}/candidates/1/activate
+Authorization: Bearer {{token}}
+
+###
+
+# @name deactivateCandidate
+POST {{host}}/candidates/1/deactivate
+Authorization: Bearer {{token}}
+
+###
+
+# @name deleteCandidate
+DELETE {{host}}/candidates/1
+Authorization: Bearer {{token}}

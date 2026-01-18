@@ -1,0 +1,50 @@
+### Audit
+@host = http://localhost:8080/api
+@contentType = application/json
+@token = {{login.response.body.data.accessToken}}
+
+# @name getAuditByUser
+GET {{host}}/audit/user/1
+Authorization: Bearer {{token}}
+
+###
+
+# @name getAuditByEntity
+GET {{host}}/audit/entity/Election/1
+Authorization: Bearer {{token}}
+
+###
+
+# @name getAuditByAction
+GET {{host}}/audit/action/LOGIN
+Authorization: Bearer {{token}}
+
+###
+
+# @name getAuditByDateRange
+GET {{host}}/audit/date-range?startDate=2024-01-01T00:00:00&endDate=2024-12-31T23:59:59
+Authorization: Bearer {{token}}
+
+###
+
+# @name getCriticalLogs
+GET {{host}}/audit/critical
+Authorization: Bearer {{token}}
+
+###
+
+# @name getSecurityLogs
+GET {{host}}/audit/security
+Authorization: Bearer {{token}}
+
+###
+
+# @name getVotingLogs
+GET {{host}}/audit/voting
+Authorization: Bearer {{token}}
+
+###
+
+# @name generateReport
+GET {{host}}/audit/report?startDate=2024-01-01T00:00:00&endDate=2024-12-31T23:59:59
+Authorization: Bearer {{token}}

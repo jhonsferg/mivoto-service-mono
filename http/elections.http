@@ -1,0 +1,84 @@
+### Elections
+@host = http://localhost:8080/api
+@contentType = application/json
+@token = {{login.response.body.data.accessToken}}
+
+# @name getAllElections
+GET {{host}}/elections
+Authorization: Bearer {{token}}
+
+###
+
+# @name getActiveElections
+GET {{host}}/elections/active
+Authorization: Bearer {{token}}
+
+###
+
+# @name getElectionById
+GET {{host}}/elections/1
+Authorization: Bearer {{token}}
+
+###
+
+# @name createElection
+POST {{host}}/elections
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "title": "Elecciones Presidenciales 2026",
+  "description": "Elecciones generales para presidente",
+  "startDate": "2026-05-01T08:00:00",
+  "endDate": "2026-05-01T16:00:00"
+}
+
+###
+
+# @name updateElection
+PUT {{host}}/elections/1
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "title": "Elecciones Generales 2026 - Actualizado",
+  "description": "Descripción actualizada",
+  "startDate": "2026-05-01T08:00:00",
+  "endDate": "2026-05-01T18:00:00"
+}
+
+###
+
+# @name startElection
+POST {{host}}/elections/1/start
+Authorization: Bearer {{token}}
+
+###
+
+# @name closeElection
+POST {{host}}/elections/1/close
+Authorization: Bearer {{token}}
+
+###
+
+# @name cancelElection
+POST {{host}}/elections/1/cancel?reason=Problemas_tecnicos
+Authorization: Bearer {{token}}
+
+###
+
+# @name getElectionResults
+GET {{host}}/elections/1/results
+Authorization: Bearer {{token}}
+
+###
+
+# @name getElectionStatistics
+GET {{host}}/elections/1/statistics
+Authorization: Bearer {{token}}
+
+###
+
+# @name filterByStatus
+GET {{host}}/elections/status/CREATED
+Authorization: Bearer {{token}}

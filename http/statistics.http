@@ -1,0 +1,26 @@
+### Statistics
+@host = http://localhost:8080/api
+@contentType = application/json
+@token = {{login.response.body.data.accessToken}}
+
+# @name getSystemStats
+GET {{host}}/statistics/system
+Authorization: Bearer {{token}}
+
+###
+
+# @name getElectionStats
+GET {{host}}/statistics/election/1
+Authorization: Bearer {{token}}
+
+###
+
+# @name getCandidateStats
+GET {{host}}/statistics/election/1/candidates
+Authorization: Bearer {{token}}
+
+###
+
+# @name getParticipationByHour
+GET {{host}}/statistics/election/1/participation
+Authorization: Bearer {{token}}

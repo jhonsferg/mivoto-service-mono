@@ -1,0 +1,42 @@
+### Auth
+@host = http://localhost:8080/api
+@contentType = application/json
+@token = {{login.response.body.data.accessToken}}
+
+# @name login
+POST {{host}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "admin@mivoto.com",
+  "password": "admin123"
+}
+
+###
+
+# @name refreshToken
+POST {{host}}/auth/refresh
+Content-Type: {{contentType}}
+
+{
+  "refreshToken": "{{login.response.body.data.refreshToken}}"
+}
+
+###
+
+# @name logout
+POST {{host}}/auth/logout
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+###
+
+# @name changePassword
+POST {{host}}/auth/change-password
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "currentPassword": "admin123",
+  "newPassword": "newAdmin123"
+}

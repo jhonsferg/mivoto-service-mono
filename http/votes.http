@@ -1,0 +1,38 @@
+### Voting
+@host = http://localhost:8080/api
+@contentType = application/json
+@token = {{login.response.body.data.accessToken}}
+
+# @name castVote
+POST {{host}}/votes
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "electionId": 1,
+  "candidateId": 1
+}
+
+###
+
+# @name verifyVote
+GET {{host}}/votes/verify/{{voteHash}}
+Authorization: Bearer {{token}}
+
+###
+
+# @name getVotingHistory
+GET {{host}}/votes/history
+Authorization: Bearer {{token}}
+
+###
+
+# @name checkVotingStatus
+GET {{host}}/votes/status/1
+Authorization: Bearer {{token}}
+
+###
+
+# @name countVotesByElection
+GET {{host}}/votes/election/1/count
+Authorization: Bearer {{token}}
