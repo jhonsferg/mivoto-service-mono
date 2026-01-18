@@ -20,9 +20,6 @@ public class MivotoProperties {
     /**
      * Configuration for vote processing queue and batching.
      */
-    /**
-     * Configuration for vote processing queue and batching.
-     */
     @Data
     public static class VoteProcessing {
         private int queueSize = 1000;
