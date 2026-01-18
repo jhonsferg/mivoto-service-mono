@@ -22,7 +22,7 @@ public class GraphAlgorithms {
     }
 
     private static <T> void topologicalSortDFS(T vertex, Graph<T> graph,
-                                               Set<T> visited, Stack<T> stack) {
+            Set<T> visited, Stack<T> stack) {
         visited.add(vertex);
 
         for (T neighbor : graph.getNeighbors(vertex)) {
@@ -50,7 +50,7 @@ public class GraphAlgorithms {
     }
 
     private static <T> void dfsComponent(T vertex, Graph<T> graph,
-                                         Set<T> visited, Set<T> component) {
+            Set<T> visited, Set<T> component) {
         visited.add(vertex);
         component.add(vertex);
 
@@ -98,10 +98,6 @@ public class GraphAlgorithms {
     }
 
     private static <T> Set<T> getVertices(Graph<T> graph) {
-        List<T> bfs = graph.breadthFirstSearch(
-                graph.getNeighbors(null).isEmpty() ? null :
-                        graph.getNeighbors(null).get(0)
-        );
-        return new HashSet<>(bfs);
+        return graph.getAllVertices();
     }
 }

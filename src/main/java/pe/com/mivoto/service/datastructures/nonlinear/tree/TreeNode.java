@@ -7,10 +7,12 @@ public class TreeNode<T extends Comparable<T>> {
     private T value;
     private TreeNode<T> left;
     private TreeNode<T> right;
+    private int height;
 
     public TreeNode(T value) {
         this.value = value;
         this.left = null;
         this.right = null;
+        this.height = 1;
     }
 }

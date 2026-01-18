@@ -14,6 +14,10 @@ public class Graph<T> implements CustomGraph<T> {
     private final boolean isDirected;
     private int edgeCount;
 
+    public Set<T> getAllVertices() {
+        return vertices.keySet();
+    }
+
     public Graph(boolean isDirected) {
         this.vertices = new HashMap<>();
         this.isDirected = isDirected;
@@ -74,8 +78,7 @@ public class Graph<T> implements CustomGraph<T> {
 
         GraphNode<T> fromNode = vertices.get(from);
         boolean removed = fromNode.getEdges().removeIf(
-                edge -> edge.getDestination().equals(to)
-        );
+                edge -> edge.getDestination().equals(to));
 
         if (removed) {
             edgeCount--;
