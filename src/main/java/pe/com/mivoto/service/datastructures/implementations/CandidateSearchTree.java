@@ -11,6 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Specialized search tree for optimizing candidate lookups.
+ * Wraps a {@link BinarySearchTree} to provide efficient operations by candidate
+ * number.
+ */
 @Slf4j
 @Component
 public class CandidateSearchTree {
@@ -20,12 +25,23 @@ public class CandidateSearchTree {
         this.tree = new BinarySearchTree<>();
     }
 
+    /**
+     * Inserts a candidate into the search tree.
+     *
+     * @param candidate The candidate to insert.
+     */
     public void insert(Candidate candidate) {
         CandidateNode node = new CandidateNode(candidate.getNumber(), candidate);
         this.tree.insert(node);
         log.debug("Candidato insertado - Número: {}, Nombre: {}", candidate.getNumber(), candidate.getName());
     }
 
+    /**
+     * Finds a candidate by their ballot number.
+     *
+     * @param number The candidate number to search for.
+     * @return Optional containing the candidate if found.
+     */
     public Optional<Candidate> findByNumber(Integer number) {
         CandidateNode searchNode = new CandidateNode(number, null);
 
@@ -41,17 +57,34 @@ public class CandidateSearchTree {
         return Optional.empty();
     }
 
+    /**
+     * Checks if a candidate with the specified number already exists in the tree.
+     *
+     * @param number The candidate number.
+     * @return true if it exists.
+     */
     public boolean existsByNumber(Integer number) {
         CandidateNode searchNode = new CandidateNode(number, null);
         return this.tree.search(searchNode);
     }
 
+    /**
+     * Deletes a candidate from the tree by their number.
+     *
+     * @param number The number of the candidate to remove.
+     */
     public void delete(Integer number) {
         CandidateNode deleteNode = new CandidateNode(number, null);
         this.tree.delete(deleteNode);
         log.debug("Candidato eliminado - Número: {}", number);
     }
 
+    /**
+     * Retrieves all candidates in the tree ordered by their number (in-order
+     * traversal).
+     *
+     * @return Ordered list of candidates.
+     */
     public List<Candidate> getAllCandidatesOrdered() {
         List<CandidateNode> nodes = this.tree.inorderTraversal();
         List<Candidate> candidates = new ArrayList<>();

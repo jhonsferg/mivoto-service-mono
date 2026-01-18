@@ -14,10 +14,10 @@ import pe.com.mivoto.service.application.usecases.auth.LogoutUseCaseImpl;
 import pe.com.mivoto.service.application.usecases.auth.RefreshTokenUseCaseImpl;
 import pe.com.mivoto.service.domain.model.User;
 import pe.com.mivoto.service.domain.model.VotingSession;
-import pe.com.mivoto.service.presentation.dto.request.LoginRequest;
-import pe.com.mivoto.service.presentation.dto.request.RefreshTokenRequest;
-import pe.com.mivoto.service.presentation.dto.response.ApiResponse;
-import pe.com.mivoto.service.presentation.dto.response.LoginResponse;
+import pe.com.mivoto.service.presentation.dto.request.LoginRequestDto;
+import pe.com.mivoto.service.presentation.dto.request.RefreshTokenRequestDto;
+import pe.com.mivoto.service.presentation.dto.response.ApiResponseDto;
+import pe.com.mivoto.service.presentation.dto.response.LoginResponseDto;
 import pe.com.mivoto.service.presentation.mappers.AuthDtoMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -56,7 +56,7 @@ class AuthControllerTest {
     @Test
     @DisplayName("Should successfully login user")
     void testLogin() {
-        LoginRequest request = new LoginRequest();
+        LoginRequestDto request = new LoginRequestDto();
         request.setUsername("user");
         request.setPassword("pass");
 
@@ -73,10 +73,10 @@ class AuthControllerTest {
         // an empty user.
         // We mock the mapper to return a response based on that.
 
-        LoginResponse loginResponse = new LoginResponse();
+        LoginResponseDto loginResponse = new LoginResponseDto();
         when(authDtoMapper.toLoginResponse(any(VotingSession.class), any(User.class))).thenReturn(loginResponse);
 
-        ResponseEntity<ApiResponse<LoginResponse>> response = authController.login(request, httpRequest);
+        ResponseEntity<ApiResponseDto<LoginResponseDto>> response = authController.login(request, httpRequest);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -94,7 +94,7 @@ class AuthControllerTest {
 
         doNothing().when(logoutUseCase).execute("valid-token");
 
-        ResponseEntity<ApiResponse<Void>> response = authController.logout(authHeader);
+        ResponseEntity<ApiResponseDto<Void>> response = authController.logout(authHeader);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         verify(logoutUseCase).execute("valid-token");
@@ -106,16 +106,16 @@ class AuthControllerTest {
     @Test
     @DisplayName("Should successfully refresh token")
     void testRefreshToken() {
-        RefreshTokenRequest request = new RefreshTokenRequest();
+        RefreshTokenRequestDto request = new RefreshTokenRequestDto();
         request.setRefreshToken("refresh-token");
 
         VotingSession session = new VotingSession();
         when(refreshTokenUseCase.execute("refresh-token")).thenReturn(session);
 
-        LoginResponse loginResponse = new LoginResponse();
+        LoginResponseDto loginResponse = new LoginResponseDto();
         when(authDtoMapper.toLoginResponse(any(VotingSession.class), any(User.class))).thenReturn(loginResponse);
 
-        ResponseEntity<ApiResponse<LoginResponse>> response = authController.refreshToken(request);
+        ResponseEntity<ApiResponseDto<LoginResponseDto>> response = authController.refreshToken(request);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());

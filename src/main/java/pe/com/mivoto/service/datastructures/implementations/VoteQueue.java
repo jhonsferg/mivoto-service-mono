@@ -12,6 +12,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Specialized queue for managing the buffer of votes to be processed.
+ * Uses {@link CustomQueueImpl} as the underlying storage for vote items.
+ */
 @Slf4j
 @Component
 public class VoteQueue {
@@ -23,12 +27,22 @@ public class VoteQueue {
         this.processedCount = 0;
     }
 
+    /**
+     * Enqueues a vote with its entry timestamp.
+     *
+     * @param vote The vote object.
+     */
     public void enqueueVote(Vote vote) {
         VoteQueueItem item = new VoteQueueItem(vote, LocalDateTime.now(), generateQueueId());
         this.queue.enqueue(item);
         log.info("Voto encolado - ID: {}, Elección: {}", vote.getId(), vote.getElectionId());
     }
 
+    /**
+     * Deserializes and removes the next vote from the queue.
+     *
+     * @return The Vote object, or null if empty.
+     */
     public Vote dequeueVote() {
         if (this.queue.isEmpty()) {
             log.warn("Intento de desencolar de cola vacía");
@@ -38,7 +52,8 @@ public class VoteQueue {
         VoteQueueItem item = this.queue.dequeue();
         this.processedCount++;
 
-        log.info("Voto desencolado - ID: {}, Tiempo en cola: {}ms", item.getVote().getId(), calculateQueueTime(item.getEnqueuedAt()));
+        log.info("Voto desencolado - ID: {}, Tiempo en cola: {}ms", item.getVote().getId(),
+                calculateQueueTime(item.getEnqueuedAt()));
         return item.getVote();
     }
 

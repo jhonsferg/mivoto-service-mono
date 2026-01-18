@@ -7,10 +7,20 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
 
+/**
+ * Configuration for asynchronous method execution.
+ * implements {@link AsyncConfigurer} to customize the async executor.
+ */
 @Configuration
 @EnableAsync
 public class AsyncConfig implements AsyncConfigurer {
 
+    /**
+     * Defines the thread pool for @Async methods.
+     * Configures core pool size, max pool size, and queue capacity.
+     *
+     * @return The configured Executor.
+     */
     @Override
     public Executor getAsyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();

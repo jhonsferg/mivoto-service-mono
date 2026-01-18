@@ -8,12 +8,21 @@ import pe.com.mivoto.service.domain.model.Election;
 
 import java.util.List;
 
+/**
+ * Use case implementation for retrieving active elections.
+ * Wraps {@link ElectionManagementService#getActiveElections} logic.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class GetActiveElectionsUseCaseImpl {
     private final ElectionManagementService electionService;
 
+    /**
+     * Executes the get active elections use case.
+     *
+     * @return List of active elections.
+     */
     public List<Election> execute() {
         log.info("Ejecutando caso de uso: GetActiveElections");
 

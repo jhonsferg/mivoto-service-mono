@@ -16,9 +16,9 @@ import pe.com.mivoto.service.application.usecases.election.GetActiveElectionsUse
 import pe.com.mivoto.service.application.usecases.election.GetElectionResultsUseCaseImpl;
 import pe.com.mivoto.service.domain.model.Election;
 import pe.com.mivoto.service.infrastructure.security.jwt.JwtTokenProvider;
-import pe.com.mivoto.service.presentation.dto.request.CreateElectionRequest;
-import pe.com.mivoto.service.presentation.dto.response.ApiResponse;
-import pe.com.mivoto.service.presentation.dto.response.ElectionResponse;
+import pe.com.mivoto.service.presentation.dto.request.CreateElectionRequestDto;
+import pe.com.mivoto.service.presentation.dto.response.ApiResponseDto;
+import pe.com.mivoto.service.presentation.dto.response.ElectionResponseDto;
 import pe.com.mivoto.service.presentation.mappers.ElectionDtoMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -65,7 +65,7 @@ class ElectionControllerTest {
     @Test
     @DisplayName("Should successfully create election")
     void testCreateElection() {
-        CreateElectionRequest request = new CreateElectionRequest();
+        CreateElectionRequestDto request = new CreateElectionRequestDto();
         request.setTitle("Election 1");
         String authHeader = "Bearer token";
 
@@ -77,10 +77,11 @@ class ElectionControllerTest {
         Election createdElection = new Election();
         when(createElectionUseCase.execute(electionDomain, 1L)).thenReturn(createdElection);
 
-        ElectionResponse responseDto = new ElectionResponse();
+        ElectionResponseDto responseDto = new ElectionResponseDto();
         when(electionDtoMapper.toElectionResponse(createdElection, false)).thenReturn(responseDto);
 
-        ResponseEntity<ApiResponse<ElectionResponse>> response = electionController.createElection(request, authHeader);
+        ResponseEntity<ApiResponseDto<ElectionResponseDto>> response = electionController.createElection(request,
+                authHeader);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -96,7 +97,7 @@ class ElectionControllerTest {
         Long electionId = 100L;
         doNothing().when(closeElectionUseCase).execute(electionId);
 
-        ResponseEntity<ApiResponse<Void>> response = electionController.closeElection(electionId);
+        ResponseEntity<ApiResponseDto<Void>> response = electionController.closeElection(electionId);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         verify(closeElectionUseCase).execute(electionId);

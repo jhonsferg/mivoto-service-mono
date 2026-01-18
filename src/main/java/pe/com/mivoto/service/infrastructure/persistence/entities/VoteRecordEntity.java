@@ -8,6 +8,11 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * JPA Entity for Vote Records.
+ * Maps to the "vote_records" table.
+ * Stores archival and audit data for votes.
+ */
 @Entity
 @Table(name = "vote_records", indexes = {
         @Index(name = "idx_vote_id", columnList = "vote_id"),

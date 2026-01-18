@@ -15,19 +15,49 @@ import pe.com.mivoto.service.infrastructure.security.jwt.JwtTokenProvider;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Application service for user authentication and session management.
+ * Implements {@link pe.com.mivoto.service.domain.ports.in.AuthUseCase} to
+ * handle login flows,
+ * token generation, session validation, and security operations.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AuthenticationService {
+public class AuthenticationService implements pe.com.mivoto.service.domain.ports.in.AuthUseCase {
     private static final int SESSION_EXPIRATION_HOURS = 8;
-    private static final int REFRESH_TOKEN_EXPIRATION_DAYS = 30;
     private final UserRepository userRepository;
     private final SessionRepository sessionRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuditService auditService;
 
+    /**
+     * Authenticates a user and creates a new voting session.
+     *
+     * @param username  The user's username.
+     * @param password  The raw password.
+     * @param ipAddress The source IP address.
+     * @param userAgent The client User-Agent.
+     * @return The active VotingSession.
+     * @throws AuthenticationException if credentials are invalid or user is
+     *                                 inactive.
+     */
     @Transactional
+    /**
+     * Authenticates a user with username and password.
+     * Delegates to {@link #authenticate(String, String, String, String)} with null
+     * IP/User-Agent.
+     *
+     * @param username The username.
+     * @param password The password.
+     * @return The active VotingSession.
+     */
+    @Override
+    public VotingSession login(String username, String password) {
+        return authenticate(username, password, null, null);
+    }
+
     public VotingSession authenticate(String username, String password, String ipAddress, String userAgent) {
         log.info("Intentando autenticar usuario: {}", username);
 
@@ -58,6 +88,15 @@ public class AuthenticationService {
         return session;
     }
 
+    /**
+     * Internal method to create and persist a new voting session.
+     * Generates JWT access token and a random UUID refresh token.
+     *
+     * @param user      The authenticated user.
+     * @param ipAddress The source IP address.
+     * @param userAgent The client user agent.
+     * @return The persisted VotingSession.
+     */
     private VotingSession createSession(User user, String ipAddress, String userAgent) {
         String accessToken = this.jwtTokenProvider.generateToken(user);
         String refreshToken = UUID.randomUUID().toString();
@@ -77,11 +116,17 @@ public class AuthenticationService {
         return this.sessionRepository.save(session);
     }
 
+    /**
+     * Terminates a user session.
+     *
+     * @param sessionToken The session token to invalidate.
+     */
     @Transactional
     public void logout(String sessionToken) {
         log.info("Cerrando sesión");
 
-        VotingSession session = this.sessionRepository.findBySessionToken(sessionToken).orElseThrow(() -> new AuthenticationException("Sesión no encontrada"));
+        VotingSession session = this.sessionRepository.findBySessionToken(sessionToken)
+                .orElseThrow(() -> new AuthenticationException("Sesión no encontrada"));
 
         session.invalidate();
         this.sessionRepository.update(session);
@@ -90,17 +135,25 @@ public class AuthenticationService {
         log.info("Sesión cerrada para usuario: {}", session.getUserId());
     }
 
+    /**
+     * Refreshes an expired access token using a valid refresh token.
+     *
+     * @param refreshToken The refresh token.
+     * @return The session with updated tokens.
+     */
     @Transactional
     public VotingSession refreshToken(String refreshToken) {
         log.info("Refrescando token");
 
-        VotingSession session = this.sessionRepository.findByRefreshToken(refreshToken).orElseThrow(() -> new AuthenticationException("Refresh token inválido"));
+        VotingSession session = this.sessionRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new AuthenticationException("Refresh token inválido"));
 
         if (!session.isValid()) {
             throw new AuthenticationException("Sesión expirada");
         }
 
-        User user = this.userRepository.findById(session.getUserId()).orElseThrow(() -> new AuthenticationException("Usuario no encontrado"));
+        User user = this.userRepository.findById(session.getUserId())
+                .orElseThrow(() -> new AuthenticationException("Usuario no encontrado"));
         String newAccessToken = this.jwtTokenProvider.generateToken(user);
         session.setSessionToken(newAccessToken);
         session.setExpiresAt(LocalDateTime.now().plusHours(SESSION_EXPIRATION_HOURS));
@@ -108,6 +161,12 @@ public class AuthenticationService {
         return this.sessionRepository.update(session);
     }
 
+    /**
+     * Validates if a session token is currently active.
+     *
+     * @param sessionToken The token to validate.
+     * @return true if valid and active, false otherwise.
+     */
     public boolean validateToken(String sessionToken) {
         try {
             if (!this.jwtTokenProvider.validateToken(sessionToken)) {
@@ -122,16 +181,31 @@ public class AuthenticationService {
         }
     }
 
+    /**
+     * Retrieves the user associated with a session token.
+     *
+     * @param sessionToken The session token.
+     * @return The User object.
+     */
     public User getUserFromToken(String sessionToken) {
         Long userId = this.jwtTokenProvider.getUserIdFromToken(sessionToken);
-        return this.userRepository.findById(userId).orElseThrow(() -> new AuthenticationException("Usuario no encontrado"));
+        return this.userRepository.findById(userId)
+                .orElseThrow(() -> new AuthenticationException("Usuario no encontrado"));
     }
 
+    /**
+     * Updates a user's password.
+     *
+     * @param userId      The user ID.
+     * @param oldPassword The current password.
+     * @param newPassword The new password.
+     */
     @Transactional
     public void changePassword(Long userId, String oldPassword, String newPassword) {
         log.info("Cambiando contraseña para usuario: {}", userId);
 
-        User user = this.userRepository.findById(userId).orElseThrow(() -> new AuthenticationException("Usuario no encontrado"));
+        User user = this.userRepository.findById(userId)
+                .orElseThrow(() -> new AuthenticationException("Usuario no encontrado"));
 
         if (!this.passwordEncoder.matches(oldPassword, user.getPassword())) {
             throw new AuthenticationException("Contraseña actual incorrecta");
@@ -146,6 +220,12 @@ public class AuthenticationService {
         log.info("Contraseña cambiada exitosamente para usuario: {}", userId);
     }
 
+    /**
+     * Checks if a user has any active sessions.
+     *
+     * @param userId The user ID.
+     * @return true if authenticated, false otherwise.
+     */
     public boolean isAuthenticated(Long userId) {
         return this.sessionRepository.countActiveByUserId(userId) > 0;
     }

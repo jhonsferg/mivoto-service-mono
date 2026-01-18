@@ -8,12 +8,22 @@ import pe.com.mivoto.service.domain.model.Candidate;
 
 import java.util.Map;
 
+/**
+ * Use case implementation for retrieving election results.
+ * Wraps {@link ElectionManagementService#getElectionResults} logic.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class GetElectionResultsUseCaseImpl {
     private final ElectionManagementService electionService;
 
+    /**
+     * Executes the get election results use case.
+     *
+     * @param electionId The election ID.
+     * @return Map of Candidate to vote count.
+     */
     public Map<Candidate, Long> execute(Long electionId) {
         log.info("Ejecutando caso de uso: GetElectionResults - ID: {}", electionId);
 

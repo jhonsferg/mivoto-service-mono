@@ -16,13 +16,22 @@ import pe.com.mivoto.service.domain.ports.out.ElectionRepository;
 import pe.com.mivoto.service.domain.ports.out.UserRepository;
 import pe.com.mivoto.service.domain.ports.out.VoteRepository;
 
+import pe.com.mivoto.service.domain.ports.in.VotingUseCase;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Application service for voting operations.
+ * Implements {@link VotingUseCase} to handle vote casting, verification, and
+ * retrieval.
+ * Uses {@link VoteQueue} for asynchronous processing and {@link VoteRecordList}
+ * for history.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class VotingService {
+public class VotingService implements VotingUseCase {
 
     private final VoteRepository voteRepository;
     private final ElectionRepository electionRepository;
@@ -33,6 +42,40 @@ public class VotingService {
     private final VoteQueue voteQueue;
     private final VoteRecordList voteRecordList;
 
+    /**
+     * Casts a vote for a candidate.
+     * Delegates to {@link #castVote(Long, Long, Long, String, String)} with null
+     * IP/User-Agent.
+     *
+     * @param userId      The user ID.
+     * @param electionId  The election ID.
+     * @param candidateId The candidate ID.
+     * @return The created Vote.
+     */
+    @Override
+    public Vote castVote(Long userId, Long electionId, Long candidateId) {
+        return castVote(userId, electionId, candidateId, null, null);
+    }
+
+    /**
+     * Casts a vote with full context (IP, User-Agent).
+     * Validates eligibility, creates vote, enqueues for processing, and maintains
+     * audit trail.
+     *
+     * @param userId      The user ID.
+     * @param electionId  The election ID.
+     * @param candidateId The candidate ID.
+     * @param ipAddress   The IP address.
+     * @param userAgent   The User-Agent string.
+     * @return The processed Vote.
+     * @throws pe.com.mivoto.service.domain.exceptions.InvalidElectionException if
+     *                                                                          validation
+     *                                                                          fails.
+     * @throws pe.com.mivoto.service.domain.exceptions.DuplicateVoteException   if
+     *                                                                          user
+     *                                                                          already
+     *                                                                          voted.
+     */
     @Transactional
     public Vote castVote(Long userId, Long electionId, Long candidateId, String ipAddress, String userAgent) {
         log.info("Procesando voto - Usuario: {}, Elección: {}, Candidato: {}", userId, electionId, candidateId);
@@ -56,8 +99,7 @@ public class VotingService {
                 processedVote.getId(),
                 userId,
                 electionId,
-                processedVote.getVoteHash()
-        );
+                processedVote.getVoteHash());
 
         this.voteRepository.saveVoteRecord(record);
         this.auditService.logVoteCast(userId, electionId, candidateId);
@@ -67,20 +109,34 @@ public class VotingService {
         return processedVote;
     }
 
+    /**
+     * Internal validation for a vote request. Checks for user existence,
+     * authorization,
+     * election state, candidate validity, and prevents double voting.
+     *
+     * @param userId      The user ID.
+     * @param electionId  The election ID.
+     * @param candidateId The candidate ID.
+     * @throws InvalidElectionException if any business rule is violated.
+     * @throws DuplicateVoteException   if the user has already voted.
+     */
     private void validateVoteRequest(Long userId, Long electionId, Long candidateId) {
-        User user = this.userRepository.findById(userId).orElseThrow(() -> new InvalidElectionException("Usuario no encontrado"));
+        User user = this.userRepository.findById(userId)
+                .orElseThrow(() -> new InvalidElectionException("Usuario no encontrado"));
 
         if (!user.canVote()) {
             throw new InvalidElectionException("Usuario no autorizado para votar");
         }
 
-        Election election = this.electionRepository.findById(electionId).orElseThrow(() -> new InvalidElectionException("Elección no encontrada"));
+        Election election = this.electionRepository.findById(electionId)
+                .orElseThrow(() -> new InvalidElectionException("Elección no encontrada"));
 
         if (!election.canVote()) {
             throw new InvalidElectionException("La elección no está activa");
         }
 
-        Candidate candidate = this.candidateRepository.findById(candidateId).orElseThrow(() -> new InvalidElectionException("Candidato no encontrado"));
+        Candidate candidate = this.candidateRepository.findById(candidateId)
+                .orElseThrow(() -> new InvalidElectionException("Candidato no encontrado"));
 
         if (!candidate.canReceiveVotes()) {
             throw new InvalidElectionException("El candidato no está activo");
@@ -95,6 +151,13 @@ public class VotingService {
         }
     }
 
+    /**
+     * Internal method to process a vote persistence. Saves the vote, confirms it,
+     * and increments the candidate's vote count.
+     *
+     * @param vote The vote object to process.
+     * @return The updated and confirmed Vote.
+     */
     private Vote processVote(Vote vote) {
         Vote savedVote = this.voteRepository.save(vote);
         savedVote.confirm();
@@ -106,13 +169,22 @@ public class VotingService {
         return this.voteRepository.update(savedVote);
     }
 
+    /**
+     * Verifies vote integrity by hash.
+     * Looks up in in-memory list first, then database.
+     *
+     * @param voteHash The vote hash.
+     * @return The VoteRecord.
+     * @throws InvalidElectionException if not found.
+     */
     public VoteRecord verifyVote(String voteHash) {
         log.info("Verificando voto con hash: {}", voteHash);
 
         VoteRecord record = this.voteRecordList.findByHash(voteHash);
 
         if (record == null) {
-            record = this.voteRepository.findVoteRecordByHash(voteHash).orElseThrow(() -> new InvalidElectionException("Voto no encontrado"));
+            record = this.voteRepository.findVoteRecordByHash(voteHash)
+                    .orElseThrow(() -> new InvalidElectionException("Voto no encontrado"));
         }
 
         this.auditService.logVoteVerification(record.getVoteId(), voteHash);
@@ -120,10 +192,24 @@ public class VotingService {
         return record;
     }
 
+    /**
+     * Checks if a user has cast a vote in a specific election.
+     *
+     * @param userId     The user ID.
+     * @param electionId The election ID.
+     * @return true if the user has voted.
+     */
     public boolean hasVoted(Long userId, Long electionId) {
         return this.voteRepository.existsByUserIdAndElectionId(userId, electionId);
     }
 
+    /**
+     * Retrieves the voting history for a user, checking both the in-memory
+     * record list and the database repository.
+     *
+     * @param userId The user ID.
+     * @return List of Vote Records for the user.
+     */
     public List<VoteRecord> getVotingHistory(Long userId) {
         log.info("Obteniendo historial de votos para usuario: {}", userId);
 
@@ -136,19 +222,39 @@ public class VotingService {
         return records;
     }
 
+    /**
+     * Retrieves all votes cast for a given election.
+     *
+     * @param electionId The election ID.
+     * @return List of all votes in the election.
+     */
     public List<Vote> getVotesByElection(Long electionId) {
         return this.voteRepository.findByElectionId(electionId);
     }
 
+    /**
+     * Retrieves the total count of votes received by a specific candidate.
+     *
+     * @param candidateId The candidate ID.
+     * @return Total count of votes.
+     */
     public Long countVotesByCandidate(Long candidateId) {
         return this.voteRepository.countByCandidateId(candidateId);
     }
 
+    /**
+     * Invalidates a vote (admin/system action).
+     * Reverts vote count and status.
+     *
+     * @param voteId The vote ID.
+     * @param reason The reason.
+     */
     @Transactional
     public void invalidateVote(Long voteId, String reason) {
         log.warn("Invalidando voto: {} - Razón: {}", voteId, reason);
 
-        Vote vote = this.voteRepository.findById(voteId).orElseThrow(() -> new InvalidElectionException("Voto no encontrado"));
+        Vote vote = this.voteRepository.findById(voteId)
+                .orElseThrow(() -> new InvalidElectionException("Voto no encontrado"));
 
         vote.reject();
         this.voteRepository.update(vote);
@@ -158,17 +264,27 @@ public class VotingService {
         this.auditService.logVoteInvalidation(voteId, reason);
     }
 
+    /**
+     * Generates a cryptographic hash for identifying a vote, ensuring its
+     * integrity.
+     *
+     * @param vote The vote to hash.
+     * @return Hexadecimal SHA-256 hash.
+     */
     private String generateVoteHash(Vote vote) {
         String data = String.format("%d-%d-%d-%d",
                 vote.getUserId(),
                 vote.getElectionId(),
                 vote.getCandidateId(),
-                System.currentTimeMillis()
-        );
+                System.currentTimeMillis());
 
         return DigestUtils.sha256Hex(data);
     }
 
+    /**
+     * Background processing for vote queue.
+     * Processes buffered votes.
+     */
     @Transactional
     public void processPendingVotes() {
         log.info("Procesando votos pendientes en cola");

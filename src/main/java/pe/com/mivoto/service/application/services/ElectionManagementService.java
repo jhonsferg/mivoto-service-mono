@@ -9,6 +9,7 @@ import pe.com.mivoto.service.domain.enums.ElectionStatus;
 import pe.com.mivoto.service.domain.exceptions.InvalidElectionException;
 import pe.com.mivoto.service.domain.model.Candidate;
 import pe.com.mivoto.service.domain.model.Election;
+import pe.com.mivoto.service.domain.ports.in.ElectionUseCase;
 import pe.com.mivoto.service.domain.ports.out.CandidateRepository;
 import pe.com.mivoto.service.domain.ports.out.ElectionRepository;
 import pe.com.mivoto.service.domain.ports.out.VoteRepository;
@@ -18,10 +19,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Application service for managing election lifecycles.
+ * Implements {@link ElectionUseCase} to handle creation, updates, status
+ * changes,
+ * and result calculation for elections.
+ * Integrates with {@link ElectionGraph} for hierarchical election management.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ElectionManagementService {
+public class ElectionManagementService implements ElectionUseCase {
     private final ElectionRepository electionRepository;
     private final CandidateRepository candidateRepository;
     private final VoteRepository voteRepository;
@@ -50,7 +58,8 @@ public class ElectionManagementService {
     public Election updateElection(Long electionId, Election election) {
         log.info("Actualizando elección: {}", electionId);
 
-        Election existing = this.electionRepository.findById(electionId).orElseThrow(() -> new InvalidElectionException("Elección no encontrada"));
+        Election existing = this.electionRepository.findById(electionId)
+                .orElseThrow(() -> new InvalidElectionException("Elección no encontrada"));
 
         if (existing.isClosed() || existing.getStatus() == ElectionStatus.CANCELLED) {
             throw new InvalidElectionException("No se puede actualizar una elección cerrada o cancelada");
@@ -69,7 +78,8 @@ public class ElectionManagementService {
     }
 
     public Election getElectionById(Long electionId) {
-        return this.electionRepository.findById(electionId).orElseThrow(() -> new InvalidElectionException("Elección no encontrada"));
+        return this.electionRepository.findById(electionId)
+                .orElseThrow(() -> new InvalidElectionException("Elección no encontrada"));
     }
 
     public List<Election> getActiveElections() {
@@ -82,8 +92,6 @@ public class ElectionManagementService {
 
     @Transactional
     public void startElection(Long electionId) {
-        log.info("Iniciando elección: {}", electionId);
-
         Election election = this.getElectionById(electionId);
 
         if (election.getStatus() != ElectionStatus.SCHEDULED) {
@@ -103,8 +111,6 @@ public class ElectionManagementService {
 
     @Transactional
     public void closeElection(Long electionId) {
-        log.info("Cerrando elección: {}", electionId);
-
         Election election = this.getElectionById(electionId);
 
         if (election.getStatus() != ElectionStatus.ACTIVE) {
@@ -118,10 +124,15 @@ public class ElectionManagementService {
         log.info("Elección cerrada: {}", electionId);
     }
 
+    /**
+     * Changes the status of an election to CANCELLED.
+     *
+     * @param electionId The ID of the election to cancel.
+     * @param reason     The justification for cancellation.
+     * @throws InvalidElectionException if the election is already closed.
+     */
     @Transactional
     public void cancelElection(Long electionId, String reason) {
-        log.warn("Cancelando elección: {} - Razón: {}", electionId, reason);
-
         Election election = this.getElectionById(electionId);
 
         if (election.isClosed()) {
@@ -133,6 +144,14 @@ public class ElectionManagementService {
         this.auditService.logElectionCancelled(electionId, reason);
     }
 
+    /**
+     * Calculates current results for an election.
+     * Returns candidate-vote count pairs.
+     *
+     * @param electionId The election ID.
+     * @return Map of Candidate to vote count.
+     * @throws InvalidElectionException if election is DRAFT or SCHEDULED.
+     */
     public Map<Candidate, Long> getElectionResults(Long electionId) {
         log.info("Obteniendo resultados de elección: {}", electionId);
 
@@ -153,26 +172,59 @@ public class ElectionManagementService {
         return results;
     }
 
+    /**
+     * Generates statistical abstract for an election.
+     * Includes participation rates and leading candidate.
+     *
+     * @param electionId The election ID.
+     * @return ElectionStatistics object.
+     */
     public ElectionStatistics getElectionStatistics(Long electionId) {
-        Election election = this.getElectionById(electionId);
+        this.getElectionById(electionId);
 
         Long totalVotes = this.voteRepository.countByElectionId(electionId);
         List<Candidate> candidates = this.candidateRepository.findByElectionIdOrderByVoteCountDesc(electionId);
         Candidate leadingCandidate = candidates.isEmpty() ? null : candidates.get(0);
-        Double participationRate = 0.0;
+        Double participationRate = 0.0; // TODO: Calculate based on eligible voters count if available
 
-        return new ElectionStatistics(totalVotes, totalVotes, 0L, participationRate, leadingCandidate);
+        return new pe.com.mivoto.service.domain.ports.in.ElectionUseCase.ElectionStatistics(totalVotes, totalVotes, 0L,
+                participationRate, leadingCandidate);
     }
 
+    @Override
+    public List<Election> findElectionsByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        return this.electionRepository.findByDateRange(startDate, endDate);
+    }
+
+    /**
+     * Establishes a hierarchical relationship between two elections in the graph.
+     *
+     * @param parentElectionId The parent election ID.
+     * @param childElectionId  The child election ID.
+     * @param type             The type of relationship (e.g., GEOGRAPHICAL,
+     *                         ORGANIZATIONAL).
+     */
     public void setElectionHierarchy(Long parentElectionId, Long childElectionId, ElectionGraph.RelationshipType type) {
         log.info("Estableciendo jerarquía: {} -> {}", parentElectionId, childElectionId);
         this.electionGraph.addRelationship(parentElectionId, childElectionId, type);
     }
 
+    /**
+     * Retrieves all direct sub-elections (children) of a given election.
+     *
+     * @param electionId The parent election ID.
+     * @return List of children elections.
+     */
     public List<Election> getSubElections(Long electionId) {
         return this.electionGraph.getSubElections(electionId);
     }
 
+    /**
+     * Retrieves the complete hierarchy (parents and children) for an election.
+     *
+     * @param electionId The election ID.
+     * @return The ElectionHierarchy structure.
+     */
     public ElectionGraph.ElectionHierarchy getElectionHierarchy(Long electionId) {
         return this.electionGraph.getHierarchy(electionId);
     }
@@ -189,12 +241,4 @@ public class ElectionManagementService {
         }
     }
 
-    public record ElectionStatistics(
-            Long totalVotes,
-            Long totalValidVotes,
-            Long totalInvalidVotes,
-            Double participationRate,
-            Candidate leadingCandidate
-    ) {
-    }
 }

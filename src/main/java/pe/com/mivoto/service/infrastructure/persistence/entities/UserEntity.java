@@ -12,6 +12,11 @@ import pe.com.mivoto.service.domain.enums.UserRole;
 
 import java.time.LocalDateTime;
 
+/**
+ * JPA Entity for Users.
+ * Maps to the "users" table.
+ * Represents a registered user in the system.
+ */
 @Entity
 @Table(name = "users", indexes = {
         @Index(name = "idx_document_number", columnList = "document_number"),

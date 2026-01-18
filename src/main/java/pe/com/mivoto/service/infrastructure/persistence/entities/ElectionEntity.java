@@ -14,6 +14,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * JPA Entity for Elections.
+ * Maps to the "elections" table.
+ * Represents an election event with candidates and rules.
+ */
 @Entity
 @Table(name = "elections", indexes = {
         @Index(name = "idx_status", columnList = "status"),

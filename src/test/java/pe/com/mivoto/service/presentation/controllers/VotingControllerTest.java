@@ -15,9 +15,9 @@ import pe.com.mivoto.service.application.usecases.voting.GetVotingHistoryUseCase
 import pe.com.mivoto.service.application.usecases.voting.VerifyVoteUseCaseImpl;
 import pe.com.mivoto.service.domain.model.Vote;
 import pe.com.mivoto.service.infrastructure.security.jwt.JwtTokenProvider;
-import pe.com.mivoto.service.presentation.dto.request.VoteRequest;
-import pe.com.mivoto.service.presentation.dto.response.ApiResponse;
-import pe.com.mivoto.service.presentation.dto.response.VoteResponse;
+import pe.com.mivoto.service.presentation.dto.request.VoteRequestDto;
+import pe.com.mivoto.service.presentation.dto.response.ApiResponseDto;
+import pe.com.mivoto.service.presentation.dto.response.VoteResponseDto;
 import pe.com.mivoto.service.presentation.mappers.VotingDtoMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -61,7 +61,7 @@ class VotingControllerTest {
     @Test
     @DisplayName("Should successfully cast vote")
     void testCastVote() {
-        VoteRequest request = new VoteRequest();
+        VoteRequestDto request = new VoteRequestDto();
         request.setElectionId(1L);
         request.setCandidateId(2L);
         String authHeader = "Bearer token";
@@ -73,10 +73,10 @@ class VotingControllerTest {
         Vote vote = new Vote();
         when(castVoteUseCase.execute(eq(10L), eq(1L), eq(2L), anyString(), any())).thenReturn(vote);
 
-        VoteResponse voteResponse = new VoteResponse();
+        VoteResponseDto voteResponse = new VoteResponseDto();
         when(votingDtoMapper.toVoteResponse(vote)).thenReturn(voteResponse);
 
-        ResponseEntity<ApiResponse<VoteResponse>> response = votingController.castVote(request, authHeader,
+        ResponseEntity<ApiResponseDto<VoteResponseDto>> response = votingController.castVote(request, authHeader,
                 httpRequest);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
@@ -96,7 +96,7 @@ class VotingControllerTest {
         when(jwtTokenProvider.getUserIdFromToken("token")).thenReturn(10L);
         when(checkVotingStatusUseCase.execute(10L, 1L)).thenReturn(true);
 
-        ResponseEntity<ApiResponse<Boolean>> response = votingController.checkVotingStatus(electionId, authHeader);
+        ResponseEntity<ApiResponseDto<Boolean>> response = votingController.checkVotingStatus(electionId, authHeader);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getBody().getData());

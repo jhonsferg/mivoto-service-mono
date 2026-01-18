@@ -11,6 +11,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * In-memory record list for tracking vote events and history.
+ * Uses {@link CustomLinkedList} for efficient additions and serial lookups.
+ */
 @Slf4j
 @Component
 public class VoteRecordList {
@@ -20,11 +24,25 @@ public class VoteRecordList {
         this.records = new CustomLinkedList<>();
     }
 
+    /**
+     * Adds an existing vote record to the list.
+     *
+     * @param record The VoteRecord object.
+     */
     public void addRecord(VoteRecord record) {
         this.records.add(record);
         log.debug("Registro de voto agregado - Total: {}", this.records.size());
     }
 
+    /**
+     * Creates and adds a new vote record to the in-memory list.
+     *
+     * @param voteId     The original vote ID.
+     * @param userId     The ID of the user who voted.
+     * @param electionId The election ID.
+     * @param voteHash   The unique hash of the vote.
+     * @return The created VoteRecord.
+     */
     public VoteRecord createAndAddRecord(Long voteId, Long userId, Long electionId, String voteHash) {
         VoteRecord record = VoteRecord.builder()
                 .voteId(voteId)

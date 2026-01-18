@@ -11,11 +11,23 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
 
+/**
+ * Core application configuration.
+ * Configures global beans such as ObjectMapper and TaskExecutor.
+ * Enables async processing and scheduling.
+ */
+@Configuration
 @EnableAsync
 @EnableScheduling
 @org.springframework.boot.context.properties.EnableConfigurationProperties(MivotoProperties.class)
 public class ApplicationConfig {
 
+    /**
+     * Configures the Jackson ObjectMapper.
+     * Registers JavaTimeModule and disables writing dates as timestamps.
+     *
+     * @return Configured ObjectMapper.
+     */
     @Bean
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
@@ -24,6 +36,11 @@ public class ApplicationConfig {
         return mapper;
     }
 
+    /**
+     * Configures the main thread pool for async tasks.
+     *
+     * @return Configured Executor.
+     */
     @Bean(name = "taskExecutor")
     public Executor taskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();

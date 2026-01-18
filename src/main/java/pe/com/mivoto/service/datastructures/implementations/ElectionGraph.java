@@ -10,6 +10,12 @@ import pe.com.mivoto.service.domain.model.Election;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Hierarchical graph structure for representing and managing election
+ * relationships.
+ * Uses a {@link DirectedGraph} to model levels of government or organizational
+ * dependencies.
+ */
 @Slf4j
 @Component
 public class ElectionGraph {
@@ -21,6 +27,13 @@ public class ElectionGraph {
         this.electionMap = new HashMap<>();
     }
 
+    /**
+     * Adds an election as a vertex in the graph with a specified administrative
+     * level.
+     *
+     * @param election The election model.
+     * @param level    The level (NATIONAL, REGIONAL, etc.).
+     */
     public void addElection(Election election, ElectionLevel level) {
         ElectionNode node = new ElectionNode(election.getId(), election.getTitle(), level, election);
         this.electionMap.put(election.getId(), node);
@@ -29,6 +42,13 @@ public class ElectionGraph {
         log.debug("Elección agregada al grafo - ID: {}, Nivel: {}", election.getId(), level);
     }
 
+    /**
+     * Establishes a directed relationship between a parent and a child election.
+     *
+     * @param parentElectionId The ID of the parent election.
+     * @param childElectionId  The ID of the child election.
+     * @param type             The type of dependency or hierarchy.
+     */
     public void addRelationship(Long parentElectionId, Long childElectionId, RelationshipType type) {
         ElectionNode parent = this.electionMap.get(parentElectionId);
         ElectionNode child = this.electionMap.get(childElectionId);
@@ -44,6 +64,12 @@ public class ElectionGraph {
         log.debug("Relación creada: {} -> {} (tipo: {}, peso: {})", parent.getTitle(), child.getTitle(), type, weight);
     }
 
+    /**
+     * Retrieves direct sub-elections for a given parent.
+     *
+     * @param electionId The parent ID.
+     * @return List of child elections.
+     */
     public List<Election> getSubElections(Long electionId) {
         ElectionNode node = this.electionMap.get(electionId);
         if (node == null) {
@@ -68,8 +94,7 @@ public class ElectionGraph {
                 root.getElection(),
                 hierarchy.stream()
                         .map(ElectionNode::getElection)
-                        .collect(Collectors.toList())
-        );
+                        .collect(Collectors.toList()));
     }
 
     public List<Election> findPath(Long fromElectionId, Long toElectionId) {
@@ -162,7 +187,8 @@ public class ElectionGraph {
     }
 
     public GraphStatistics getStatistics() {
-        return new GraphStatistics(this.graph.getVertexCount(), this.graph.getEdgeCount(), getRootElections().size(), hasCycle());
+        return new GraphStatistics(this.graph.getVertexCount(), this.graph.getEdgeCount(), getRootElections().size(),
+                hasCycle());
     }
 
     private int calculateRelationshipWeight(RelationshipType type) {
@@ -208,8 +234,10 @@ public class ElectionGraph {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
             ElectionNode that = (ElectionNode) o;
             return Objects.equals(this.id, that.id);
         }

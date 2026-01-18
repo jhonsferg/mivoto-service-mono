@@ -11,6 +11,10 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+/**
+ * Component for generating and validating JWT tokens.
+ * Handles token creation, parsing, and validation using a secret key.
+ */
 @Slf4j
 @Component
 public class JwtTokenProvider {
@@ -21,6 +25,13 @@ public class JwtTokenProvider {
     @Value("${jwt.expiration:28800000}")
     private long jwtExpirationMs;
 
+    /**
+     * Generates a JWT token for an authenticated user.
+     * Contains user ID, email, role, and document number as claims.
+     *
+     * @param user The user to generate the token for.
+     * @return The generated JWT token string.
+     */
     public String generateToken(User user) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
@@ -36,6 +47,12 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    /**
+     * Extracts the user ID from a JWT token.
+     *
+     * @param token The JWT token.
+     * @return The user ID.
+     */
     public Long getUserIdFromToken(String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(getSigningKey())
@@ -46,6 +63,12 @@ public class JwtTokenProvider {
         return Long.parseLong(claims.getSubject());
     }
 
+    /**
+     * Extracts the email from a JWT token.
+     *
+     * @param token The JWT token.
+     * @return The email address.
+     */
     public String getEmailFromToken(String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(getSigningKey())
@@ -56,6 +79,12 @@ public class JwtTokenProvider {
         return claims.get("email", String.class);
     }
 
+    /**
+     * Extracts the user role from a JWT token.
+     *
+     * @param token The JWT token.
+     * @return The user role name.
+     */
     public String getRoleFromToken(String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(getSigningKey())
@@ -66,6 +95,13 @@ public class JwtTokenProvider {
         return claims.get("role", String.class);
     }
 
+    /**
+     * Validates a JWT token.
+     * Checks signature, expiration, and format.
+     *
+     * @param authToken The JWT token string.
+     * @return true if valid, false otherwise.
+     */
     public boolean validateToken(String authToken) {
         try {
             Jwts.parser()
@@ -87,6 +123,11 @@ public class JwtTokenProvider {
         return false;
     }
 
+    /**
+     * Generates the signing key for JWT from the configured secret.
+     *
+     * @return The SecretKey object.
+     */
     private SecretKey getSigningKey() {
         byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);

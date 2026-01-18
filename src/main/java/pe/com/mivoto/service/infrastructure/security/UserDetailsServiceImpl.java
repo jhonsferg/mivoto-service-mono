@@ -11,15 +11,27 @@ import pe.com.mivoto.service.domain.ports.out.UserRepository;
 
 import java.util.Collections;
 
+/**
+ * Implementation of Spring Security's UserDetailsService.
+ * Loads user-specific data during authentication.
+ */
 @Service
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final UserRepository userRepository;
 
+    /**
+     * Loads the user by username (document number or email).
+     *
+     * @param username The username identifying the user.
+     * @return UserDetails object containing user info and authorities.
+     * @throws UsernameNotFoundException if the user is not found.
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
 
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getDocumentNumber())

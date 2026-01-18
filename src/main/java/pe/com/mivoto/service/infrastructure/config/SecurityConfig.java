@@ -21,6 +21,11 @@ import pe.com.mivoto.service.infrastructure.security.UserDetailsServiceImpl;
 import pe.com.mivoto.service.infrastructure.security.jwt.JwtAuthenticationEntryPoint;
 import pe.com.mivoto.service.infrastructure.security.jwt.JwtAuthenticationFilter;
 
+/**
+ * Spring Security configuration.
+ * Defines authentication and authorization rules, filter chain, and security
+ * beans.
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -31,6 +36,15 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    /**
+     * Configures the Security Filter Chain.
+     * Disables CSRF, sets stateless session policy, configures endpoint access
+     * rules, and adds JWT filter.
+     *
+     * @param http HttpSecurity configuration.
+     * @return The built SecurityFilterChain.
+     * @throws Exception if configuration fails.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -54,12 +68,18 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/candidates/**").hasRole("ADMIN")
                         .requestMatchers("/api/audit/**").hasAnyRole("ADMIN", "SUPERVISOR")
                         .requestMatchers("/api/statistics/**").hasAnyRole("ADMIN", "SUPERVISOR")
-                        .anyRequest().authenticated()
-                );
+                        .anyRequest().authenticated());
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
+    /**
+     * Provides the AuthenticationProvider.
+     * Configures DaoAuthenticationProvider with UserDetailsService and
+     * PasswordEncoder.
+     *
+     * @return The configured AuthenticationProvider.
+     */
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -68,11 +88,24 @@ public class SecurityConfig {
         return authProvider;
     }
 
+    /**
+     * Provides the AuthenticationManager.
+     *
+     * @param config AuthenticationConfiguration.
+     * @return The AuthenticationManager.
+     * @throws Exception if retrieval fails.
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
+    /**
+     * Provides the PasswordEncoder.
+     * Uses BCrypt.
+     *
+     * @return The PasswordEncoder.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

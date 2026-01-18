@@ -8,6 +8,11 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * JPA Entity for Voting Sessions.
+ * Maps to the "voting_sessions" table.
+ * Manages user session tokens and status.
+ */
 @Entity
 @Table(name = "voting_sessions", indexes = {
         @Index(name = "idx_user_id", columnList = "user_id"),

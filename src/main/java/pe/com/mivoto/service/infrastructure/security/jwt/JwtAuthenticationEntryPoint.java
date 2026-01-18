@@ -14,6 +14,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Component to handle unauthorized access attempts.
+ * Returns a 401 Unauthorized error with a JSON response.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -21,8 +25,17 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     private final ObjectMapper objectMapper;
 
+    /**
+     * Invoked when an unauthenticated user attempts to access a protected resource.
+     *
+     * @param request       The HTTP request.
+     * @param response      The HTTP response.
+     * @param authException The exception that triggered this entry point.
+     * @throws IOException if an input or output exception occurs.
+     */
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
+    public void commence(HttpServletRequest request, HttpServletResponse response,
+            AuthenticationException authException) throws IOException {
         log.error("Respondiendo con error no autorizado. Mensaje: {}", authException.getMessage());
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);

@@ -11,6 +11,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
+/**
+ * JPA Entity for Electoral Districts.
+ * Maps to the "districts" table.
+ * Represents a geographical or organizational voting district.
+ */
 @Entity
 @Table(name = "districts", indexes = {
         @Index(name = "idx_code", columnList = "code"),

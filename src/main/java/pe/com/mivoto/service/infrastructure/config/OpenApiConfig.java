@@ -13,12 +13,22 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
+/**
+ * Configuration for OpenAPI (Swagger) documentation.
+ * Defines the documentation metadata and security requirements for the API.
+ */
 @Configuration
 public class OpenApiConfig {
 
         @Value("${server.port:8080}")
         private String serverPort;
 
+        /**
+         * Configures the OpenAPI bean with project metadata, contact info, and security
+         * schemes.
+         *
+         * @return The configured OpenAPI object.
+         */
         @Bean
         public OpenAPI miVotoOpenAPI() {
                 return new OpenAPI()

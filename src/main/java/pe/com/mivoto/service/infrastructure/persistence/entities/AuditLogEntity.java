@@ -9,6 +9,11 @@ import pe.com.mivoto.service.domain.enums.AuditAction;
 
 import java.time.LocalDateTime;
 
+/**
+ * JPA Entity for Audit Logs.
+ * Maps to the "audit_logs" table.
+ * Records system actions for auditing and security.
+ */
 @Entity
 @Table(name = "audit_logs", indexes = {
         @Index(name = "idx_user_id", columnList = "user_id"),
