@@ -101,4 +101,31 @@ public interface JpaVoteRepository extends JpaRepository<VoteEntity, Long> {
      * @return List of votes.
      */
     List<VoteEntity> findByVotedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
+
+    /**
+     * Gets vote counts grouped by candidate party for an election.
+     * Optimized query to avoid N+1 problem.
+     *
+     * @param electionId The election ID.
+     * @return Map of party name to vote count.
+     */
+    @Query("SELECT c.party, COUNT(v) " +
+            "FROM VoteEntity v " +
+            "JOIN CandidateEntity c ON v.candidateId = c.id " +
+            "WHERE v.electionId = :electionId " +
+            "GROUP BY c.party")
+    List<Object[]> countByElectionIdGroupedByParty(Long electionId);
+
+    /**
+     * Gets vote counts grouped by candidate for an election.
+     * Optimized query to avoid N+1 problem.
+     *
+     * @param electionId The election ID.
+     * @return Map of candidate ID to vote count.
+     */
+    @Query("SELECT v.candidateId, COUNT(v) " +
+            "FROM VoteEntity v " +
+            "WHERE v.electionId = :electionId " +
+            "GROUP BY v.candidateId")
+    List<Object[]> countByElectionIdGroupedByCandidate(Long electionId);
 }
