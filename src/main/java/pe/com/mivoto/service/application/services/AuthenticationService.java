@@ -33,18 +33,6 @@ public class AuthenticationService implements pe.com.mivoto.service.domain.ports
     private final AuditService auditService;
 
     /**
-     * Authenticates a user and creates a new voting session.
-     *
-     * @param username  The user's username.
-     * @param password  The raw password.
-     * @param ipAddress The source IP address.
-     * @param userAgent The client User-Agent.
-     * @return The active VotingSession.
-     * @throws AuthenticationException if credentials are invalid or user is
-     *                                 inactive.
-     */
-    @Transactional
-    /**
      * Authenticates a user with username and password.
      * Delegates to {@link #authenticate(String, String, String, String)} with null
      * IP/User-Agent.
@@ -54,6 +42,7 @@ public class AuthenticationService implements pe.com.mivoto.service.domain.ports
      * @return The active VotingSession.
      */
     @Override
+    @Transactional
     public VotingSession login(String username, String password) {
         return authenticate(username, password, null, null);
     }
