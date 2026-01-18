@@ -115,11 +115,30 @@ mvn clean install -DskipTests
 ## ⚙️ Configuración
 
 ### Variables de Entorno
+
+#### Para Docker Compose (Recomendado)
+```bash
+# Copiar y editar archivo .env
+cp .env.example .env
+```
+
+El archivo `.env` contiene todas las variables necesarias:
+- `DATABASE_URL`, `DATABASE_USER`, `DATABASE_PASSWORD` - Configuración PostgreSQL
+- `REDIS_HOST`, `REDIS_PORT` - Configuración Redis
+- `JWT_SECRET` - Clave secreta para JWT
+- `PORT` - Puerto de la aplicación
+- Credenciales para pgAdmin y otros servicios
+
+#### Para Ejecución Local (sin Docker)
 ```bash
 # Base de datos
-export DATABASE_URL=jdbc:postgresql://localhost:5432/voting_system
+export DATABASE_URL=jdbc:postgresql://localhost:5432/mivoto
 export DATABASE_USER=postgres
 export DATABASE_PASSWORD=postgres
+
+# Redis
+export REDIS_HOST=localhost
+export REDIS_PORT=6379
 
 # JWT
 export JWT_SECRET=your-secret-key-here
@@ -148,13 +167,133 @@ docker-compose up -d postgres
 mvn spring-boot:run -Dspring-boot.run.profiles=prod
 ```
 
-### Docker
-```bash
-# Construir imagen
-docker build -t mivoto-service-mono .
+### Docker Compose (Recomendado)
 
-# Ejecutar contenedor
-docker run -p 8080:8080 mivoto-service-mono
+#### Configuración Inicial
+```bash
+# 1. Copiar archivo de ejemplo de variables de entorno
+cp .env.example .env
+
+# 2. (Opcional) Editar .env con tus credenciales
+nano .env
+
+# 3. Iniciar todos los servicios
+docker-compose up -d
+
+# 4. Verificar estado de los servicios
+docker-compose ps
+
+# 5. Ver logs de la aplicación
+docker-compose logs -f mivoto-app
+```
+
+#### Servicios Disponibles
+| Servicio | Puerto | URL | Descripción |
+|----------|--------|-----|-------------|
+| MiVoto App | 8080 | http://localhost:8080 | Aplicación principal |
+| PostgreSQL | 5432 | localhost:5432 | Base de datos |
+| Redis | 6379 | localhost:6379 | Cache |
+| pgAdmin | 5050 | http://localhost:5050 | Administrador PostgreSQL |
+| Redis Commander | 8082 | http://localhost:8082 | Administrador Redis |
+
+#### Comandos Útiles
+```bash
+# Detener todos los servicios
+docker-compose down
+
+# Detener y eliminar volúmenes (limpieza completa)
+docker-compose down -v
+
+# Reconstruir la aplicación
+docker-compose build mivoto-app
+
+# Reiniciar solo la aplicación
+docker-compose restart mivoto-app
+
+# Ver logs de un servicio específico
+docker-compose logs -f postgres
+docker-compose logs -f redis
+docker-compose logs -f mivoto-app
+
+# Ejecutar comandos dentro del contenedor
+docker-compose exec mivoto-app sh
+docker-compose exec postgres psql -U postgres -d mivoto
+```
+
+### Solo Docker (sin Compose)
+```bash
+# 1. Construir imagen
+docker build -t mivoto-service:latest .
+
+# 2. Crear red
+docker network create mivoto-network
+
+# 3. Iniciar PostgreSQL
+docker run -d \
+  --name mivoto-postgres \
+  --network mivoto-network \
+  -e POSTGRES_DB=mivoto \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -p 5432:5432 \
+  postgres:16.1-alpine
+
+# 4. Iniciar Redis
+docker run -d \
+  --name mivoto-redis \
+  --network mivoto-network \
+  -p 6379:6379 \
+  redis:7.2.4-alpine
+
+# 5. Ejecutar aplicación
+docker run -d \
+  --name mivoto-app \
+  --network mivoto-network \
+  -e DATABASE_URL=jdbc:postgresql://mivoto-postgres:5432/mivoto \
+  -e DATABASE_USER=postgres \
+  -e DATABASE_PASSWORD=postgres \
+  -e REDIS_HOST=mivoto-redis \
+  -e JWT_SECRET=your-secret-key \
+  -p 8080:8080 \
+  mivoto-service:latest
+```
+
+### Troubleshooting Docker
+
+#### La aplicación no inicia
+```bash
+# Verificar logs
+docker-compose logs mivoto-app
+
+# Verificar que PostgreSQL esté saludable
+docker-compose ps postgres
+
+# Reintentar construcción limpia
+docker-compose down -v
+docker-compose build --no-cache mivoto-app
+docker-compose up -d
+```
+
+#### Error de conexión a base de datos
+```bash
+# Verificar que PostgreSQL esté corriendo
+docker-compose ps postgres
+
+# Verificar logs de PostgreSQL
+docker-compose logs postgres
+
+# Probar conexión manual
+docker-compose exec postgres psql -U postgres -d mivoto -c "SELECT 1;"
+```
+
+#### Problemas con Flyway
+```bash
+# Limpiar la base de datos y reiniciar
+docker-compose down -v
+docker-compose up -d postgres
+# Esperar a que PostgreSQL esté listo
+sleep 10
+docker-compose up -d mivoto-app
 ```
 
 ## 📚 API Documentation
