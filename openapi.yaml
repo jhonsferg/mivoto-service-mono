@@ -1,0 +1,2036 @@
+openapi: 3.0.3
+
+info:
+  title: MiVoto API
+  description: |
+    API REST para sistema de votación electrónica seguro y escalable.
+    
+    ## Versionamiento
+    Esta API utiliza versionamiento por URL. La versión actual es v1.
+    
+    ## Rate Limiting
+    - Usuarios autenticados: 100 requests/minuto
+    - Endpoints públicos: 50 requests/minuto
+    
+    ## Códigos de Estado HTTP
+    - 200: Operación exitosa
+    - 201: Recurso creado exitosamente
+    - 400: Solicitud inválida
+    - 401: No autenticado
+    - 403: Acceso denegado
+    - 404: Recurso no encontrado
+    - 409: Conflicto (ej: voto duplicado)
+    - 500: Error interno del servidor
+    
+  version: 1.0.0
+  contact:
+    name: Equipo de Desarrollo
+    email: dev@mivoto.com
+    url: https://github.com/mivoto
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://mivoto.com/terms
+
+servers:
+  - url: https://api.mivoto.com
+    description: Servidor de Producción
+  - url: https://api-staging.mivoto.com
+    description: Servidor de Staging
+  - url: http://localhost:8080
+    description: Servidor de Desarrollo Local
+
+tags:
+  - name: Authentication
+    description: Endpoints de autenticación y gestión de sesiones
+  - name: Voting
+    description: Endpoints de votación y verificación de votos
+  - name: Elections
+    description: Gestión de elecciones
+  - name: Candidates
+    description: Gestión de candidatos
+  - name: Users
+    description: Gestión de usuarios
+  - name: Audit
+    description: Logs de auditoría y trazabilidad
+  - name: Statistics
+    description: Estadísticas y reportes
+  - name: Health
+    description: Estado del sistema
+
+security:
+  - bearerAuth: []
+
+paths:
+  # ==========================================
+  # AUTHENTICATION ENDPOINTS
+  # ==========================================
+  /api/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Iniciar sesión
+      description: Autentica un usuario y retorna tokens JWT (access y refresh)
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              adminLogin:
+                summary: Login de administrador
+                value:
+                  username: admin@mivoto.com
+                  password: admin123
+              voterLogin:
+                summary: Login de votante
+                value:
+                  username: "12345678"
+                  password: voter123
+      responses:
+        '200':
+          description: Login exitoso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+              examples:
+                successfulLogin:
+                  summary: Login exitoso
+                  value:
+                    success: true
+                    message: Login exitoso
+                    data:
+                      accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                      refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                      tokenType: Bearer
+                      expiresAt: "2025-01-18T04:00:00"
+                      user:
+                        id: 1
+                        documentNumber: "12345678"
+                        firstName: Admin
+                        lastName: Sistema
+                        email: admin@mivoto.com
+                        role: ADMIN
+                        active: true
+                        lastLogin: "2025-01-17T20:00:00"
+                    timestamp: "2025-01-17T20:00:00"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Cerrar sesión
+      description: Invalida la sesión actual del usuario
+      operationId: logout
+      responses:
+        '200':
+          description: Sesión cerrada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                success: true
+                message: Sesión cerrada exitosamente
+                data: null
+                timestamp: "2025-01-17T20:00:00"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refrescar token
+      description: Genera un nuevo access token usando el refresh token
+      operationId: refreshToken
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Token refrescado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/auth/change-password:
+    post:
+      tags:
+        - Authentication
+      summary: Cambiar contraseña
+      description: Cambia la contraseña del usuario autenticado
+      operationId: changePassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: Contraseña cambiada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ==========================================
+  # VOTING ENDPOINTS
+  # ==========================================
+  /api/votes:
+    post:
+      tags:
+        - Voting
+      summary: Emitir voto
+      description: Registra un voto del usuario autenticado en una elección
+      operationId: castVote
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoteRequest'
+      responses:
+        '201':
+          description: Voto registrado exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/VoteResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: El usuario ya votó en esta elección
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/votes/verify/{voteHash}:
+    get:
+      tags:
+        - Voting
+      summary: Verificar voto
+      description: Verifica la autenticidad de un voto usando su hash único
+      operationId: verifyVote
+      security: []
+      parameters:
+        - name: voteHash
+          in: path
+          required: true
+          description: Hash SHA-256 del voto
+          schema:
+            type: string
+            pattern: '^[a-f0-9]{64}$'
+          example: "a1b2c3d4e5f6..."
+      responses:
+        '200':
+          description: Voto verificado exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/VoteRecordDto'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/votes/history:
+    get:
+      tags:
+        - Voting
+      summary: Historial de votos
+      description: Obtiene el historial de votos del usuario autenticado
+      operationId: getVotingHistory
+      responses:
+        '200':
+          description: Historial obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/VoteRecordDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/votes/status/{electionId}:
+    get:
+      tags:
+        - Voting
+      summary: Estado de voto
+      description: Verifica si el usuario ya votó en una elección
+      operationId: checkVotingStatus
+      parameters:
+        - name: electionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Estado obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: boolean
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ==========================================
+  # ELECTIONS ENDPOINTS
+  # ==========================================
+  /api/elections:
+    get:
+      tags:
+        - Elections
+      summary: Listar todas las elecciones
+      description: Obtiene todas las elecciones del sistema
+      operationId: getAllElections
+      security: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Lista obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ElectionResponse'
+
+    post:
+      tags:
+        - Elections
+      summary: Crear elección
+      description: Crea una nueva elección (solo ADMIN)
+      operationId: createElection
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateElectionRequest'
+      responses:
+        '201':
+          description: Elección creada exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ElectionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/elections/active:
+    get:
+      tags:
+        - Elections
+      summary: Listar elecciones activas
+      description: Obtiene todas las elecciones activas
+      operationId: getActiveElections
+      security: []
+      responses:
+        '200':
+          description: Lista obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ElectionResponse'
+
+  /api/elections/{id}:
+    get:
+      tags:
+        - Elections
+      summary: Obtener elección por ID
+      description: Obtiene los detalles de una elección específica
+      operationId: getElectionById
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/ElectionId'
+      responses:
+        '200':
+          description: Elección obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ElectionResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags:
+        - Elections
+      summary: Actualizar elección
+      description: Actualiza una elección existente (solo ADMIN)
+      operationId: updateElection
+      parameters:
+        - $ref: '#/components/parameters/ElectionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateElectionRequest'
+      responses:
+        '200':
+          description: Elección actualizada exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ElectionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/elections/{id}/start:
+    post:
+      tags:
+        - Elections
+      summary: Iniciar elección
+      description: Inicia una elección programada (solo ADMIN)
+      operationId: startElection
+      parameters:
+        - $ref: '#/components/parameters/ElectionId'
+      responses:
+        '200':
+          description: Elección iniciada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/elections/{id}/close:
+    post:
+      tags:
+        - Elections
+      summary: Cerrar elección
+      description: Cierra una elección activa (solo ADMIN)
+      operationId: closeElection
+      parameters:
+        - $ref: '#/components/parameters/ElectionId'
+      responses:
+        '200':
+          description: Elección cerrada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/elections/{id}/cancel:
+    post:
+      tags:
+        - Elections
+      summary: Cancelar elección
+      description: Cancela una elección (solo ADMIN)
+      operationId: cancelElection
+      parameters:
+        - $ref: '#/components/parameters/ElectionId'
+        - name: reason
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Elección cancelada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/elections/{id}/results:
+    get:
+      tags:
+        - Elections
+      summary: Obtener resultados
+      description: Obtiene los resultados de una elección (solo ADMIN/SUPERVISOR)
+      operationId: getElectionResults
+      parameters:
+        - $ref: '#/components/parameters/ElectionId'
+      responses:
+        '200':
+          description: Resultados obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ElectionResultsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/elections/{id}/statistics:
+    get:
+      tags:
+        - Elections
+      summary: Obtener estadísticas
+      description: Obtiene estadísticas de una elección (solo ADMIN/SUPERVISOR)
+      operationId: getElectionStatistics
+      parameters:
+        - $ref: '#/components/parameters/ElectionId'
+      responses:
+        '200':
+          description: Estadísticas obtenidas exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ElectionStatistics'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/elections/status/{status}:
+    get:
+      tags:
+        - Elections
+      summary: Filtrar por estado
+      description: Obtiene elecciones filtradas por estado
+      operationId: getElectionsByStatus
+      security: []
+      parameters:
+        - name: status
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/ElectionStatus'
+      responses:
+        '200':
+          description: Lista obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ElectionResponse'
+
+  # ==========================================
+  # CANDIDATES ENDPOINTS
+  # ==========================================
+  /api/candidates:
+    post:
+      tags:
+        - Candidates
+      summary: Registrar candidato
+      description: Registra un nuevo candidato (solo ADMIN)
+      operationId: registerCandidate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCandidateRequest'
+      responses:
+        '201':
+          description: Candidato registrado exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/CandidateDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/candidates/{id}:
+    get:
+      tags:
+        - Candidates
+      summary: Obtener candidato
+      description: Obtiene un candidato por su ID
+      operationId: getCandidateById
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Candidato obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/CandidateDto'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags:
+        - Candidates
+      summary: Actualizar candidato
+      description: Actualiza un candidato (solo ADMIN)
+      operationId: updateCandidate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCandidateRequest'
+      responses:
+        '200':
+          description: Candidato actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/CandidateDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags:
+        - Candidates
+      summary: Eliminar candidato
+      description: Elimina un candidato (solo ADMIN, solo si no tiene votos)
+      operationId: deleteCandidate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Candidato eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: El candidato tiene votos registrados
+
+  /api/candidates/election/{electionId}:
+    get:
+      tags:
+        - Candidates
+      summary: Listar candidatos por elección
+      description: Obtiene todos los candidatos de una elección
+      operationId: getCandidatesByElection
+      security: []
+      parameters:
+        - name: electionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Lista obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/CandidateDto'
+
+  /api/candidates/election/{electionId}/active:
+    get:
+      tags:
+        - Candidates
+      summary: Listar candidatos activos
+      description: Obtiene candidatos activos de una elección
+      operationId: getActiveCandidates
+      security: []
+      parameters:
+        - name: electionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Lista obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/CandidateDto'
+
+  /api/candidates/election/{electionId}/number/{number}:
+    get:
+      tags:
+        - Candidates
+      summary: Buscar candidato por número
+      description: Busca un candidato por su número en una elección
+      operationId: findCandidateByNumber
+      security: []
+      parameters:
+        - name: electionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: number
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Candidato encontrado exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/CandidateDto'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/candidates/{id}/activate:
+    post:
+      tags:
+        - Candidates
+      summary: Activar candidato
+      description: Activa un candidato desactivado (solo ADMIN)
+      operationId: activateCandidate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Candidato activado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/candidates/{id}/deactivate:
+    post:
+      tags:
+        - Candidates
+      summary: Desactivar candidato
+      description: Desactiva un candidato (solo ADMIN)
+      operationId: deactivateCandidate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Candidato desactivado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  # ==========================================
+  # AUDIT ENDPOINTS
+  # ==========================================
+  /api/audit/user/{userId}:
+    get:
+      tags:
+        - Audit
+      summary: Auditoría por usuario
+      description: Obtiene logs de auditoría de un usuario (solo ADMIN/SUPERVISOR)
+      operationId: getAuditTrailByUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Logs obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/AuditLog'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/audit/entity/{entity}/{entityId}:
+    get:
+      tags:
+        - Audit
+      summary: Auditoría por entidad
+      description: Obtiene logs de auditoría de una entidad (solo ADMIN/SUPERVISOR)
+      operationId: getAuditTrailByEntity
+      parameters:
+        - name: entity
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: entityId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Logs obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/AuditLog'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/audit/action/{action}:
+    get:
+      tags:
+        - Audit
+      summary: Auditoría por acción
+      description: Obtiene logs por tipo de acción (solo ADMIN/SUPERVISOR)
+      operationId: getAuditTrailByAction
+      parameters:
+        - name: action
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/AuditAction'
+      responses:
+        '200':
+          description: Logs obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/AuditLog'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/audit/date-range:
+    get:
+      tags:
+        - Audit
+      summary: Auditoría por rango de fechas
+      description: Obtiene logs en un período (solo ADMIN/SUPERVISOR)
+      operationId: getAuditTrailByDateRange
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Logs obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/AuditLog'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/audit/critical:
+    get:
+      tags:
+        - Audit
+      summary: Logs críticos
+      description: Obtiene logs críticos (solo ADMIN/SUPERVISOR)
+      operationId: getCriticalAuditLogs
+      responses:
+        '200':
+          description: Logs críticos obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/AuditLog'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/audit/security:
+    get:
+      tags:
+        - Audit
+      summary: Logs de seguridad
+      description: Obtiene logs de seguridad (solo ADMIN/SUPERVISOR)
+      operationId: getSecurityAuditLogs
+      responses:
+        '200':
+          description: Logs de seguridad obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/AuditLog'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/audit/voting:
+    get:
+      tags:
+        - Audit
+      summary: Logs de votación
+      description: Obtiene logs de votación (solo ADMIN/SUPERVISOR)
+      operationId: getVotingAuditLogs
+      responses:
+        '200':
+          description: Logs de votación obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/AuditLog'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/audit/report:
+    get:
+      tags:
+        - Audit
+      summary: Generar reporte
+      description: Genera reporte de auditoría (solo ADMIN/SUPERVISOR)
+      operationId: generateAuditReport
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Reporte generado exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AuditReport'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  # ==========================================
+  # STATISTICS ENDPOINTS
+  # ==========================================
+  /api/statistics/system:
+    get:
+      tags:
+        - Statistics
+      summary: Estadísticas del sistema
+      description: Obtiene estadísticas globales (solo ADMIN/SUPERVISOR)
+      operationId: getSystemStatistics
+      responses:
+        '200':
+          description: Estadísticas obtenidas exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/SystemStatistics'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/statistics/election/{electionId}:
+    get:
+      tags:
+        - Statistics
+      summary: Estadísticas de elección
+      description: Obtiene estadísticas de una elección (solo ADMIN/SUPERVISOR)
+      operationId: getElectionStatisticsDetails
+      parameters:
+        - $ref: '#/components/parameters/ElectionId'
+      responses:
+        '200':
+          description: Estadísticas obtenidas exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ElectionStatistics'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/statistics/election/{electionId}/candidates:
+    get:
+      tags:
+        - Statistics
+      summary: Estadísticas de candidatos
+      description: Obtiene estadísticas de candidatos (solo ADMIN/SUPERVISOR)
+      operationId: getCandidateStatistics
+      parameters:
+        - $ref: '#/components/parameters/ElectionId'
+      responses:
+        '200':
+          description: Estadísticas obtenidas exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/CandidateStatistics'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/statistics/election/{electionId}/participation:
+    get:
+      tags:
+        - Statistics
+      summary: Participación por hora
+      description: Obtiene participación distribuida por horas (solo ADMIN/SUPERVISOR)
+      operationId: getVotingParticipationByHour
+      parameters:
+        - $ref: '#/components/parameters/ElectionId'
+      responses:
+        '200':
+          description: Participación obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        additionalProperties:
+                          type: integer
+                          format: int64
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  # ==========================================
+  # HEALTH ENDPOINTS
+  # ==========================================
+  /api/health:
+    get:
+      tags:
+        - Health
+      summary: Health check básico
+      description: Verifica el estado del sistema
+      operationId: healthCheck
+      security: []
+      responses:
+        '200':
+          description: Sistema funcionando correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+  /api/health/detailed:
+    get:
+      tags:
+        - Health
+      summary: Health check detallado
+      description: Verifica el estado detallado del sistema
+      operationId: detailedHealthCheck
+      security: []
+      responses:
+        '200':
+          description: Estado detallado del sistema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedHealthStatus'
+
+# ==========================================
+# COMPONENTS
+# ==========================================
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token JWT obtenido del endpoint /api/auth/login
+
+  parameters:
+    ElectionId:
+      name: id
+      in: path
+      required: true
+      description: ID de la elección
+      schema:
+        type: integer
+        format: int64
+      example: 1
+
+  schemas:
+    # ==========================================
+    # REQUEST SCHEMAS
+    # ==========================================
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          description: Documento de identidad o email del usuario
+          example: "12345678"
+        password:
+          type: string
+          format: password
+          description: Contraseña del usuario
+          example: "voter123"
+
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          description: Token de refresco obtenido en el login
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    ChangePasswordRequest:
+      type: object
+      required:
+        - oldPassword
+        - newPassword
+      properties:
+        oldPassword:
+          type: string
+          format: password
+          description: Contraseña actual
+        newPassword:
+          type: string
+          format: password
+          minLength: 6
+          maxLength: 50
+          description: Nueva contraseña (mínimo 6 caracteres)
+
+    VoteRequest:
+      type: object
+      required:
+        - electionId
+        - candidateId
+      properties:
+        electionId:
+          type: integer
+          format: int64
+          description: ID de la elección
+          example: 1
+        candidateId:
+          type: integer
+          format: int64
+          description: ID del candidato
+          example: 3
+
+    CreateElectionRequest:
+      type: object
+      required:
+        - title
+        - startDate
+        - endDate
+      properties:
+        title:
+          type: string
+          maxLength: 200
+          description: Título de la elección
+          example: "Elección Presidencial 2024"
+        description:
+          type: string
+          maxLength: 1000
+          description: Descripción de la elección
+          example: "Elección para elegir al presidente del país"
+        startDate:
+          type: string
+          format: date-time
+          description: Fecha y hora de inicio (debe ser futura)
+          example: "2024-11-01T08:00:00"
+        endDate:
+          type: string
+          format: date-time
+          description: Fecha y hora de fin (debe ser posterior a startDate)
+          example: "2024-11-01T18:00:00"
+        maxVotesPerUser:
+          type: integer
+          minimum: 1
+          default: 1
+          description: Máximo de votos por usuario
+        allowsBlankVote:
+          type: boolean
+          default: false
+          description: Permite voto en blanco
+        requiresVerification:
+          type: boolean
+          default: false
+          description: Requiere verificación del voto
+
+    UpdateElectionRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 1000
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+
+    CreateCandidateRequest:
+      type: object
+      required:
+        - electionId
+        - number
+        - name
+      properties:
+        electionId:
+          type: integer
+          format: int64
+          description: ID de la elección
+          example: 1
+        number:
+          type: integer
+          minimum: 1
+          description: Número del candidato (único por elección)
+          example: 1
+        name:
+          type: string
+          maxLength: 200
+          description: Nombre completo del candidato
+          example: "Juan Pérez"
+        party:
+          type: string
+          maxLength: 150
+          description: Partido político
+          example: "Partido Democrático"
+        description:
+          type: string
+          maxLength: 1000
+          description: Descripción o propuestas del candidato
+        photoUrl:
+          type: string
+          maxLength: 500
+          format: uri
+          description: URL de la foto del candidato
+
+    # ==========================================
+    # RESPONSE SCHEMAS
+    # ==========================================
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indica si la operación fue exitosa
+        message:
+          type: string
+          description: Mensaje descriptivo de la respuesta
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp de la respuesta
+        data:
+          type: object
+          description: Datos de la respuesta
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          description: Código de estado HTTP
+        error:
+          type: string
+          description: Tipo de error
+        message:
+          type: string
+          description: Mensaje de error
+        path:
+          type: string
+          description: Path del endpoint
+        timestamp:
+          type: string
+          format: date-time
+        validationErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+
+    ValidationError:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+
+    LoginResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                accessToken:
+                  type: string
+                  description: Token JWT de acceso
+                refreshToken:
+                  type: string
+                  description: Token para refrescar el acceso
+                tokenType:
+                  type: string
+                  enum: [Bearer]
+                expiresAt:
+                  type: string
+                  format: date-time
+                  description: Fecha de expiración del token
+                user:
+                  $ref: '#/components/schemas/UserDto'
+
+    UserDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        documentNumber:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          $ref: '#/components/schemas/UserRole'
+        active:
+          type: boolean
+        lastLogin:
+          type: string
+          format: date-time
+
+    VoteResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        electionId:
+          type: integer
+          format: int64
+        candidateId:
+          type: integer
+          format: int64
+        voteHash:
+          type: string
+          description: Hash SHA-256 único del voto
+        status:
+          $ref: '#/components/schemas/VoteStatus'
+        verified:
+          type: boolean
+        votedAt:
+          type: string
+          format: date-time
+        verificationCode:
+          type: string
+          description: Código de verificación (si aplica)
+
+    VoteRecordDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        voteId:
+          type: integer
+          format: int64
+        electionId:
+          type: integer
+          format: int64
+        voteHash:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        verified:
+          type: boolean
+
+    ElectionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          $ref: '#/components/schemas/ElectionStatus'
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        maxVotesPerUser:
+          type: integer
+        allowsBlankVote:
+          type: boolean
+        requiresVerification:
+          type: boolean
+        candidates:
+          type: array
+          items:
+            $ref: '#/components/schemas/CandidateDto'
+        hasVoted:
+          type: boolean
+          description: Indica si el usuario actual ya votó
+        createdAt:
+          type: string
+          format: date-time
+
+    ElectionResultsResponse:
+      type: object
+      properties:
+        electionId:
+          type: integer
+          format: int64
+        electionTitle:
+          type: string
+        totalVotes:
+          type: integer
+          format: int64
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CandidateResult'
+
+    CandidateResult:
+      type: object
+      properties:
+        candidateId:
+          type: integer
+          format: int64
+        candidateName:
+          type: string
+        party:
+          type: string
+        number:
+          type: integer
+        votes:
+          type: integer
+          format: int64
+        percentage:
+          type: number
+          format: double
+
+    CandidateDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        electionId:
+          type: integer
+          format: int64
+        number:
+          type: integer
+        name:
+          type: string
+        party:
+          type: string
+        description:
+          type: string
+        photoUrl:
+          type: string
+        active:
+          type: boolean
+        voteCount:
+          type: integer
+
+    AuditLog:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+          format: int64
+        action:
+          $ref: '#/components/schemas/AuditAction'
+        entity:
+          type: string
+        entityId:
+          type: integer
+          format: int64
+        description:
+          type: string
+        ipAddress:
+          type: string
+        userAgent:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        metadata:
+          type: string
+
+    AuditReport:
+      type: object
+      properties:
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        totalActions:
+          type: integer
+          format: int64
+        totalUsers:
+          type: integer
+          format: int64
+        criticalActions:
+          type: integer
+          format: int64
+        securityIncidents:
+          type: integer
+          format: int64
+        recentLogs:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditLog'
+
+    SystemStatistics:
+      type: object
+      properties:
+        totalUsers:
+          type: integer
+          format: int64
+        totalElections:
+          type: integer
+          format: int64
+        activeElections:
+          type: integer
+          format: int64
+        totalVotes:
+          type: integer
+          format: int64
+
+    ElectionStatistics:
+      type: object
+      properties:
+        totalVotes:
+          type: integer
+          format: int64
+        totalCandidates:
+          type: integer
+          format: int64
+        leadingCandidate:
+          $ref: '#/components/schemas/CandidateDto'
+        participationRate:
+          type: number
+          format: double
+        votesByParty:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int64
+
+    CandidateStatistics:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        party:
+          type: string
+        votes:
+          type: integer
+          format: int64
+        percentage:
+          type: number
+          format: double
+
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [UP, DOWN]
+        timestamp:
+          type: string
+          format: date-time
+        database:
+          type: string
+          enum: [UP, DOWN]
+        dataStructures:
+          $ref: '#/components/schemas/DataStructuresStatus'
+
+    DataStructuresStatus:
+      type: object
+      properties:
+        voteQueue:
+          type: string
+        voteRecordList:
+          type: string
+        candidateSearchTree:
+          type: string
+        electionGraph:
+          type: string
+
+    DetailedHealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        voteQueueSize:
+          type: integer
+        voteRecordsCount:
+          type: integer
+        candidateTreeSize:
+          type: integer
+        candidateTreeHeight:
+          type: integer
+        candidateTreeBalanced:
+          type: boolean
+        electionGraphStats:
+          $ref: '#/components/schemas/GraphStatistics'
+
+    GraphStatistics:
+      type: object
+      properties:
+        totalNodes:
+          type: integer
+        totalEdges:
+          type: integer
+        averageDegree:
+          type: number
+          format: double
+
+    # ==========================================
+    # ENUMS
+    # ==========================================
+    UserRole:
+      type: string
+      enum:
+        - VOTER
+        - ADMIN
+        - SUPERVISOR
+        - AUDITOR
+      description: |
+        Roles de usuario:
+        - VOTER: Usuario votante
+        - ADMIN: Administrador del sistema
+        - SUPERVISOR: Supervisor electoral
+        - AUDITOR: Auditor del sistema
+
+    ElectionStatus:
+      type: string
+      enum:
+        - DRAFT
+        - SCHEDULED
+        - ACTIVE
+        - CLOSED
+        - CANCELLED
+      description: |
+        Estados de elección:
+        - DRAFT: Borrador
+        - SCHEDULED: Programada
+        - ACTIVE: Activa
+        - CLOSED: Cerrada
+        - CANCELLED: Cancelada
+
+    VoteStatus:
+      type: string
+      enum:
+        - PENDING
+        - CONFIRMED
+        - REJECTED
+        - UNDER_REVIEW
+      description: |
+        Estados de voto:
+        - PENDING: Pendiente de procesamiento
+        - CONFIRMED: Confirmado
+        - REJECTED: Rechazado
+        - UNDER_REVIEW: En revisión
+
+    AuditAction:
+      type: string
+      enum:
+        - LOGIN
+        - LOGOUT
+        - VOTE_CAST
+        - VOTE_VERIFIED
+        - ELECTION_CREATED
+        - ELECTION_UPDATED
+        - ELECTION_STARTED
+        - ELECTION_CLOSED
+        - CANDIDATE_ADDED
+        - CANDIDATE_UPDATED
+        - USER_CREATED
+        - USER_UPDATED
+        - PASSWORD_CHANGED
+        - UNAUTHORIZED_ACCESS
+      description: Tipos de acciones auditadas
+
+  # ==========================================
+  # RESPONSES REUTILIZABLES
+  # ==========================================
+  responses:
+    BadRequest:
+      description: Solicitud inválida
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: 400
+            error: Bad Request
+            message: Error de validación en los datos enviados
+            path: /api/votes
+            timestamp: "2025-01-17T20:00:00"
+            validationErrors:
+              - field: candidateId
+                message: El ID del candidato es obligatorio
+
+    Unauthorized:
+      description: No autenticado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: 401
+            error: Unauthorized
+            message: Credenciales inválidas o token expirado
+            path: /api/votes
+            timestamp: "2025-01-17T20:00:00"
+
+    Forbidden:
+      description: Acceso denegado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: 403
+            error: Forbidden
+            message: No tiene permisos para acceder a este recurso
+            path: /api/elections
+            timestamp: "2025-01-17T20:00:00"
+
+    NotFound:
+      description: Recurso no encontrado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: 404
+            error: Not Found
+            message: Recurso no encontrado
+            path: /api/elections/999
+            timestamp: "2025-01-17T20:00:00"
+
+    InternalServerError:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: 500
+            error: Internal Server Error
+            message: Ha ocurrido un error interno en el servidor
+            path: /api/votes
+            timestamp: "2025-01-17T20:00:00"

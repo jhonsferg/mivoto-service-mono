@@ -8,7 +8,7 @@ spring:
 logging:
   level:
     root: WARN
-    com.votingsystem.backend: INFO
+    pe.com.mivoto.service: INFO
     org.springframework.web: WARN
     org.springframework.security: WARN
     org.hibernate.SQL: WARN

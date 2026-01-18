@@ -31,7 +31,7 @@ API REST desarrollada con Spring Boot 3.x que implementa estructuras de datos pe
 
 ## 🏗️ Arquitectura
 ```
-voting-system-backend/
+mivoto-service-mono/
 ├── domain/                 # Capa de dominio (entidades, puertos)
 │   ├── model/             # Modelos de dominio
 │   ├── enums/             # Enumeraciones
@@ -45,7 +45,7 @@ voting-system-backend/
 │   ├── security/          # Configuración de seguridad
 │   ├── mappers/           # Mappers entidad-dominio
 │   └── config/            # Configuraciones
-├── datastructures/        # Estructuras de datos personalizadas ⭐
+├── datastructures/        # Estructuras de datos personalizadas
 │   ├── interfaces/        # Interfaces
 │   ├── linear/            # LinkedList, Queue
 │   ├── nonlinear/         # BST, Graph
@@ -102,8 +102,8 @@ voting-system-backend/
 ## 🚀 Instalación
 ```bash
 # Clonar repositorio
-git clone https://github.com/your-org/voting-system-backend.git
-cd voting-system-backend
+git clone https://github.com/jhonsferg/mivoto-service-mono.git
+cd mivoto-service-mono
 
 # Compilar proyecto
 mvn clean install
@@ -151,10 +151,10 @@ mvn spring-boot:run -Dspring-boot.run.profiles=prod
 ### Docker
 ```bash
 # Construir imagen
-docker build -t voting-system-backend .
+docker build -t mivoto-service-mono .
 
 # Ejecutar contenedor
-docker run -p 8080:8080 voting-system-backend
+docker run -p 8080:8080 mivoto-service-mono
 ```
 
 ## 📚 API Documentation
@@ -206,7 +206,7 @@ mvn jacoco:report
 ## 👥 Usuarios por Defecto
 
 ### Administrador
-- **Email**: admin@votingsystem.com
+- **Email**: admin@mivoto.com
 - **Contraseña**: admin123
 
 ### Votante

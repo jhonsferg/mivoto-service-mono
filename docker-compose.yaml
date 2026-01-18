@@ -1,10 +1,10 @@
 services:
   postgres:
     image: postgres:16.1-alpine
-    container_name: voting-postgres-dev
+    container_name: mivoto-postgres-dev
     restart: unless-stopped
     environment:
-      POSTGRES_DB: voting_system
+      POSTGRES_DB: mivoto
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_INITDB_ARGS: "-E UTF8 --locale=en_US.UTF-8"
@@ -14,9 +14,9 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
     networks:
-      - voting-dev-network
+      - mivoto-dev-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d voting_system"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d mivoto"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -49,14 +49,14 @@ services:
 
   redis:
     image: redis:7.2.4-alpine
-    container_name: voting-redis-dev
+    container_name: mivoto-redis-dev
     restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
     networks:
-      - voting-dev-network
+      - mivoto-dev-network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -66,10 +66,10 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4:8.2
-    container_name: voting-pgadmin-dev
+    container_name: mivoto-pgadmin-dev
     restart: unless-stopped
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@votingsystem.com
+      PGADMIN_DEFAULT_EMAIL: admin@mivoto.com
       PGADMIN_DEFAULT_PASSWORD: admin
       PGADMIN_CONFIG_SERVER_MODE: 'False'
       PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
@@ -82,33 +82,33 @@ services:
       # Configuración de servidor precargada
       - ./docker/pgadmin/servers.json:/pgadmin4/servers.json:ro
     networks:
-      - voting-dev-network
+      - mivoto-dev-network
     depends_on:
       postgres:
         condition: service_healthy
 
   redis-commander:
     image: rediscommander/redis-commander:latest
-    container_name: voting-redis-commander-dev
+    container_name: mivoto-redis-commander-dev
     restart: unless-stopped
     environment:
       REDIS_HOSTS: local:redis:6379
     ports:
       - "8082:8081"
     networks:
-      - voting-dev-network
+      - mivoto-dev-network
     depends_on:
       - redis
 
 networks:
-  voting-dev-network:
+  mivoto-dev-network:
     driver: bridge
-    name: voting-dev-network
+    name: mivoto-dev-network
 
 volumes:
   postgres_data:
-    name: voting_postgres_dev_data
+    name: mivoto_postgres_dev_data
   redis_data:
-    name: voting_redis_dev_data
+    name: mivoto_redis_dev_data
   pgadmin_data:
-    name: voting_pgadmin_dev_data
+    name: mivoto_pgadmin_dev_data

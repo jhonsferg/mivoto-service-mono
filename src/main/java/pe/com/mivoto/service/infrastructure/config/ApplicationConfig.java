@@ -11,9 +11,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
 
-@Configuration
 @EnableAsync
 @EnableScheduling
+@org.springframework.boot.context.properties.EnableConfigurationProperties(MivotoProperties.class)
 public class ApplicationConfig {
 
     @Bean
@@ -30,7 +30,7 @@ public class ApplicationConfig {
         executor.setCorePoolSize(4);
         executor.setMaxPoolSize(8);
         executor.setQueueCapacity(100);
-        executor.setThreadNamePrefix("voting-async-");
+        executor.setThreadNamePrefix("mivoto-async-");
         executor.initialize();
         return executor;
     }
