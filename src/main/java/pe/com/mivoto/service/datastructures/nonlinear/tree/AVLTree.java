@@ -3,16 +3,33 @@ package pe.com.mivoto.service.datastructures.nonlinear.tree;
 import pe.com.mivoto.service.datastructures.interfaces.CustomTree;
 import java.util.List;
 
+/**
+ * Implementation of an AVL Tree (Adelson-Velsky and Landis).
+ * This is a self-balancing binary search tree where the difference between
+ * heights of left and right subtrees cannot be more than one for all nodes.
+ *
+ * @param <T> The type of data stored in the tree, must be Comparable.
+ */
 public class AVLTree<T extends Comparable<T>> implements CustomTree<T> {
 
     private TreeNode<T> root;
     private int size;
 
+    /**
+     * Constructs a new empty AVL Tree.
+     */
     public AVLTree() {
         this.root = null;
         this.size = 0;
     }
 
+    /**
+     * Inserts a value into the AVL tree.
+     * The tree is automatically rebalanced after insertion if necessary.
+     *
+     * @param value The value to insert. Cannot be null.
+     * @throws IllegalArgumentException if the value is null.
+     */
     @Override
     public void insert(T value) {
         if (value == null) {
@@ -62,6 +79,12 @@ public class AVLTree<T extends Comparable<T>> implements CustomTree<T> {
         return node;
     }
 
+    /**
+     * Deletes a value from the AVL tree.
+     * The tree is automatically rebalanced after deletion if necessary.
+     *
+     * @param value The value to delete.
+     */
     @Override
     public void delete(T value) {
         if (value != null && search(value)) {
@@ -130,6 +153,12 @@ public class AVLTree<T extends Comparable<T>> implements CustomTree<T> {
         return root;
     }
 
+    /**
+     * Searches for a value in the tree.
+     *
+     * @param value The value to search for.
+     * @return true if the value exists, false otherwise.
+     */
     @Override
     public boolean search(T value) {
         return searchRecursive(root, value) != null;
@@ -145,47 +174,89 @@ public class AVLTree<T extends Comparable<T>> implements CustomTree<T> {
         return searchRecursive(node.getRight(), value);
     }
 
-    // Alias for search if needed, but removing it to stick to interface if
-    // possible.
+    /**
+     * Checks if the tree contains the specified value (alias for search).
+     *
+     * @param value The value to check.
+     * @return true if found, false otherwise.
+     */
     public boolean contains(T value) {
         return search(value);
     }
 
+    /**
+     * Performs an in-order traversal of the tree.
+     *
+     * @return A list of values in ascending order.
+     */
     @Override
     public List<T> inorderTraversal() {
         return TreeTraversal.inOrder(root);
     }
 
+    /**
+     * Performs a pre-order traversal of the tree.
+     *
+     * @return A list of values in pre-order.
+     */
     @Override
     public List<T> preorderTraversal() {
         return TreeTraversal.preOrder(root);
     }
 
+    /**
+     * Performs a post-order traversal of the tree.
+     *
+     * @return A list of values in post-order.
+     */
     @Override
     public List<T> postorderTraversal() {
         return TreeTraversal.postOrder(root);
     }
 
+    /**
+     * Returns the height of the tree.
+     *
+     * @return The height of the root node, or 0 if empty.
+     */
     @Override
     public int height() {
         return height(root);
     }
 
+    /**
+     * Returns the number of elements in the tree.
+     *
+     * @return The size of the tree.
+     */
     @Override
     public int size() {
         return size;
     }
 
+    /**
+     * Checks if the tree is empty.
+     *
+     * @return true if the tree contains no elements, false otherwise.
+     */
     @Override
     public boolean isEmpty() {
         return size == 0;
     }
 
+    /**
+     * Clears all elements from the tree.
+     */
     public void clear() {
         root = null;
         size = 0;
     }
 
+    /**
+     * Finds the minimum value in the tree.
+     *
+     * @return The minimum value, or null if the tree is empty.
+     */
     @Override
     public T findMin() {
         if (isEmpty())
@@ -193,6 +264,11 @@ public class AVLTree<T extends Comparable<T>> implements CustomTree<T> {
         return minValueNode(root).getValue();
     }
 
+    /**
+     * Finds the maximum value in the tree.
+     *
+     * @return The maximum value, or null if the tree is empty.
+     */
     @Override
     public T findMax() {
         if (isEmpty())
@@ -200,6 +276,11 @@ public class AVLTree<T extends Comparable<T>> implements CustomTree<T> {
         return maxValueNode(root).getValue();
     }
 
+    /**
+     * Retrieves the root node of the tree.
+     *
+     * @return The root TreeNode.
+     */
     public TreeNode<T> getRoot() {
         return root;
     }

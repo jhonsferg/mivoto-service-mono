@@ -3,8 +3,18 @@ package pe.com.mivoto.service.datastructures.nonlinear.tree;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Utility class providing static methods for standard binary tree traversals.
+ */
 public class TreeTraversal {
 
+    /**
+     * Performs an in-order traversal (Left -> Root -> Right).
+     *
+     * @param root The root of the tree/subtree.
+     * @param <T>  The type of value in the tree.
+     * @return A list of values in in-order sequence.
+     */
     public static <T extends Comparable<T>> List<T> inOrder(TreeNode<T> root) {
         List<T> result = new ArrayList<>();
         inOrderRecursive(root, result);
@@ -19,6 +29,13 @@ public class TreeTraversal {
         }
     }
 
+    /**
+     * Performs a pre-order traversal (Root -> Left -> Right).
+     *
+     * @param root The root of the tree/subtree.
+     * @param <T>  The type of value in the tree.
+     * @return A list of values in pre-order sequence.
+     */
     public static <T extends Comparable<T>> List<T> preOrder(TreeNode<T> root) {
         List<T> result = new ArrayList<>();
         preOrderRecursive(root, result);
@@ -33,6 +50,13 @@ public class TreeTraversal {
         }
     }
 
+    /**
+     * Performs a post-order traversal (Left -> Right -> Root).
+     *
+     * @param root The root of the tree/subtree.
+     * @param <T>  The type of value in the tree.
+     * @return A list of values in post-order sequence.
+     */
     public static <T extends Comparable<T>> List<T> postOrder(TreeNode<T> root) {
         List<T> result = new ArrayList<>();
         postOrderRecursive(root, result);

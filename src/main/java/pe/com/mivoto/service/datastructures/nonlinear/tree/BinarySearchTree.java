@@ -6,12 +6,23 @@ import pe.com.mivoto.service.datastructures.interfaces.CustomTree;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Custom implementation of a Binary Search Tree (BST).
+ * Maintains the BST property: for any node, all values in the left subtree
+ * are less than the node's value, and all values in the right subtree are
+ * greater.
+ *
+ * @param <T> The type of elements stored in the tree. Must be Comparable.
+ */
 @Slf4j
 public class BinarySearchTree<T extends Comparable<T>> implements CustomTree<T> {
 
     private TreeNode<T> root;
     private int size;
 
+    /**
+     * Constructs an empty binary search tree.
+     */
     public BinarySearchTree() {
         this.root = null;
         this.size = 0;
@@ -202,6 +213,13 @@ public class BinarySearchTree<T extends Comparable<T>> implements CustomTree<T> 
         return size == 0;
     }
 
+    /**
+     * Checks if the tree is height-balanced.
+     * A tree is balanced if the height difference between left and right
+     * subtrees is at most 1 for every node.
+     *
+     * @return true if the tree is balanced, false otherwise.
+     */
     public boolean isBalanced() {
         return isBalancedRecursive(root);
     }
