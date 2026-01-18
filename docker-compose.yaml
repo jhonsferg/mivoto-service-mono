@@ -1,22 +1,23 @@
 services:
+  # PostgreSQL Database
   postgres:
     image: postgres:16.1-alpine
     container_name: mivoto-postgres-dev
     restart: unless-stopped
     environment:
-      POSTGRES_DB: mivoto
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-mivoto}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_INITDB_ARGS: "-E UTF8 --locale=en_US.UTF-8"
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
     networks:
       - mivoto-dev-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d mivoto"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-mivoto}"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -47,12 +48,13 @@ services:
       - "-c"
       - "max_wal_size=4GB"
 
+  # Redis Cache
   redis:
     image: redis:7.2.4-alpine
     container_name: mivoto-redis-dev
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
     networks:
@@ -62,24 +64,68 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
-    command: redis-server --appendonly yes
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
 
+  # MiVoto Spring Boot Application
+  mivoto-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mivoto-service:latest
+    container_name: mivoto-app-dev
+    restart: unless-stopped
+    environment:
+      # Database Configuration
+      DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-mivoto}
+      DATABASE_USER: ${POSTGRES_USER:-postgres}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      
+      # Redis Configuration
+      REDIS_HOST: redis
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      
+      # JWT Configuration
+      JWT_SECRET: ${JWT_SECRET:-mySecretKeyForJWTTokenGenerationThatShouldBeVeryLongAndSecure123456789}
+      
+      # Spring Profile
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+      
+      # Application Port
+      PORT: ${PORT:-8080}
+      
+      # JVM Options
+      JAVA_OPTS: "-Xmx512m -Xms256m"
+    ports:
+      - "${PORT:-8080}:8080"
+    networks:
+      - mivoto-dev-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # pgAdmin - PostgreSQL Management Tool
   pgadmin:
     image: dpage/pgadmin4:8.2
     container_name: mivoto-pgadmin-dev
     restart: unless-stopped
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@mivoto.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@mivoto.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
       PGADMIN_CONFIG_SERVER_MODE: 'False'
       PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
-      # Deshabilitar requerimiento de HTTPS en desarrollo
       PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: 'False'
     ports:
-      - "5050:80"
+      - "${PGADMIN_PORT:-5050}:80"
     volumes:
       - pgadmin_data:/var/lib/pgadmin
-      # Configuración de servidor precargada
       - ./docker/pgadmin/servers.json:/pgadmin4/servers.json:ro
     networks:
       - mivoto-dev-network
@@ -87,18 +133,20 @@ services:
       postgres:
         condition: service_healthy
 
+  # Redis Commander - Redis Management Tool
   redis-commander:
     image: rediscommander/redis-commander:latest
     container_name: mivoto-redis-commander-dev
     restart: unless-stopped
     environment:
-      REDIS_HOSTS: local:redis:6379
+      REDIS_HOSTS: local:redis:${REDIS_PORT:-6379}
     ports:
-      - "8082:8081"
+      - "${REDIS_COMMANDER_PORT:-8082}:8081"
     networks:
       - mivoto-dev-network
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
 
 networks:
   mivoto-dev-network:
