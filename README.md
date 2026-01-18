@@ -30,18 +30,36 @@ API REST desarrollada con Spring Boot 3.x que implementa estructuras de datos pe
 - **Documentación Swagger**: API interactiva
 
 ## 🏗️ Arquitectura
-```
 mivoto-service-mono/
-├── domain/                 # Capa de dominio (entidades, puertos)
-├── application/            # Capa de aplicación (casos de uso)
-├── infrastructure/         # Capa de infraestructura
-│   ├── persistence/       # Repositorios JPA
-│   ├── security/          # Configuración de seguridad
-│   ├── mappers/           # Mappers entidad-dominio
-│   └── config/            # Configuraciones
-├── datastructures/         # Estructuras de datos personalizadas
-└── presentation/           # Capa de presentación
-```
+├── docker/                    # Configuraciones de entorno Docker
+│   ├── local/                 # Entorno Local (Solo dependencias)
+│   ├── dev/                   # Entorno de Desarrollo
+│   ├── qa/                    # Entorno de QA
+│   └── prod/                  # Entorno de Producción
+├── src/main/java/pe/com/mivoto/service/
+│   ├── domain/                # Capa de Dominio (Lógica de Negocio Pura)
+│   │   ├── model/             # Entidades del dominio
+│   │   ├── ports/             # Interfaces (In/Out) para desacoplamiento
+│   │   ├── enums/             # Enumeraciones del dominio
+│   │   └── exceptions/        # Excepciones de negocio
+│   ├── application/           # Capa de Aplicación (Orquestación)
+│   │   ├── usecases/          # Implementación de Casos de Uso
+│   │   └── services/          # Servicios de aplicación
+│   ├── infrastructure/        # Capa de Infraestructura (Adaptadores)
+│   │   ├── persistence/       # Adaptadores de persistencia (JPA)
+│   │   ├── security/          # Configuración de Spring Security y JWT
+│   │   ├── config/            # Configuraciones de Spring (OpenAPI, Beans)
+│   │   └── mappers/           # Conversión Entidad <-> Dominio
+│   ├── datastructures/        # Estructuras de Datos Personalizadas
+│   │   ├── linear/            # Estructuras lineales (LinkedList, Queue)
+│   │   ├── nonlinear/         # Estructuras no lineales (BST, Graph)
+│   │   ├── interfaces/        # Contratos de estructuras de datos
+│   │   └── implementations/   # Implementaciones concretas
+│   └── presentation/          # Capa de Presentación (REST)
+│       ├── controllers/       # Controladores API REST
+│       ├── dto/               # Objetos de Transferencia de Datos (Request/Response)
+│       └── mappers/           # Conversión DTO <-> Dominio
+└── pom.xml                    # Gestor de dependencias Maven
 
 ## 📊 Estructuras de Datos
 
