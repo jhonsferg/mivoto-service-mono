@@ -108,7 +108,7 @@ public class CandidateController {
     @GetMapping("/election/{electionId}/number/{number}")
     @Operation(summary = "Buscar por número", description = "Busca un candidato por su número en una elección")
     public ResponseEntity<ApiResponseDto<CandidateDto>> findCandidateByNumber(@PathVariable Long electionId,
-                                                                              @PathVariable Integer number) {
+            @PathVariable Integer number) {
         log.info("Buscando candidato número {} en elección {}", number, electionId);
         Candidate candidate = candidateService.findCandidateByNumber(electionId, number);
         CandidateDto response = candidateDtoMapper.toCandidateDto(candidate);
@@ -158,7 +158,7 @@ public class CandidateController {
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Actualizar candidato", description = "Actualiza los datos de un candidato")
     public ResponseEntity<ApiResponseDto<CandidateDto>> updateCandidate(@PathVariable Long id,
-                                                                        @Valid @RequestBody CreateCandidateRequestDto request) {
+            @Valid @RequestBody CreateCandidateRequestDto request) {
         log.info("Actualizando candidato: {}", id);
         Candidate updateData = candidateDtoMapper.toDomain(request);
         Candidate updated = candidateService.updateCandidate(id, updateData);
