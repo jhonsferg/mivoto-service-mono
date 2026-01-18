@@ -27,6 +27,12 @@ public class ElectionRepositoryAdapter implements ElectionRepository {
     private final JpaElectionRepository jpaElectionRepository;
     private final ElectionEntityMapper electionEntityMapper;
 
+    /**
+     * Saves a new election.
+     *
+     * @param election The election to save.
+     * @return The saved election.
+     */
     @Override
     public Election save(Election election) {
         log.debug("Guardando elección: {}", election.getTitle());
@@ -35,6 +41,12 @@ public class ElectionRepositoryAdapter implements ElectionRepository {
         return electionEntityMapper.toDomain(saved);
     }
 
+    /**
+     * Updates an existing election.
+     *
+     * @param election The election updates.
+     * @return The updated election.
+     */
     @Override
     public Election update(Election election) {
         log.debug("Actualizando elección: {}", election.getId());
@@ -43,12 +55,23 @@ public class ElectionRepositoryAdapter implements ElectionRepository {
         return electionEntityMapper.toDomain(updated);
     }
 
+    /**
+     * Finds an election by ID.
+     *
+     * @param id The election ID.
+     * @return Optional containing the election if found.
+     */
     @Override
     public Optional<Election> findById(Long id) {
         return jpaElectionRepository.findById(id)
                 .map(electionEntityMapper::toDomain);
     }
 
+    /**
+     * Retrieves all elections.
+     *
+     * @return List of all elections.
+     */
     @Override
     public List<Election> findAll() {
         return jpaElectionRepository.findAll().stream()
@@ -56,6 +79,12 @@ public class ElectionRepositoryAdapter implements ElectionRepository {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Finds elections by status.
+     *
+     * @param status The election status.
+     * @return List of matching elections.
+     */
     @Override
     public List<Election> findByStatus(ElectionStatus status) {
         return jpaElectionRepository.findByStatus(status).stream()
@@ -63,6 +92,11 @@ public class ElectionRepositoryAdapter implements ElectionRepository {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Finds all currently active elections.
+     *
+     * @return List of active elections.
+     */
     @Override
     public List<Election> findActiveElections() {
         return jpaElectionRepository.findActiveElections(LocalDateTime.now()).stream()
@@ -70,6 +104,11 @@ public class ElectionRepositoryAdapter implements ElectionRepository {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Finds all scheduled elections.
+     *
+     * @return List of scheduled elections.
+     */
     @Override
     public List<Election> findScheduledElections() {
         return jpaElectionRepository.findScheduledElections().stream()
@@ -77,6 +116,13 @@ public class ElectionRepositoryAdapter implements ElectionRepository {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Finds elections within a date range.
+     *
+     * @param startDate The start date.
+     * @param endDate   The end date.
+     * @return List of elections in the range.
+     */
     @Override
     public List<Election> findByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
         return jpaElectionRepository.findByDateRange(startDate, endDate).stream()
@@ -84,6 +130,12 @@ public class ElectionRepositoryAdapter implements ElectionRepository {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Finds elections created by a specific user.
+     *
+     * @param userId The user ID.
+     * @return List of elections.
+     */
     @Override
     public List<Election> findByCreatedBy(Long userId) {
         return jpaElectionRepository.findByCreatedBy(userId).stream()
@@ -91,21 +143,43 @@ public class ElectionRepositoryAdapter implements ElectionRepository {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Deletes an election by ID.
+     *
+     * @param id The election ID.
+     */
     @Override
     public void deleteById(Long id) {
         jpaElectionRepository.deleteById(id);
     }
 
+    /**
+     * Checks if an election exists by ID.
+     *
+     * @param id The election ID.
+     * @return true if exists.
+     */
     @Override
     public boolean existsById(Long id) {
         return jpaElectionRepository.existsById(id);
     }
 
+    /**
+     * Counts the total number of elections.
+     *
+     * @return The count.
+     */
     @Override
     public Long count() {
         return jpaElectionRepository.count();
     }
 
+    /**
+     * Counts elections by status.
+     *
+     * @param status The election status.
+     * @return The count.
+     */
     @Override
     public Long countByStatus(ElectionStatus status) {
         return jpaElectionRepository.countByStatus(status);

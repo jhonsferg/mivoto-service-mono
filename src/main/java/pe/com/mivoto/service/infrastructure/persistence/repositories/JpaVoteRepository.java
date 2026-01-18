@@ -67,22 +67,22 @@ public interface JpaVoteRepository extends JpaRepository<VoteEntity, Long> {
          */
         Optional<VoteEntity> findByUserIdAndElectionId(Long userId, Long electionId);
 
-        @Query("SELECT COUNT(v) FROM VoteEntity v WHERE v.electionId = :electionId")
         /**
          * Counts votes for a specific election.
          *
          * @param electionId The election ID.
          * @return The count of votes.
          */
+        @Query("SELECT COUNT(v) FROM VoteEntity v WHERE v.electionId = :electionId")
         Long countByElectionId(Long electionId);
 
-        @Query("SELECT COUNT(v) FROM VoteEntity v WHERE v.candidateId = :candidateId")
         /**
          * Counts votes for a specific candidate.
          *
          * @param candidateId The candidate ID.
          * @return The count of votes.
          */
+        @Query("SELECT COUNT(v) FROM VoteEntity v WHERE v.candidateId = :candidateId")
         Long countByCandidateId(Long candidateId);
 
         /**
@@ -102,30 +102,30 @@ public interface JpaVoteRepository extends JpaRepository<VoteEntity, Long> {
          */
         List<VoteEntity> findByVotedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
 
-        @Query("SELECT c.party, COUNT(v) " +
-                        "FROM VoteEntity v " +
-                        "JOIN CandidateEntity c ON v.candidateId = c.id " +
-                        "WHERE v.electionId = :electionId " +
-                        "GROUP BY c.party")
         /**
          * Gets vote counts grouped by candidate party for an election.
          * Optimized query to avoid N+1 problem.
          *
          * @param electionId The election ID.
-         * @return Map of party name to vote count.
+         * @return List of party name to vote count.
          */
+        @Query("SELECT c.party, COUNT(v) " +
+                "FROM VoteEntity v " +
+                "JOIN CandidateEntity c ON v.candidateId = c.id " +
+                "WHERE v.electionId = :electionId " +
+                "GROUP BY c.party")
         List<Object[]> countByElectionIdGroupedByParty(Long electionId);
 
-        @Query("SELECT v.candidateId, COUNT(v) " +
-                        "FROM VoteEntity v " +
-                        "WHERE v.electionId = :electionId " +
-                        "GROUP BY v.candidateId")
         /**
          * Gets vote counts grouped by candidate for an election.
          * Optimized query to avoid N+1 problem.
          *
          * @param electionId The election ID.
-         * @return Map of candidate ID to vote count.
+         * @return List of candidate ID to vote count.
          */
+        @Query("SELECT v.candidateId, COUNT(v) " +
+                "FROM VoteEntity v " +
+                "WHERE v.electionId = :electionId " +
+                "GROUP BY v.candidateId")
         List<Object[]> countByElectionIdGroupedByCandidate(Long electionId);
 }

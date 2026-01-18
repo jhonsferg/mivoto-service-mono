@@ -27,6 +27,12 @@ public class CandidateRepositoryAdapter implements CandidateRepository {
     private final JpaCandidateRepository jpaCandidateRepository;
     private final CandidateEntityMapper candidateEntityMapper;
 
+    /**
+     * Saves a new candidate.
+     *
+     * @param candidate The candidate to save.
+     * @return The saved candidate.
+     */
     @Override
     public Candidate save(Candidate candidate) {
         log.debug("Guardando candidato: {}", candidate.getName());
@@ -35,6 +41,12 @@ public class CandidateRepositoryAdapter implements CandidateRepository {
         return candidateEntityMapper.toDomain(saved);
     }
 
+    /**
+     * Updates an existing candidate.
+     *
+     * @param candidate The candidate updates.
+     * @return The updated candidate.
+     */
     @Override
     public Candidate update(Candidate candidate) {
         log.debug("Actualizando candidato: {}", candidate.getId());
@@ -43,12 +55,23 @@ public class CandidateRepositoryAdapter implements CandidateRepository {
         return candidateEntityMapper.toDomain(updated);
     }
 
+    /**
+     * Finds a candidate by ID.
+     *
+     * @param id The candidate ID.
+     * @return Optional containing the candidate if found.
+     */
     @Override
     public Optional<Candidate> findById(Long id) {
         return jpaCandidateRepository.findById(id)
                 .map(candidateEntityMapper::toDomain);
     }
 
+    /**
+     * Retrieves all candidates.
+     *
+     * @return List of all candidates.
+     */
     @Override
     public List<Candidate> findAll() {
         return jpaCandidateRepository.findAll().stream()
@@ -56,6 +79,12 @@ public class CandidateRepositoryAdapter implements CandidateRepository {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Finds candidates by election ID.
+     *
+     * @param electionId The election ID.
+     * @return List of candidates.
+     */
     @Override
     public List<Candidate> findByElectionId(Long electionId) {
         return jpaCandidateRepository.findByElectionId(electionId).stream()
@@ -63,12 +92,25 @@ public class CandidateRepositoryAdapter implements CandidateRepository {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Finds a candidate by election ID and ballot number.
+     *
+     * @param electionId The election ID.
+     * @param number     The ballot number.
+     * @return Optional containing the candidate if found.
+     */
     @Override
     public Optional<Candidate> findByElectionIdAndNumber(Long electionId, Integer number) {
         return jpaCandidateRepository.findByElectionIdAndNumber(electionId, number)
                 .map(candidateEntityMapper::toDomain);
     }
 
+    /**
+     * Finds active candidates for an election.
+     *
+     * @param electionId The election ID.
+     * @return List of active candidates.
+     */
     @Override
     public List<Candidate> findActiveByElectionId(Long electionId) {
         return jpaCandidateRepository.findActiveByElectionId(electionId).stream()
@@ -76,6 +118,12 @@ public class CandidateRepositoryAdapter implements CandidateRepository {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Finds candidates by party affiliation.
+     *
+     * @param party The party name.
+     * @return List of candidates.
+     */
     @Override
     public List<Candidate> findByParty(String party) {
         return jpaCandidateRepository.findByParty(party).stream()
@@ -83,6 +131,12 @@ public class CandidateRepositoryAdapter implements CandidateRepository {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Finds candidates with names containing the search string.
+     *
+     * @param name The name substring.
+     * @return List of matching candidates.
+     */
     @Override
     public List<Candidate> findByNameContaining(String name) {
         return jpaCandidateRepository.findByNameContainingIgnoreCase(name).stream()
@@ -90,21 +144,45 @@ public class CandidateRepositoryAdapter implements CandidateRepository {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Deletes a candidate by ID.
+     *
+     * @param id The candidate ID.
+     */
     @Override
     public void deleteById(Long id) {
         jpaCandidateRepository.deleteById(id);
     }
 
+    /**
+     * Checks if a candidate number already exists in an election.
+     *
+     * @param electionId The election ID.
+     * @param number     The ballot number.
+     * @return true if exists.
+     */
     @Override
     public boolean existsByElectionIdAndNumber(Long electionId, Integer number) {
         return jpaCandidateRepository.existsByElectionIdAndNumber(electionId, number);
     }
 
+    /**
+     * Counts candidates for an election.
+     *
+     * @param electionId The election ID.
+     * @return The count of candidates.
+     */
     @Override
     public Long countByElectionId(Long electionId) {
         return jpaCandidateRepository.countByElectionId(electionId);
     }
 
+    /**
+     * Retrieves candidates for an election ordered by vote count.
+     *
+     * @param electionId The election ID.
+     * @return List of candidates sorted by votes (descending).
+     */
     @Override
     public List<Candidate> findByElectionIdOrderByVoteCountDesc(Long electionId) {
         return jpaCandidateRepository.findByElectionIdOrderByVoteCountDesc(electionId).stream()

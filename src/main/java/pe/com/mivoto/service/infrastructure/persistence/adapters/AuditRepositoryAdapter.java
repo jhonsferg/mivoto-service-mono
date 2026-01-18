@@ -27,6 +27,12 @@ public class AuditRepositoryAdapter implements AuditRepository {
     private final JpaAuditLogRepository jpaAuditLogRepository;
     private final AuditEntityMapper auditEntityMapper;
 
+    /**
+     * Saves an audit log entry.
+     *
+     * @param auditLog The audit log to save.
+     * @return The saved audit log.
+     */
     @Override
     public AuditLog save(AuditLog auditLog) {
         log.debug("Guardando log de auditoría: {}", auditLog.getAction());
@@ -35,12 +41,23 @@ public class AuditRepositoryAdapter implements AuditRepository {
         return auditEntityMapper.toDomain(saved);
     }
 
+    /**
+     * Finds an audit log by its ID.
+     *
+     * @param id The ID of the log.
+     * @return Optional containing the log if found.
+     */
     @Override
     public Optional<AuditLog> findById(Long id) {
         return jpaAuditLogRepository.findById(id)
                 .map(auditEntityMapper::toDomain);
     }
 
+    /**
+     * Retrieves all audit logs.
+     *
+     * @return List of all logs.
+     */
     @Override
     public List<AuditLog> findAll() {
         return jpaAuditLogRepository.findAll().stream()
@@ -48,6 +65,12 @@ public class AuditRepositoryAdapter implements AuditRepository {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Finds audit logs by user ID.
+     *
+     * @param userId The user ID.
+     * @return List of logs for the user.
+     */
     @Override
     public List<AuditLog> findByUserId(Long userId) {
         return jpaAuditLogRepository.findByUserId(userId).stream()
@@ -55,6 +78,12 @@ public class AuditRepositoryAdapter implements AuditRepository {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Finds audit logs by action type.
+     *
+     * @param action The action type.
+     * @return List of matching logs.
+     */
     @Override
     public List<AuditLog> findByAction(AuditAction action) {
         return jpaAuditLogRepository.findByAction(action).stream()
@@ -62,6 +91,13 @@ public class AuditRepositoryAdapter implements AuditRepository {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Finds logs associated with a specific entity.
+     *
+     * @param entity   The entity name.
+     * @param entityId The entity ID.
+     * @return List of matching logs.
+     */
     @Override
     public List<AuditLog> findByEntityAndEntityId(String entity, Long entityId) {
         return jpaAuditLogRepository.findByEntityAndEntityId(entity, entityId).stream()
@@ -69,6 +105,13 @@ public class AuditRepositoryAdapter implements AuditRepository {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Finds logs within a date range.
+     *
+     * @param startDate The start date.
+     * @param endDate   The end date.
+     * @return List of logs in the range.
+     */
     @Override
     public List<AuditLog> findByTimestampBetween(LocalDateTime startDate, LocalDateTime endDate) {
         return jpaAuditLogRepository.findByTimestampBetween(startDate, endDate).stream()
@@ -76,6 +119,12 @@ public class AuditRepositoryAdapter implements AuditRepository {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves the most recent audit logs.
+     *
+     * @param limit The maximum number of logs to return.
+     * @return List of recent logs.
+     */
     @Override
     public List<AuditLog> findRecentLogs(int limit) {
         return jpaAuditLogRepository.findRecentLogs(limit).stream()
@@ -83,6 +132,12 @@ public class AuditRepositoryAdapter implements AuditRepository {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Finds logs by IP address.
+     *
+     * @param ipAddress The IP address.
+     * @return List of matching logs.
+     */
     @Override
     public List<AuditLog> findByIpAddress(String ipAddress) {
         return jpaAuditLogRepository.findByIpAddress(ipAddress).stream()
@@ -90,16 +145,34 @@ public class AuditRepositoryAdapter implements AuditRepository {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Counts logs by user ID.
+     *
+     * @param userId The user ID.
+     * @return The count of logs.
+     */
     @Override
     public Long countByUserId(Long userId) {
         return jpaAuditLogRepository.countByUserId(userId);
     }
 
+    /**
+     * Counts logs by action type.
+     *
+     * @param action The action type.
+     * @return The count of logs.
+     */
     @Override
     public Long countByAction(AuditAction action) {
         return jpaAuditLogRepository.countByAction(action);
     }
 
+    /**
+     * Deletes logs older than a specific date.
+     *
+     * @param beforeDate The threshold date.
+     * @return The number of deleted logs.
+     */
     @Override
     public Long deleteOldLogs(LocalDateTime beforeDate) {
         return jpaAuditLogRepository.deleteByTimestampBefore(beforeDate);
