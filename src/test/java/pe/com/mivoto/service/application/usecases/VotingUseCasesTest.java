@@ -10,8 +10,10 @@ import pe.com.mivoto.service.application.services.VotingService;
 import pe.com.mivoto.service.application.usecases.voting.CastVoteUseCaseImpl;
 import pe.com.mivoto.service.domain.model.Vote;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Test suite for Voting Use Cases.

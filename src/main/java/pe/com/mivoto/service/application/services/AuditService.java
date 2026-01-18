@@ -45,7 +45,7 @@ public class AuditService implements pe.com.mivoto.service.domain.ports.in.Audit
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public AuditLog logAction(Long userId, AuditAction action, String entity, Long entityId, String description,
-            String ipAddress, String userAgent, Map<String, Object> metadata) {
+                              String ipAddress, String userAgent, Map<String, Object> metadata) {
 
         AuditLog auditLog = AuditLog.builder()
                 .userId(userId)

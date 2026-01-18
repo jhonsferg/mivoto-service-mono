@@ -57,7 +57,7 @@ public class VotingController {
     @PreAuthorize("hasAnyRole('VOTER', 'ADMIN')")
     @Operation(summary = "Emitir voto", description = "Registra un voto del usuario autenticado")
     public ResponseEntity<ApiResponseDto<VoteResponseDto>> castVote(@Valid @RequestBody VoteRequestDto request,
-            @RequestHeader("Authorization") String authHeader, HttpServletRequest httpRequest) {
+                                                                    @RequestHeader("Authorization") String authHeader, HttpServletRequest httpRequest) {
         Long userId = getUserIdFromToken(authHeader);
         String ipAddress = getClientIP(httpRequest);
         String userAgent = httpRequest.getHeader("User-Agent");
@@ -120,7 +120,7 @@ public class VotingController {
     @PreAuthorize("hasAnyRole('VOTER', 'ADMIN')")
     @Operation(summary = "Verificar estado de voto", description = "Verifica si el usuario ya votó en una elección")
     public ResponseEntity<ApiResponseDto<Boolean>> checkVotingStatus(@PathVariable Long electionId,
-            @RequestHeader("Authorization") String authHeader) {
+                                                                     @RequestHeader("Authorization") String authHeader) {
         Long userId = getUserIdFromToken(authHeader);
         log.debug("Verificando estado de voto - Usuario: {}, Elección: {}", userId, electionId);
         boolean hasVoted = checkVotingStatusUseCase.execute(userId, electionId);

@@ -35,7 +35,7 @@ public class CreateAuditLogUseCaseImpl {
      * @return The created AuditLog.
      */
     public AuditLog execute(Long userId, AuditAction action, String entity, Long entityId, String description,
-            String ipAddress, String userAgent, Map<String, Object> metadata) {
+                            String ipAddress, String userAgent, Map<String, Object> metadata) {
         log.debug("Ejecutando caso de uso: CreateAuditLog - Acción: {}", action);
         return this.auditService.logAction(userId, action, entity, entityId, description, ipAddress, userAgent,
                 metadata);

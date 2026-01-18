@@ -7,61 +7,111 @@ import lombok.Getter;
  */
 @Getter
 public enum AuditAction {
-    /** User successfully logged in. */
+    /**
+     * User successfully logged in.
+     */
     LOGIN("Inicio de Sesión"),
-    /** User logged out. */
+    /**
+     * User logged out.
+     */
     LOGOUT("Cierre de Sesión"),
-    /** A login attempt failed. */
+    /**
+     * A login attempt failed.
+     */
     LOGIN_FAILED("Intento de Login Fallido"),
-    /** User successfully changed their password. */
+    /**
+     * User successfully changed their password.
+     */
     PASSWORD_CHANGED("Contraseña Cambiada"),
 
-    /** A vote was successfully cast. */
+    /**
+     * A vote was successfully cast.
+     */
     VOTE_CAST("Voto Emitido"),
-    /** A vote was successfully verified. */
+    /**
+     * A vote was successfully verified.
+     */
     VOTE_VERIFIED("Voto Verificado"),
-    /** A vote was rejected. */
+    /**
+     * A vote was rejected.
+     */
     VOTE_REJECTED("Voto Rechazado"),
 
-    /** A new election was created. */
+    /**
+     * A new election was created.
+     */
     ELECTION_CREATED("Elección Creada"),
-    /** An existing election was updated. */
+    /**
+     * An existing election was updated.
+     */
     ELECTION_UPDATED("Elección Actualizada"),
-    /** An election has officially started. */
+    /**
+     * An election has officially started.
+     */
     ELECTION_STARTED("Elección Iniciada"),
-    /** An election has officially closed. */
+    /**
+     * An election has officially closed.
+     */
     ELECTION_CLOSED("Elección Cerrada"),
-    /** An election was cancelled. */
+    /**
+     * An election was cancelled.
+     */
     ELECTION_CANCELLED("Elección Cancelada"),
 
-    /** A new candidate was added to an election. */
+    /**
+     * A new candidate was added to an election.
+     */
     CANDIDATE_ADDED("Candidato Agregado"),
-    /** Candidate details were updated. */
+    /**
+     * Candidate details were updated.
+     */
     CANDIDATE_UPDATED("Candidato Actualizado"),
-    /** A candidate was removed from an election. */
+    /**
+     * A candidate was removed from an election.
+     */
     CANDIDATE_REMOVED("Candidato Removido"),
 
-    /** A new user account was created. */
+    /**
+     * A new user account was created.
+     */
     USER_CREATED("Usuario Creado"),
-    /** User details were updated. */
+    /**
+     * User details were updated.
+     */
     USER_UPDATED("Usuario Actualizado"),
-    /** A user account was deleted. */
+    /**
+     * A user account was deleted.
+     */
     USER_DELETED("Usuario Eliminado"),
-    /** A user account was activated. */
+    /**
+     * A user account was activated.
+     */
     USER_ACTIVATED("Usuario Activado"),
-    /** A user account was deactivated. */
+    /**
+     * A user account was deactivated.
+     */
     USER_DEACTIVATED("Usuario Desactivado"),
 
-    /** An unauthorized access attempt was detected. */
+    /**
+     * An unauthorized access attempt was detected.
+     */
     UNAUTHORIZED_ACCESS("Acceso No Autorizado"),
-    /** sensitive data was accessed. */
+    /**
+     * sensitive data was accessed.
+     */
     DATA_ACCESSED("Datos Accedidos"),
-    /** Data was modified outside normal flows. */
+    /**
+     * Data was modified outside normal flows.
+     */
     DATA_MODIFIED("Datos Modificados"),
-    /** A request was denied due to insufficient permissions. */
+    /**
+     * A request was denied due to insufficient permissions.
+     */
     PERMISSION_DENIED("Permiso Denegado");
 
-    /** The human-readable name for the action. */
+    /**
+     * The human-readable name for the action.
+     */
     private final String displayName;
 
     AuditAction(String displayName) {

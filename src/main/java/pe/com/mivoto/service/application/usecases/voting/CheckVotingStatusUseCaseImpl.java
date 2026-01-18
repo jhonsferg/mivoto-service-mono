@@ -21,7 +21,7 @@ public class CheckVotingStatusUseCaseImpl {
      * @param userId     The user ID.
      * @param electionId The election ID.
      * @return true if the user has voted (or attempts are exhausted), false
-     *         otherwise.
+     * otherwise.
      */
     public boolean execute(Long userId, Long electionId) {
         log.debug("Verificando estado de votación - Usuario: {}, Elección: {}", userId, electionId);

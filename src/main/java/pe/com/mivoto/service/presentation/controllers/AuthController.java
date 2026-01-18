@@ -45,7 +45,7 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(summary = "Iniciar sesión", description = "Autentica un usuario y retorna tokens JWT")
     public ResponseEntity<ApiResponseDto<LoginResponseDto>> login(@Valid @RequestBody LoginRequestDto request,
-            HttpServletRequest httpRequest) {
+                                                                  HttpServletRequest httpRequest) {
         log.info("Login request para usuario: {}", request.getUsername());
         String ipAddress = getClientIP(httpRequest);
         String userAgent = httpRequest.getHeader("User-Agent");
@@ -89,7 +89,7 @@ public class AuthController {
     @PostMapping("/change-password")
     @Operation(summary = "Cambiar contraseña", description = "Cambia la contraseña del usuario actual")
     public ResponseEntity<ApiResponseDto<Void>> changePassword(@Valid @RequestBody ChangePasswordRequestDto request,
-            @RequestHeader("Authorization") String authHeader) {
+                                                               @RequestHeader("Authorization") String authHeader) {
         return ResponseEntity.ok(ApiResponseDto.success("Contraseña cambiada exitosamente", null));
     }
 

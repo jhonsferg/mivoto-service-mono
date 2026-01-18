@@ -56,7 +56,7 @@ public class AuditController {
     @GetMapping("/entity/{entity}/{entityId}")
     @Operation(summary = "Auditoría por entidad", description = "Obtiene logs de auditoría de una entidad")
     public ResponseEntity<ApiResponseDto<List<AuditLog>>> getAuditTrailByEntity(@PathVariable String entity,
-            @PathVariable Long entityId) {
+                                                                                @PathVariable Long entityId) {
         log.info("Obteniendo auditoría de entidad: {}/{}", entity, entityId);
         List<AuditLog> logs = auditService.getAuditTrailByEntity(entity, entityId);
         return ResponseEntity.ok(ApiResponseDto.success(logs));

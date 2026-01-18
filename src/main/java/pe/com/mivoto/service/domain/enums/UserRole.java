@@ -7,16 +7,26 @@ import lombok.Getter;
  */
 @Getter
 public enum UserRole {
-    /** Standard user who can cast votes. */
+    /**
+     * Standard user who can cast votes.
+     */
     VOTER("Votante"),
-    /** Administrator with full system management permissions. */
+    /**
+     * Administrator with full system management permissions.
+     */
     ADMIN("Administrador"),
-    /** Supervisor with permissions to oversee elections. */
+    /**
+     * Supervisor with permissions to oversee elections.
+     */
     SUPERVISOR("Supervisor"),
-    /** Auditor with permissions to view audit logs and verify system integrity. */
+    /**
+     * Auditor with permissions to view audit logs and verify system integrity.
+     */
     AUDITOR("Auditor");
 
-    /** The human-readable name for the role. */
+    /**
+     * The human-readable name for the role.
+     */
     private final String displayName;
 
     UserRole(String displayName) {

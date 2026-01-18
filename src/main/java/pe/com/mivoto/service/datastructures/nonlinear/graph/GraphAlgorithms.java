@@ -30,7 +30,7 @@ public class GraphAlgorithms {
     }
 
     private static <T> void topologicalSortDFS(T vertex, Graph<T> graph,
-            Set<T> visited, Stack<T> stack) {
+                                               Set<T> visited, Stack<T> stack) {
         visited.add(vertex);
 
         for (T neighbor : graph.getNeighbors(vertex)) {
@@ -65,7 +65,7 @@ public class GraphAlgorithms {
     }
 
     private static <T> void dfsComponent(T vertex, Graph<T> graph,
-            Set<T> visited, Set<T> component) {
+                                         Set<T> visited, Set<T> component) {
         visited.add(vertex);
         component.add(vertex);
 

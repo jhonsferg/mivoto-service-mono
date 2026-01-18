@@ -20,8 +20,10 @@ import pe.com.mivoto.service.presentation.dto.response.ApiResponseDto;
 import pe.com.mivoto.service.presentation.dto.response.LoginResponseDto;
 import pe.com.mivoto.service.presentation.mappers.AuthDtoMapper;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**
@@ -68,7 +70,7 @@ class AuthControllerTest {
         when(loginUseCase.execute(anyString(), anyString(), anyString(), anyString())).thenReturn(session);
 
         User user = User.builder().build(); // Mocking result of private getUserFromSession (reflection might be needed
-                                            // or ignored if private method is dummy)
+        // or ignored if private method is dummy)
         // Note: The controller calls a private method getUserFromSession which builds
         // an empty user.
         // We mock the mapper to return a response based on that.

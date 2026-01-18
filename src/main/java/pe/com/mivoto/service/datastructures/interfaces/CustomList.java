@@ -1,7 +1,5 @@
 package pe.com.mivoto.service.datastructures.interfaces;
 
-import java.util.List;
-
 /**
  * Generic interface for custom list data structures.
  * Defines basic list operations for adding, removing, and accessing elements.

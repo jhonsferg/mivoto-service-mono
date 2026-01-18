@@ -7,8 +7,8 @@ import pe.com.mivoto.service.domain.enums.UserRole;
 import pe.com.mivoto.service.domain.model.User;
 import pe.com.mivoto.service.domain.ports.out.UserRepository;
 import pe.com.mivoto.service.infrastructure.persistence.entities.UserEntity;
-import pe.com.mivoto.service.infrastructure.persistence.repositories.JpaUserRepository;
 import pe.com.mivoto.service.infrastructure.persistence.mappers.UserEntityMapper;
+import pe.com.mivoto.service.infrastructure.persistence.repositories.JpaUserRepository;
 
 import java.util.List;
 import java.util.Optional;

@@ -6,6 +6,7 @@ import pe.com.mivoto.service.domain.model.VoteRecord;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -173,4 +174,30 @@ public interface VoteRepository {
      * @return A list of all records.
      */
     List<VoteRecord> findAllVoteRecords();
+
+    /**
+     * Counts total votes in the system.
+     * More efficient than findAll().size().
+     *
+     * @return The total vote count.
+     */
+    Long count();
+
+    /**
+     * Gets vote counts grouped by party for an election.
+     * Optimized single query instead of N queries.
+     *
+     * @param electionId The election ID.
+     * @return Map of party name to vote count.
+     */
+    Map<String, Long> countByElectionIdGroupByParty(Long electionId);
+
+    /**
+     * Gets vote counts grouped by candidate for an election.
+     * Optimized single query instead of N queries.
+     *
+     * @param electionId The election ID.
+     * @return Map of candidate ID to vote count.
+     */
+    Map<Long, Long> countByElectionIdGroupByCandidate(Long electionId);
 }

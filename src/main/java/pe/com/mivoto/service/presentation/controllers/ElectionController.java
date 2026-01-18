@@ -133,7 +133,7 @@ public class ElectionController {
     @GetMapping("/{id}")
     @Operation(summary = "Obtener elección por ID", description = "Obtiene los detalles de una elección específica")
     public ResponseEntity<ApiResponseDto<ElectionResponseDto>> getElectionById(@PathVariable Long id,
-            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+                                                                               @RequestHeader(value = "Authorization", required = false) String authHeader) {
         log.info("Obteniendo elección: {}", id);
         Election election = electionManagementService.getElectionById(id);
         boolean hasVoted = false;
@@ -157,7 +157,7 @@ public class ElectionController {
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Actualizar elección", description = "Actualiza una elección existente")
     public ResponseEntity<ApiResponseDto<ElectionResponseDto>> updateElection(@PathVariable Long id,
-            @Valid @RequestBody UpdateElectionRequestDto request) {
+                                                                              @Valid @RequestBody UpdateElectionRequestDto request) {
         log.info("Actualizando elección: {}", id);
         Election updateData = Election.builder()
                 .title(request.getTitle())
@@ -214,7 +214,7 @@ public class ElectionController {
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Cancelar elección", description = "Cancela una elección")
     public ResponseEntity<ApiResponseDto<Void>> cancelElection(@PathVariable Long id,
-            @RequestParam(required = false) String reason) {
+                                                               @RequestParam(required = false) String reason) {
         log.warn("Cancelando elección: {} - Razón: {}", id, reason);
         electionManagementService.cancelElection(id, reason);
         return ResponseEntity.ok(ApiResponseDto.success("Elección cancelada", null));

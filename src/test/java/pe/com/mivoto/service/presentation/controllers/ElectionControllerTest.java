@@ -21,8 +21,8 @@ import pe.com.mivoto.service.presentation.dto.response.ApiResponseDto;
 import pe.com.mivoto.service.presentation.dto.response.ElectionResponseDto;
 import pe.com.mivoto.service.presentation.mappers.ElectionDtoMapper;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 /**

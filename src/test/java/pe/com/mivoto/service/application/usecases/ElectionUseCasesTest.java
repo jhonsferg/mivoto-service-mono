@@ -10,8 +10,10 @@ import pe.com.mivoto.service.application.services.ElectionManagementService;
 import pe.com.mivoto.service.application.usecases.election.CreateElectionUseCaseImpl;
 import pe.com.mivoto.service.domain.model.Election;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Test suite for Election Management Use Cases.

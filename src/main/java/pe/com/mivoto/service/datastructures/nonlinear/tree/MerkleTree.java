@@ -13,9 +13,9 @@ import java.util.List;
  * the vote blocks.
  */
 public class MerkleTree {
-    private List<String> transactions;
-    private List<String> tree;
-    private String root;
+    private final List<String> transactions;
+    private final List<String> tree;
+    private final String root;
 
     /**
      * Constructs a Merkle Tree from a list of transaction strings (hashes).

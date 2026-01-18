@@ -22,15 +22,6 @@ public class Graph<T> implements CustomGraph<T> {
     private int edgeCount;
 
     /**
-     * Retrieves all vertices currently in the graph.
-     *
-     * @return A Set containing all vertices.
-     */
-    public Set<T> getAllVertices() {
-        return vertices.keySet();
-    }
-
-    /**
      * Constructs a new Graph.
      *
      * @param isDirected true if the graph is directed, false otherwise.
@@ -39,6 +30,15 @@ public class Graph<T> implements CustomGraph<T> {
         this.vertices = new HashMap<>();
         this.isDirected = isDirected;
         this.edgeCount = 0;
+    }
+
+    /**
+     * Retrieves all vertices currently in the graph.
+     *
+     * @return A Set containing all vertices.
+     */
+    public Set<T> getAllVertices() {
+        return vertices.keySet();
     }
 
     /**
@@ -170,7 +170,7 @@ public class Graph<T> implements CustomGraph<T> {
      *
      * @param vertex The vertex to find neighbors for.
      * @return A list of neighboring vertices. Returns an empty list if the vertex
-     *         does not exist.
+     * does not exist.
      */
     @Override
     public List<T> getNeighbors(T vertex) {
@@ -283,7 +283,7 @@ public class Graph<T> implements CustomGraph<T> {
      *
      * @param start The starting vertex.
      * @return A map where the key is the destination vertex and the value is the
-     *         minimum distance from the start vertex.
+     * minimum distance from the start vertex.
      */
     @Override
     public Map<T, Integer> shortestPath(T start) {

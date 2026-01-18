@@ -11,12 +11,11 @@ import pe.com.mivoto.service.domain.enums.VoteStatus;
 import pe.com.mivoto.service.domain.exceptions.DuplicateVoteException;
 import pe.com.mivoto.service.domain.exceptions.InvalidElectionException;
 import pe.com.mivoto.service.domain.model.*;
+import pe.com.mivoto.service.domain.ports.in.VotingUseCase;
 import pe.com.mivoto.service.domain.ports.out.CandidateRepository;
 import pe.com.mivoto.service.domain.ports.out.ElectionRepository;
 import pe.com.mivoto.service.domain.ports.out.UserRepository;
 import pe.com.mivoto.service.domain.ports.out.VoteRepository;
-
-import pe.com.mivoto.service.domain.ports.in.VotingUseCase;
 
 import java.time.LocalDateTime;
 import java.util.List;
