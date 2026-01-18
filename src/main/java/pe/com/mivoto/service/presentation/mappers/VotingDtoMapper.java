@@ -4,16 +4,27 @@ import org.springframework.stereotype.Component;
 import pe.com.mivoto.service.domain.model.Vote;
 import pe.com.mivoto.service.domain.model.VoteRecord;
 import pe.com.mivoto.service.presentation.dto.response.VoteRecordDto;
-import pe.com.mivoto.service.presentation.dto.response.VoteResponse;
+import pe.com.mivoto.service.presentation.dto.response.VoteResponseDto;
 
+/**
+ * Mapper for Voting DTOs.
+ * Converts between voting-related domain models and DTOs.
+ */
 @Component
 public class VotingDtoMapper {
-    public VoteResponse toVoteResponse(Vote vote) {
+
+    /**
+     * Converts Vote domain model to VoteResponse.
+     *
+     * @param vote The Vote domain model.
+     * @return The VoteResponse DTO.
+     */
+    public VoteResponseDto toVoteResponse(Vote vote) {
         if (vote == null) {
             return null;
         }
 
-        return VoteResponse.builder()
+        return VoteResponseDto.builder()
                 .id(vote.getId())
                 .electionId(vote.getElectionId())
                 .candidateId(vote.getCandidateId())
@@ -25,6 +36,12 @@ public class VotingDtoMapper {
                 .build();
     }
 
+    /**
+     * Converts VoteRecord domain model to VoteRecordDto.
+     *
+     * @param record The VoteRecord domain model.
+     * @return The VoteRecordDto DTO.
+     */
     public VoteRecordDto toVoteRecordDto(VoteRecord record) {
         if (record == null) {
             return null;
