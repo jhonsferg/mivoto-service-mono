@@ -1,0 +1,73 @@
+services:
+  # PostgreSQL Database - QA
+  postgres:
+    image: postgres:16.1-alpine
+    container_name: mivoto-postgres-qa
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-mivoto_qa}
+      POSTGRES_USER: ${POSTGRES_USER:-mivoto_qa}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_qa_pass}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_qa_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    networks:
+      - mivoto-qa-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mivoto_qa} -d ${POSTGRES_DB:-mivoto_qa}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache - QA
+  redis:
+    image: redis:7.2.4-alpine
+    container_name: mivoto-redis-qa
+    restart: always
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_qa_data:/data
+    networks:
+      - mivoto-qa-network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # App - QA
+  mivoto-app:
+    build:
+      context: ../../
+      dockerfile: Dockerfile
+    image: mivoto-service:qa
+    container_name: mivoto-app-qa
+    restart: always
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-mivoto_qa}
+      DATABASE_USER: ${POSTGRES_USER:-mivoto_qa}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-secure_qa_pass}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      SPRING_PROFILES_ACTIVE: qa
+      JWT_SECRET: ${JWT_SECRET:-qaSecretKeyThatIsStrongerThanDev123456789}
+    ports:
+      - "8081:8080"
+    networks:
+      - mivoto-qa-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+networks:
+  mivoto-qa-network:
+    driver: bridge
+
+volumes:
+  postgres_qa_data:
+  redis_qa_data:

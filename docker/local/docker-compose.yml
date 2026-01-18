@@ -1,0 +1,80 @@
+services:
+  # PostgreSQL Database - Local
+  postgres:
+    image: postgres:16.1-alpine
+    container_name: mivoto-postgres-local
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-mivoto_local}
+      POSTGRES_USER: ${POSTGRES_USER:-mivoto_local}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local_secret}
+      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=en_US.UTF-8"
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_local_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    networks:
+      - mivoto-local-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mivoto_local} -d ${POSTGRES_DB:-mivoto_local}" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Redis Cache - Local
+  redis:
+    image: redis:7.2.4-alpine
+    container_name: mivoto-redis-local
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_local_data:/data
+    networks:
+      - mivoto-local-network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+
+  # pgAdmin - Local
+  pgadmin:
+    image: dpage/pgadmin4:8.2
+    container_name: mivoto-pgadmin-local
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@mivoto.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_local_data:/var/lib/pgadmin
+    networks:
+      - mivoto-local-network
+
+  # Redis Commander - Local
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: mivoto-redis-commander-local
+    restart: unless-stopped
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    ports:
+      - "8081:8081"
+    networks:
+      - mivoto-local-network
+    depends_on:
+      redis:
+        condition: service_healthy
+
+networks:
+  mivoto-local-network:
+    driver: bridge
+
+volumes:
+  postgres_local_data:
+  redis_local_data:
+  pgadmin_local_data:

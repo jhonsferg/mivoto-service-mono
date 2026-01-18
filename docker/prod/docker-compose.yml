@@ -1,0 +1,74 @@
+services:
+  # PostgreSQL Database - Prod
+  postgres:
+    image: postgres:16.1-alpine
+    container_name: mivoto-postgres-prod
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-mivoto_prod}
+      POSTGRES_USER: ${POSTGRES_USER:-mivoto_prod}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-STRONG_PROD_PASSWORD_XYZ}
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    networks:
+      - mivoto-prod-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mivoto_prod} -d ${POSTGRES_DB:-mivoto_prod}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache - Prod
+  redis:
+    image: redis:7.2.4-alpine
+    container_name: mivoto-redis-prod
+    restart: always
+    ports:
+      - "6381:6379"
+    volumes:
+      - redis_prod_data:/data
+    networks:
+      - mivoto-prod-network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: redis-server --appendonly yes --maxmemory 1024mb --maxmemory-policy allkeys-lru
+
+  # App - Prod
+  mivoto-app:
+    build:
+      context: ../../
+      dockerfile: Dockerfile
+    image: mivoto-service:prod
+    container_name: mivoto-app-prod
+    restart: always
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-mivoto_prod}
+      DATABASE_USER: ${POSTGRES_USER:-mivoto_prod}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-STRONG_PROD_PASSWORD_XYZ}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      SPRING_PROFILES_ACTIVE: prod
+      JWT_SECRET: ${JWT_SECRET:-VERY_LONG_AND_SECURE_PRODUCTION_SECRET_KEY_FOR_JWT_SIGNING}
+    ports:
+      - "8082:8080"
+    networks:
+      - mivoto-prod-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+networks:
+  mivoto-prod-network:
+    driver: bridge
+
+volumes:
+  postgres_prod_data:
+  redis_prod_data:

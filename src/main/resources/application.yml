@@ -20,6 +20,7 @@ spring:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
       timeout: 60000
 
   jpa:
@@ -48,9 +49,10 @@ spring:
     time-zone: America/Lima
 
   cache:
-    type: caffeine
-    caffeine:
-      spec: maximumSize=1000,expireAfterWrite=30m
+    type: redis
+    redis:
+      time-to-live: 600000 # 10 minutes default TTL
+
 
 server:
   port: ${PORT:8080}
