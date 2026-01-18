@@ -3,6 +3,14 @@ package pe.com.mivoto.service.datastructures.nonlinear.graph;
 import java.util.*;
 
 public class GraphAlgorithms {
+
+    /**
+     * Performs a topological sort on a directed acyclic graph (DAG).
+     *
+     * @param graph The graph to sort.
+     * @param <T>   The type of vertex data.
+     * @return A list of vertices in topological order.
+     */
     public static <T> List<T> topologicalSort(Graph<T> graph) {
         List<T> result = new ArrayList<>();
         Set<T> visited = new HashSet<>();
@@ -34,6 +42,13 @@ public class GraphAlgorithms {
         stack.push(vertex);
     }
 
+    /**
+     * Finds all connected components in an undirected graph.
+     *
+     * @param graph The graph to search.
+     * @param <T>   The type of vertex data.
+     * @return A list of sets, where each set represents a connected component.
+     */
     public static <T> List<Set<T>> findConnectedComponents(Graph<T> graph) {
         List<Set<T>> components = new ArrayList<>();
         Set<T> visited = new HashSet<>();
@@ -61,6 +76,13 @@ public class GraphAlgorithms {
         }
     }
 
+    /**
+     * Checks if a graph is bipartite (2-colorable).
+     *
+     * @param graph The graph to check.
+     * @param <T>   The type of vertex data.
+     * @return true if the graph is bipartite, false otherwise.
+     */
     public static <T> boolean isBipartite(Graph<T> graph) {
         Map<T, Integer> colors = new HashMap<>();
 

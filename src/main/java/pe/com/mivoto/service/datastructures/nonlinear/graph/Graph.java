@@ -8,22 +8,45 @@ import pe.com.mivoto.service.datastructures.interfaces.CustomGraph;
 import java.util.*;
 
 @Slf4j
+/**
+ * Generic implementation of a Graph data structure.
+ * Supports both directed and undirected graphs, with weighted edges.
+ *
+ * @param <T> The type of data stored in the graph vertices. Must implement
+ *            equals/hashCode correctly.
+ */
 public class Graph<T> implements CustomGraph<T> {
 
     private final Map<T, GraphNode<T>> vertices;
     private final boolean isDirected;
     private int edgeCount;
 
+    /**
+     * Retrieves all vertices currently in the graph.
+     *
+     * @return A Set containing all vertices.
+     */
     public Set<T> getAllVertices() {
         return vertices.keySet();
     }
 
+    /**
+     * Constructs a new Graph.
+     *
+     * @param isDirected true if the graph is directed, false otherwise.
+     */
     public Graph(boolean isDirected) {
         this.vertices = new HashMap<>();
         this.isDirected = isDirected;
         this.edgeCount = 0;
     }
 
+    /**
+     * Adds a vertex to the graph.
+     * If the vertex already exists, this method does nothing.
+     *
+     * @param vertex The vertex to add.
+     */
     @Override
     public void addVertex(T vertex) {
         if (!vertices.containsKey(vertex)) {
@@ -32,6 +55,15 @@ public class Graph<T> implements CustomGraph<T> {
         }
     }
 
+    /**
+     * Adds an edge between two vertices with a specified weight.
+     * If the vertices do not exist, they are added automatically.
+     * If the graph is undirected, the edge is added in both directions.
+     *
+     * @param from   The source vertex.
+     * @param to     The destination vertex.
+     * @param weight The weight of the edge.
+     */
     @Override
     public void addEdge(T from, T to, int weight) {
         addVertex(from);
@@ -54,6 +86,11 @@ public class Graph<T> implements CustomGraph<T> {
         }
     }
 
+    /**
+     * Removes a vertex and all connected edges from the graph.
+     *
+     * @param vertex The vertex to remove.
+     */
     @Override
     public void removeVertex(T vertex) {
         if (!vertices.containsKey(vertex)) {
@@ -70,6 +107,13 @@ public class Graph<T> implements CustomGraph<T> {
         log.debug("Vértice removido: {}. Total vértices: {}", vertex, vertices.size());
     }
 
+    /**
+     * Removes an edge between two vertices.
+     * If the graph is undirected, the edge is removed in both directions.
+     *
+     * @param from The source vertex.
+     * @param to   The destination vertex.
+     */
     @Override
     public void removeEdge(T from, T to) {
         if (!vertices.containsKey(from)) {
@@ -92,11 +136,24 @@ public class Graph<T> implements CustomGraph<T> {
         }
     }
 
+    /**
+     * Checks if a vertex exists in the graph.
+     *
+     * @param vertex The vertex to check.
+     * @return true if the vertex exists, false otherwise.
+     */
     @Override
     public boolean hasVertex(T vertex) {
         return vertices.containsKey(vertex);
     }
 
+    /**
+     * Checks if an edge exists between two vertices.
+     *
+     * @param from The source vertex.
+     * @param to   The destination vertex.
+     * @return true if the edge exists, false otherwise.
+     */
     @Override
     public boolean hasEdge(T from, T to) {
         if (!vertices.containsKey(from)) {
@@ -108,6 +165,13 @@ public class Graph<T> implements CustomGraph<T> {
                 .anyMatch(edge -> edge.getDestination().equals(to));
     }
 
+    /**
+     * Retrieves the neighbors of a given vertex.
+     *
+     * @param vertex The vertex to find neighbors for.
+     * @return A list of neighboring vertices. Returns an empty list if the vertex
+     *         does not exist.
+     */
     @Override
     public List<T> getNeighbors(T vertex) {
         if (!vertices.containsKey(vertex)) {
@@ -124,16 +188,32 @@ public class Graph<T> implements CustomGraph<T> {
         return neighbors;
     }
 
+    /**
+     * Returns the total number of vertices in the graph.
+     *
+     * @return The vertex count.
+     */
     @Override
     public int getVertexCount() {
         return vertices.size();
     }
 
+    /**
+     * Returns the total number of edges in the graph.
+     *
+     * @return The edge count.
+     */
     @Override
     public int getEdgeCount() {
         return edgeCount;
     }
 
+    /**
+     * Performs a Depth-First Search (DFS) starting from a given vertex.
+     *
+     * @param start The starting vertex.
+     * @return A list of vertices in the order they were visited.
+     */
     @Override
     public List<T> depthFirstSearch(T start) {
         if (!vertices.containsKey(start)) {
@@ -160,6 +240,12 @@ public class Graph<T> implements CustomGraph<T> {
         }
     }
 
+    /**
+     * Performs a Breadth-First Search (BFS) starting from a given vertex.
+     *
+     * @param start The starting vertex.
+     * @return A list of vertices in the order they were visited.
+     */
     @Override
     public List<T> breadthFirstSearch(T start) {
         if (!vertices.containsKey(start)) {
@@ -190,6 +276,15 @@ public class Graph<T> implements CustomGraph<T> {
         return result;
     }
 
+    /**
+     * Calculates the shortest path from a start vertex to all other accessible
+     * vertices using Dijkstra's algorithm.
+     * Assumes non-negative edge weights.
+     *
+     * @param start The starting vertex.
+     * @return A map where the key is the destination vertex and the value is the
+     *         minimum distance from the start vertex.
+     */
     @Override
     public Map<T, Integer> shortestPath(T start) {
         if (!vertices.containsKey(start)) {
@@ -232,6 +327,12 @@ public class Graph<T> implements CustomGraph<T> {
         return distances;
     }
 
+    /**
+     * Detects if the graph contains any cycles.
+     * Uses DFS with a recursion stack tracking for directed graphs.
+     *
+     * @return true if a cycle is detected, false otherwise.
+     */
     public boolean hasCycle() {
         Set<T> visited = new HashSet<>();
         Set<T> recursionStack = new HashSet<>();
