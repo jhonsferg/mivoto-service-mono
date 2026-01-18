@@ -157,7 +157,7 @@ public class VotingService implements VotingUseCase {
      * @param vote The vote object to process.
      * @return The updated and confirmed Vote.
      */
-    private Vote processVote(Vote vote) {
+    public Vote processVote(Vote vote) {
         Vote savedVote = this.voteRepository.save(vote);
         savedVote.confirm();
 
