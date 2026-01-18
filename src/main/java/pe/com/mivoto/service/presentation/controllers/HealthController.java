@@ -14,10 +14,15 @@ import pe.com.mivoto.service.datastructures.implementations.CandidateSearchTree;
 import pe.com.mivoto.service.datastructures.implementations.ElectionGraph;
 import pe.com.mivoto.service.datastructures.implementations.VoteQueue;
 import pe.com.mivoto.service.datastructures.implementations.VoteRecordList;
-import pe.com.mivoto.service.presentation.dto.response.ApiResponse;
+import pe.com.mivoto.service.presentation.dto.response.ApiResponseDto;
 
 import java.time.LocalDateTime;
 
+/**
+ * REST Controller for System Health Checks.
+ * Provides endpoints to monitor the status of the application and its
+ * components.
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/health")
@@ -29,21 +34,31 @@ public class HealthController {
     private final CandidateSearchTree candidateSearchTree;
     private final ElectionGraph electionGraph;
 
+    /**
+     * Performs a basic health check.
+     *
+     * @return ResponseEntity containing the system status.
+     */
     @GetMapping
     @Operation(summary = "Health check", description = "Verifica el estado del sistema")
-    public ResponseEntity<ApiResponse<HealthStatus>> healthCheck() {
+    public ResponseEntity<ApiResponseDto<HealthStatus>> healthCheck() {
         HealthStatus status = HealthStatus.builder()
                 .status("UP")
                 .timestamp(LocalDateTime.now())
                 .database("UP")
                 .dataStructures(getDataStructuresStatus())
                 .build();
-        return ResponseEntity.ok(ApiResponse.success(status));
+        return ResponseEntity.ok(ApiResponseDto.success(status));
     }
 
+    /**
+     * Performs a detailed health check including internal data structures stats.
+     *
+     * @return ResponseEntity containing detailed system status.
+     */
     @GetMapping("/detailed")
     @Operation(summary = "Health check detallado", description = "Verifica el estado detallado del sistema")
-    public ResponseEntity<ApiResponse<DetailedHealthStatus>> detailedHealthCheck() {
+    public ResponseEntity<ApiResponseDto<DetailedHealthStatus>> detailedHealthCheck() {
         DetailedHealthStatus status = DetailedHealthStatus.builder()
                 .status("UP")
                 .timestamp(LocalDateTime.now())
@@ -54,7 +69,7 @@ public class HealthController {
                 .candidateTreeBalanced(candidateSearchTree.isBalanced())
                 .electionGraphStats(electionGraph.getStatistics())
                 .build();
-        return ResponseEntity.ok(ApiResponse.success(status));
+        return ResponseEntity.ok(ApiResponseDto.success(status));
     }
 
     private DataStructuresStatus getDataStructuresStatus() {
