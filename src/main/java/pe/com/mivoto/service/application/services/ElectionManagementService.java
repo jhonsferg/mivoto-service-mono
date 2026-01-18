@@ -37,6 +37,13 @@ public class ElectionManagementService implements ElectionUseCase {
 
     private final ElectionGraph electionGraph;
 
+    /**
+     * Creates a new election with DRAFT status.
+     *
+     * @param election  The election data.
+     * @param createdBy The ID of the user creating the election.
+     * @return The created election.
+     */
     @Transactional
     public Election createElection(Election election, Long createdBy) {
         log.info("Creando nueva elección: {}", election.getTitle());
@@ -54,6 +61,13 @@ public class ElectionManagementService implements ElectionUseCase {
         return savedElection;
     }
 
+    /**
+     * Updates an existing election's details.
+     *
+     * @param electionId The ID of the election to update.
+     * @param election   The new election data.
+     * @return The updated election.
+     */
     @Transactional
     public Election updateElection(Long electionId, Election election) {
         log.info("Actualizando elección: {}", electionId);
@@ -77,19 +91,41 @@ public class ElectionManagementService implements ElectionUseCase {
         return updated;
     }
 
+    /**
+     * Retrieves an election by its ID.
+     *
+     * @param electionId The election ID.
+     * @return The Election object.
+     */
     public Election getElectionById(Long electionId) {
         return this.electionRepository.findById(electionId)
                 .orElseThrow(() -> new InvalidElectionException("Elección no encontrada"));
     }
 
+    /**
+     * Retrieves all elections that are currently active.
+     *
+     * @return List of active elections.
+     */
     public List<Election> getActiveElections() {
         return this.electionRepository.findActiveElections();
     }
 
+    /**
+     * Retrieves elections filtered by their status.
+     *
+     * @param status The election status.
+     * @return List of elections with the specified status.
+     */
     public List<Election> getElectionsByStatus(ElectionStatus status) {
         return this.electionRepository.findByStatus(status);
     }
 
+    /**
+     * Starts a scheduled election.
+     *
+     * @param electionId The ID of the election to start.
+     */
     @Transactional
     public void startElection(Long electionId) {
         Election election = this.getElectionById(electionId);
@@ -109,6 +145,11 @@ public class ElectionManagementService implements ElectionUseCase {
         log.info("Elección iniciada: {}", electionId);
     }
 
+    /**
+     * Closes an active election.
+     *
+     * @param electionId The ID of the election to close.
+     */
     @Transactional
     public void closeElection(Long electionId) {
         Election election = this.getElectionById(electionId);
@@ -191,6 +232,13 @@ public class ElectionManagementService implements ElectionUseCase {
                 participationRate, leadingCandidate);
     }
 
+    /**
+     * Finds elections scheduled within a specific date range.
+     *
+     * @param startDate The start date of the range.
+     * @param endDate   The end date of the range.
+     * @return List of elections occurring within the range.
+     */
     @Override
     public List<Election> findElectionsByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
         return this.electionRepository.findByDateRange(startDate, endDate);
@@ -229,6 +277,11 @@ public class ElectionManagementService implements ElectionUseCase {
         return this.electionGraph.getHierarchy(electionId);
     }
 
+    /**
+     * Validates that election dates are logical (start in future, end after start).
+     *
+     * @param election The election to validate.
+     */
     private void validateElectionDates(Election election) {
         LocalDateTime now = LocalDateTime.now();
 

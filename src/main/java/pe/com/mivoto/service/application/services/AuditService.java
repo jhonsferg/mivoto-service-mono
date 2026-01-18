@@ -45,7 +45,7 @@ public class AuditService implements pe.com.mivoto.service.domain.ports.in.Audit
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public AuditLog logAction(Long userId, AuditAction action, String entity, Long entityId, String description,
-                              String ipAddress, String userAgent, Map<String, Object> metadata) {
+            String ipAddress, String userAgent, Map<String, Object> metadata) {
 
         AuditLog auditLog = AuditLog.builder()
                 .userId(userId)
@@ -333,22 +333,53 @@ public class AuditService implements pe.com.mivoto.service.domain.ports.in.Audit
         logAction(userId, AuditAction.DATA_MODIFIED, entity, entityId, "Datos modificados", null, null, null);
     }
 
+    /**
+     * Retrieves the audit trail for a specific user.
+     *
+     * @param userId The ID of the user.
+     * @return List of audit logs associated with the user.
+     */
     public List<AuditLog> getAuditTrailByUser(Long userId) {
         return this.auditRepository.findByUserId(userId);
     }
 
+    /**
+     * Retrieves the audit trail for a specific entity.
+     *
+     * @param entity   The entity type name.
+     * @param entityId The ID of the entity.
+     * @return List of audit logs for the entity.
+     */
     public List<AuditLog> getAuditTrailByEntity(String entity, Long entityId) {
         return this.auditRepository.findByEntityAndEntityId(entity, entityId);
     }
 
+    /**
+     * Retrieves all audit logs for a specific action type.
+     *
+     * @param action The audit action to filter by.
+     * @return List of matching audit logs.
+     */
     public List<AuditLog> getAuditTrailByAction(AuditAction action) {
         return this.auditRepository.findByAction(action);
     }
 
+    /**
+     * Retrieves audit logs within a specified date range.
+     *
+     * @param startDate The start of the range.
+     * @param endDate   The end of the range.
+     * @return List of audit logs in the range.
+     */
     public List<AuditLog> getAuditTrailByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
         return this.auditRepository.findByTimestampBetween(startDate, endDate);
     }
 
+    /**
+     * Retrieves all critical audit logs.
+     *
+     * @return List of critical audit logs.
+     */
     public List<AuditLog> getCriticalAuditLogs() {
         List<AuditLog> allLogs = this.auditRepository.findAll();
         return allLogs.stream()
@@ -356,6 +387,11 @@ public class AuditService implements pe.com.mivoto.service.domain.ports.in.Audit
                 .toList();
     }
 
+    /**
+     * Retrieves all security-related audit logs.
+     *
+     * @return List of security audit logs.
+     */
     public List<AuditLog> getSecurityAuditLogs() {
         List<AuditLog> allLogs = this.auditRepository.findAll();
         return allLogs.stream()
@@ -363,6 +399,11 @@ public class AuditService implements pe.com.mivoto.service.domain.ports.in.Audit
                 .toList();
     }
 
+    /**
+     * Retrieves all vote-related audit logs.
+     *
+     * @return List of voting audit logs.
+     */
     public List<AuditLog> getVotingAuditLogs() {
         List<AuditLog> allLogs = this.auditRepository.findAll();
         return allLogs.stream()
@@ -370,6 +411,13 @@ public class AuditService implements pe.com.mivoto.service.domain.ports.in.Audit
                 .toList();
     }
 
+    /**
+     * Generates a comprehensive audit report for a given date range.
+     *
+     * @param startDate The start of the reporting period.
+     * @param endDate   The end of the reporting period.
+     * @return The generated AuditReport containing statistics and recent logs.
+     */
     @Override
     public AuditReport generateAuditReport(LocalDateTime startDate, LocalDateTime endDate) {
         List<AuditLog> logs = getAuditTrailByDateRange(startDate, endDate);
@@ -400,6 +448,12 @@ public class AuditService implements pe.com.mivoto.service.domain.ports.in.Audit
                 recentLogs);
     }
 
+    /**
+     * Serializes metadata map to JSON string.
+     *
+     * @param metadata The metadata map.
+     * @return JSON string or null if empty/error.
+     */
     private String serializeMetadata(Map<String, Object> metadata) {
         if (metadata == null || metadata.isEmpty()) {
             return null;
