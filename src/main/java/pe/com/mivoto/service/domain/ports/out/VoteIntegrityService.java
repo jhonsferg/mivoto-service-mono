@@ -1,4 +1,4 @@
-package pe.com.mivoto.service.domain.ports;
+package pe.com.mivoto.service.domain.ports.out;
 
 import java.util.List;
 
