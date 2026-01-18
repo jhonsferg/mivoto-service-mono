@@ -1,5 +1,7 @@
 package pe.com.mivoto.service.datastructures.nonlinear.tree;
 
+import lombok.Getter;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -15,6 +17,7 @@ import java.util.List;
 public class MerkleTree {
     private final List<String> transactions;
     private final List<String> tree;
+    @Getter
     private final String root;
 
     /**
@@ -58,15 +61,6 @@ public class MerkleTree {
     }
 
     /**
-     * Retrieves the root hash of the tree.
-     *
-     * @return The Merkle Root.
-     */
-    public String getRoot() {
-        return root;
-    }
-
-    /**
      * Hashes a string using SHA-256.
      *
      * @param data The string to hash.
@@ -91,8 +85,8 @@ public class MerkleTree {
      */
     private String bytesToHex(byte[] hash) {
         StringBuilder hexString = new StringBuilder(2 * hash.length);
-        for (int i = 0; i < hash.length; i++) {
-            String hex = Integer.toHexString(0xff & hash[i]);
+        for (byte b : hash) {
+            String hex = Integer.toHexString(0xff & b);
             if (hex.length() == 1) {
                 hexString.append('0');
             }
