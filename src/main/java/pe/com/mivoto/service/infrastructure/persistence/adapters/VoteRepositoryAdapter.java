@@ -16,6 +16,7 @@ import pe.com.mivoto.service.infrastructure.persistence.repositories.JpaVoteRepo
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -162,5 +163,26 @@ public class VoteRepositoryAdapter implements VoteRepository {
         return jpaVoteRecordRepository.findAll().stream()
                 .map(voteRecordEntityMapper::toDomain)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Long count() {
+        return jpaVoteRepository.count();
+    }
+
+    @Override
+    public Map<String, Long> countByElectionIdGroupByParty(Long electionId) {
+        return jpaVoteRepository.countByElectionIdGroupedByParty(electionId).stream()
+                .collect(Collectors.toMap(
+                        result -> (String) result[0],
+                        result -> (Long) result[1]));
+    }
+
+    @Override
+    public Map<Long, Long> countByElectionIdGroupByCandidate(Long electionId) {
+        return jpaVoteRepository.countByElectionIdGroupedByCandidate(electionId).stream()
+                .collect(Collectors.toMap(
+                        result -> (Long) result[0],
+                        result -> (Long) result[1]));
     }
 }
