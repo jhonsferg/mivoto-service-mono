@@ -5,12 +5,22 @@ import pe.com.mivoto.service.datastructures.interfaces.CustomList;
 
 import java.util.NoSuchElementException;
 
+/**
+ * Custom implementation of a singly linked list.
+ * Implements the CustomList interface and provides efficient operations for
+ * adding/removing elements at both ends.
+ *
+ * @param <T> The type of elements stored in the list.
+ */
 @Slf4j
 public class CustomLinkedList<T> implements CustomList<T> {
     private Node<T> head;
     private Node<T> tail;
     private int size;
 
+    /**
+     * Constructs an empty linked list.
+     */
     public CustomLinkedList() {
         this.head = null;
         this.tail = null;
@@ -167,6 +177,12 @@ public class CustomLinkedList<T> implements CustomList<T> {
         log.debug("Lista limpiada");
     }
 
+    /**
+     * Validates that the given index is within valid bounds.
+     *
+     * @param index The index to validate.
+     * @throws IndexOutOfBoundsException if index is out of range.
+     */
     private void validateIndex(int index) {
         if (index < 0 || index >= this.size) {
             throw new IndexOutOfBoundsException(String.format("Índice %d fuera de rango [0, %d)", index, this.size));
