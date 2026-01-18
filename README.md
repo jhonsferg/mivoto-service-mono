@@ -30,6 +30,8 @@ API REST desarrollada con Spring Boot 3.x que implementa estructuras de datos pe
 - **Documentación Swagger**: API interactiva
 
 ## 🏗️ Arquitectura
+
+```txt
 mivoto-service-mono/
 ├── docker/                    # Configuraciones de entorno Docker
 │   ├── local/                 # Entorno Local (Solo dependencias)
@@ -60,6 +62,7 @@ mivoto-service-mono/
 │       ├── dto/               # Objetos de Transferencia de Datos (Request/Response)
 │       └── mappers/           # Conversión DTO <-> Dominio
 └── pom.xml                    # Gestor de dependencias Maven
+```
 
 ## 📊 Estructuras de Datos
 
