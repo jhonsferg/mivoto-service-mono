@@ -27,11 +27,21 @@ public class CustomLinkedList<T> implements CustomList<T> {
         this.size = 0;
     }
 
+    /**
+     * Appends the specified element to the end of this list.
+     *
+     * @param element The element to add.
+     */
     @Override
     public void add(T element) {
         addLast(element);
     }
 
+    /**
+     * Inserts the specified element at the beginning of this list.
+     *
+     * @param element The element to add.
+     */
     @Override
     public void addFirst(T element) {
         Node<T> newNode = new Node<>(element);
@@ -48,6 +58,11 @@ public class CustomLinkedList<T> implements CustomList<T> {
         log.debug("Elemento agregado al inicio. Tamaño actual: {}", this.size);
     }
 
+    /**
+     * Appends the specified element to the end of this list.
+     *
+     * @param element The element to add.
+     */
     @Override
     public void addLast(T element) {
         Node<T> newNode = new Node<>(element);
@@ -63,6 +78,13 @@ public class CustomLinkedList<T> implements CustomList<T> {
         log.debug("Elemento agregado al final. Tamaño actual: {}", this.size);
     }
 
+    /**
+     * Returns the element at the specified position in this list.
+     *
+     * @param index The index of the element to return.
+     * @return The element at the specified position.
+     * @throws IndexOutOfBoundsException if the index is out of range.
+     */
     @Override
     public T get(int index) {
         validateIndex(index);
@@ -75,6 +97,13 @@ public class CustomLinkedList<T> implements CustomList<T> {
         return current.getData();
     }
 
+    /**
+     * Removes the element at the specified position in this list.
+     *
+     * @param index The index of the element to be removed.
+     * @return The element previously at the specified position.
+     * @throws IndexOutOfBoundsException if the index is out of range.
+     */
     @Override
     public T remove(int index) {
         validateIndex(index);
@@ -101,6 +130,12 @@ public class CustomLinkedList<T> implements CustomList<T> {
         return data;
     }
 
+    /**
+     * Removes and returns the first element from this list.
+     *
+     * @return The first element.
+     * @throws NoSuchElementException if the list is empty.
+     */
     @Override
     public T removeFirst() {
         if (isEmpty()) {
@@ -120,6 +155,12 @@ public class CustomLinkedList<T> implements CustomList<T> {
         return data;
     }
 
+    /**
+     * Removes and returns the last element from this list.
+     *
+     * @return The last element.
+     * @throws NoSuchElementException if the list is empty.
+     */
     @Override
     public T removeLast() {
         if (isEmpty()) {
@@ -145,6 +186,12 @@ public class CustomLinkedList<T> implements CustomList<T> {
         return data;
     }
 
+    /**
+     * Returns true if this list contains the specified element.
+     *
+     * @param element The element whose presence is to be tested.
+     * @return true if this list contains the specified element.
+     */
     @Override
     public boolean contains(T element) {
         Node<T> current = this.head;
@@ -159,16 +206,29 @@ public class CustomLinkedList<T> implements CustomList<T> {
         return false;
     }
 
+    /**
+     * Returns the number of elements in this list.
+     *
+     * @return The size of the list.
+     */
     @Override
     public int size() {
         return this.size;
     }
 
+    /**
+     * Checks if the list is empty.
+     *
+     * @return true if the list contains no elements.
+     */
     @Override
     public boolean isEmpty() {
         return this.size == 0;
     }
 
+    /**
+     * Removes all elements from this list.
+     */
     @Override
     public void clear() {
         this.head = null;
@@ -189,6 +249,11 @@ public class CustomLinkedList<T> implements CustomList<T> {
         }
     }
 
+    /**
+     * Returns a string representation of the linked list.
+     *
+     * @return String representation like "[element1, element2]".
+     */
     @Override
     public String toString() {
         if (isEmpty()) {

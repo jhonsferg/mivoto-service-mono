@@ -21,6 +21,9 @@ import java.util.Optional;
 public class CandidateSearchTree {
     private final BinarySearchTree<CandidateNode> tree;
 
+    /**
+     * Initializes a new empty candidate search tree.
+     */
     public CandidateSearchTree() {
         this.tree = new BinarySearchTree<>();
     }
@@ -96,6 +99,11 @@ public class CandidateSearchTree {
         return candidates;
     }
 
+    /**
+     * Finds the candidate with the lowest ballot number.
+     *
+     * @return Optional containing the minimum candidate.
+     */
     public Optional<Candidate> findMinCandidate() {
         if (this.tree.isEmpty()) {
             return Optional.empty();
@@ -105,6 +113,11 @@ public class CandidateSearchTree {
         return Optional.of(minNode.getCandidate());
     }
 
+    /**
+     * Finds the candidate with the highest ballot number.
+     *
+     * @return Optional containing the maximum candidate.
+     */
     public Optional<Candidate> findMaxCandidate() {
         if (this.tree.isEmpty()) {
             return Optional.empty();
@@ -114,6 +127,13 @@ public class CandidateSearchTree {
         return Optional.of(maxNode.getCandidate());
     }
 
+    /**
+     * Finds all candidates within a specific range of ballot numbers.
+     *
+     * @param minNumber The minimum number (inclusive).
+     * @param maxNumber The maximum number (inclusive).
+     * @return List of candidates in the range.
+     */
     public List<Candidate> findInRange(Integer minNumber, Integer maxNumber) {
         List<CandidateNode> allNodes = this.tree.inorderTraversal();
         List<Candidate> result = new ArrayList<>();
@@ -128,22 +148,45 @@ public class CandidateSearchTree {
         return result;
     }
 
+    /**
+     * Returns the total number of candidates in the tree.
+     *
+     * @return The size of the tree.
+     */
     public int size() {
         return this.tree.size();
     }
 
+    /**
+     * Checks if the tree is empty.
+     *
+     * @return true if the tree has no candidates.
+     */
     public boolean isEmpty() {
         return this.tree.isEmpty();
     }
 
+    /**
+     * Calculates the height of the tree.
+     *
+     * @return The height.
+     */
     public int height() {
         return this.tree.height();
     }
 
+    /**
+     * Checks if the tree is balanced.
+     *
+     * @return true if balanced.
+     */
     public boolean isBalanced() {
         return this.tree.isBalanced();
     }
 
+    /**
+     * Removes all candidates from the tree.
+     */
     public void clear() {
         List<CandidateNode> nodes = this.tree.inorderTraversal();
         for (CandidateNode node : nodes) {
@@ -152,6 +195,11 @@ public class CandidateSearchTree {
         log.info("Árbol de candidatos limpiado");
     }
 
+    /**
+     * Retrieves statistics about the tree structure.
+     *
+     * @return TreeStatistics object.
+     */
     public TreeStatistics getStatistics() {
         return new TreeStatistics(this.tree.size(), this.tree.height(), this.tree.isBalanced());
     }

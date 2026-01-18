@@ -22,6 +22,9 @@ public class ElectionGraph {
     private final DirectedGraph<ElectionNode> graph;
     private final Map<Long, ElectionNode> electionMap;
 
+    /**
+     * Initializes a new empty election graph.
+     */
     public ElectionGraph() {
         this.graph = new DirectedGraph<>();
         this.electionMap = new HashMap<>();
@@ -82,6 +85,12 @@ public class ElectionGraph {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves the full hierarchical structure starting from a root election.
+     *
+     * @param rootElectionId The ID of the root election.
+     * @return The ElectionHierarchy object representing the tree structure.
+     */
     public ElectionHierarchy getHierarchy(Long rootElectionId) {
         ElectionNode root = this.electionMap.get(rootElectionId);
         if (root == null) {
@@ -97,6 +106,13 @@ public class ElectionGraph {
                         .collect(Collectors.toList()));
     }
 
+    /**
+     * Finds the shortest path between two elections in the hierarchy.
+     *
+     * @param fromElectionId The starting election ID.
+     * @param toElectionId   The target election ID.
+     * @return List of elections representing the path, or empty if no path exists.
+     */
     public List<Election> findPath(Long fromElectionId, Long toElectionId) {
         ElectionNode from = this.electionMap.get(fromElectionId);
         ElectionNode to = this.electionMap.get(toElectionId);
@@ -118,6 +134,12 @@ public class ElectionGraph {
         return path;
     }
 
+    /**
+     * Retrieves all elections at a specific administrative level.
+     *
+     * @param level The election level.
+     * @return List of matching elections.
+     */
     public List<Election> getElectionsByLevel(ElectionLevel level) {
         return this.electionMap.values().stream()
                 .filter(node -> node.getLevel() == level)
@@ -125,6 +147,12 @@ public class ElectionGraph {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves both parent and child elections for a specific node.
+     *
+     * @param electionId The election ID.
+     * @return RelatedElections object containing parents and children.
+     */
     public RelatedElections getRelatedElections(Long electionId) {
         ElectionNode node = this.electionMap.get(electionId);
         if (node == null) {
@@ -142,6 +170,13 @@ public class ElectionGraph {
         return new RelatedElections(parents, children);
     }
 
+    /**
+     * Checks if a relationship exists from one election to another.
+     *
+     * @param fromId The source election ID.
+     * @param toId   The target election ID.
+     * @return true if a direct relationship exists.
+     */
     public boolean hasRelationship(Long fromId, Long toId) {
         ElectionNode from = this.electionMap.get(fromId);
         ElectionNode to = this.electionMap.get(toId);
@@ -153,6 +188,11 @@ public class ElectionGraph {
         return this.graph.hasEdge(from, to);
     }
 
+    /**
+     * Removes an election and its relationships from the graph.
+     *
+     * @param electionId The election ID.
+     */
     public void removeElection(Long electionId) {
         ElectionNode node = this.electionMap.get(electionId);
         if (node != null) {
@@ -162,6 +202,11 @@ public class ElectionGraph {
         }
     }
 
+    /**
+     * Retrieves all elections that have no parents (roots of the hierarchy).
+     *
+     * @return List of root elections.
+     */
     public List<Election> getRootElections() {
         List<Election> roots = new ArrayList<>();
 
@@ -182,15 +227,31 @@ public class ElectionGraph {
         return roots;
     }
 
+    /**
+     * Checks if the graph contains any cycles (circular dependencies).
+     *
+     * @return true if a cycle is detected.
+     */
     public boolean hasCycle() {
         return this.graph.hasCycle();
     }
 
+    /**
+     * Retrieves statistics about the election graph.
+     *
+     * @return GraphStatistics object.
+     */
     public GraphStatistics getStatistics() {
         return new GraphStatistics(this.graph.getVertexCount(), this.graph.getEdgeCount(), getRootElections().size(),
                 hasCycle());
     }
 
+    /**
+     * Calculates the edge weight based on logical relationship type.
+     *
+     * @param type The relationship type.
+     * @return Integer weight.
+     */
     private int calculateRelationshipWeight(RelationshipType type) {
         return switch (type) {
             case HIERARCHICAL_STRONG -> 10;

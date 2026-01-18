@@ -170,7 +170,7 @@ public class Graph<T> implements CustomGraph<T> {
      *
      * @param vertex The vertex to find neighbors for.
      * @return A list of neighboring vertices. Returns an empty list if the vertex
-     * does not exist.
+     *         does not exist.
      */
     @Override
     public List<T> getNeighbors(T vertex) {
@@ -227,6 +227,13 @@ public class Graph<T> implements CustomGraph<T> {
         return result;
     }
 
+    /**
+     * Recursive helper for DFS traversal.
+     *
+     * @param vertex  The current vertex.
+     * @param visited Set of visited vertices.
+     * @param result  List to accumulate traversal order.
+     */
     private void dfsRecursive(T vertex, Set<T> visited, List<T> result) {
         visited.add(vertex);
         result.add(vertex);
@@ -283,7 +290,7 @@ public class Graph<T> implements CustomGraph<T> {
      *
      * @param start The starting vertex.
      * @return A map where the key is the destination vertex and the value is the
-     * minimum distance from the start vertex.
+     *         minimum distance from the start vertex.
      */
     @Override
     public Map<T, Integer> shortestPath(T start) {
@@ -348,6 +355,15 @@ public class Graph<T> implements CustomGraph<T> {
         return false;
     }
 
+    /**
+     * Recursive helper for cycle detection using DFS.
+     *
+     * @param vertex         The current vertex.
+     * @param visited        Set of all visited vertices.
+     * @param recursionStack Set of vertices in the current recursion stack (for
+     *                       directed cycle check).
+     * @return true if cycle found.
+     */
     private boolean hasCycleDFS(T vertex, Set<T> visited, Set<T> recursionStack) {
         visited.add(vertex);
         recursionStack.add(vertex);
@@ -369,6 +385,11 @@ public class Graph<T> implements CustomGraph<T> {
         return false;
     }
 
+    /**
+     * Returns a string representation of the graph adjacency list.
+     *
+     * @return String representation of vertices and edges.
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

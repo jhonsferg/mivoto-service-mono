@@ -22,6 +22,9 @@ public class VoteQueue {
     private final CustomQueueImpl<VoteQueueItem> queue;
     private long processedCount;
 
+    /**
+     * Initializes a new vote queue.
+     */
     public VoteQueue() {
         this.queue = new CustomQueueImpl<>();
         this.processedCount = 0;
@@ -57,6 +60,11 @@ public class VoteQueue {
         return item.getVote();
     }
 
+    /**
+     * Peeks at the next vote in the queue without removing it.
+     *
+     * @return The next Vote object, or null if empty.
+     */
     public Vote peekNextVote() {
         if (this.queue.isEmpty()) {
             return null;
@@ -65,6 +73,11 @@ public class VoteQueue {
         return this.queue.peek().getVote();
     }
 
+    /**
+     * Dequeues and returns all votes currently in the queue.
+     *
+     * @return List of all processed votes.
+     */
     public List<Vote> processAllVotes() {
         List<Vote> processedVotes = new ArrayList<>();
 
@@ -77,22 +90,48 @@ public class VoteQueue {
         return processedVotes;
     }
 
+    /**
+     * Returns the current number of votes in the queue.
+     *
+     * @return Queue size.
+     */
     public int size() {
         return this.queue.size();
     }
 
+    /**
+     * Checks if the queue is empty.
+     *
+     * @return true if empty.
+     */
     public boolean isEmpty() {
         return this.queue.isEmpty();
     }
 
+    /**
+     * Retrieves statistics about the queue usage.
+     *
+     * @return QueueStatistics object.
+     */
     public QueueStatistics getStatistics() {
         return new QueueStatistics(this.queue.size(), this.processedCount, LocalDateTime.now());
     }
 
+    /**
+     * Generates a unique ID for queue items.
+     *
+     * @return String ID.
+     */
     private String generateQueueId() {
         return "Q-" + System.currentTimeMillis() + "-" + this.queue.size();
     }
 
+    /**
+     * Calculates the time a vote spent in the queue.
+     *
+     * @param enqueuedAt The timestamp when it was enqueued.
+     * @return Duration in milliseconds.
+     */
     private long calculateQueueTime(LocalDateTime enqueuedAt) {
         return Duration.between(enqueuedAt, LocalDateTime.now()).toMillis();
     }

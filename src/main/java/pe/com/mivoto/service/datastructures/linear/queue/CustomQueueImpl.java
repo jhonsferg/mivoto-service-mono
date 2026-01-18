@@ -26,6 +26,11 @@ public class CustomQueueImpl<T> implements CustomQueue<T> {
         this.size = 0;
     }
 
+    /**
+     * Inserts the specified element into this queue.
+     *
+     * @param element The element to add.
+     */
     @Override
     public void enqueue(T element) {
         QueueNode<T> newNode = new QueueNode<>(element);
@@ -41,6 +46,12 @@ public class CustomQueueImpl<T> implements CustomQueue<T> {
         log.debug("Elemento encolado. Tamaño actual: {}", this.size);
     }
 
+    /**
+     * Retrieves and removes the head of this queue.
+     *
+     * @return The head of this queue.
+     * @throws NoSuchElementException if this queue is empty.
+     */
     @Override
     public T dequeue() {
         if (isEmpty()) {
@@ -60,6 +71,12 @@ public class CustomQueueImpl<T> implements CustomQueue<T> {
         return data;
     }
 
+    /**
+     * Retrieves, but does not remove, the head of this queue.
+     *
+     * @return The head of this queue.
+     * @throws NoSuchElementException if this queue is empty.
+     */
     @Override
     public T peek() {
         if (isEmpty()) {
@@ -69,16 +86,29 @@ public class CustomQueueImpl<T> implements CustomQueue<T> {
         return this.front.getData();
     }
 
+    /**
+     * Checks if the queue is empty.
+     *
+     * @return true if the queue contains no elements.
+     */
     @Override
     public boolean isEmpty() {
         return this.size == 0;
     }
 
+    /**
+     * Returns the number of elements in this queue.
+     *
+     * @return The size of the queue.
+     */
     @Override
     public int size() {
         return this.size;
     }
 
+    /**
+     * Removes all elements from the queue.
+     */
     @Override
     public void clear() {
         this.front = null;
@@ -87,6 +117,11 @@ public class CustomQueueImpl<T> implements CustomQueue<T> {
         log.debug("Cola limpiada");
     }
 
+    /**
+     * Returns a string representation of the queue.
+     *
+     * @return String representation showing front to rear.
+     */
     @Override
     public String toString() {
         if (isEmpty()) {

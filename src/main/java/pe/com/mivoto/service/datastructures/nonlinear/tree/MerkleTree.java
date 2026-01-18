@@ -83,6 +83,12 @@ public class MerkleTree {
         }
     }
 
+    /**
+     * Converts a byte array to a hexadecimal string.
+     *
+     * @param hash The byte array to convert.
+     * @return The hexadecimal string representation.
+     */
     private String bytesToHex(byte[] hash) {
         StringBuilder hexString = new StringBuilder(2 * hash.length);
         for (int i = 0; i < hash.length; i++) {

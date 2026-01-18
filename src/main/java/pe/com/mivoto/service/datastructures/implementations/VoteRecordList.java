@@ -20,6 +20,9 @@ import java.util.List;
 public class VoteRecordList {
     private final CustomLinkedList<VoteRecord> records;
 
+    /**
+     * Initializes a new vote record list.
+     */
     public VoteRecordList() {
         this.records = new CustomLinkedList<>();
     }
@@ -57,10 +60,21 @@ public class VoteRecordList {
         return record;
     }
 
+    /**
+     * Retrieves a record by its index.
+     *
+     * @param index The index in the list.
+     * @return The VoteRecord at that index.
+     */
     public VoteRecord getRecord(int index) {
         return this.records.get(index);
     }
 
+    /**
+     * Retrieves the first record in the list.
+     *
+     * @return The first VoteRecord, or null if empty.
+     */
     public VoteRecord getFirstRecord() {
         if (this.records.isEmpty()) {
             return null;
@@ -68,6 +82,11 @@ public class VoteRecordList {
         return this.records.get(0);
     }
 
+    /**
+     * Retrieves the last record in the list.
+     *
+     * @return The last VoteRecord, or null if empty.
+     */
     public VoteRecord getLastRecord() {
         if (this.records.isEmpty()) {
             return null;
@@ -75,6 +94,12 @@ public class VoteRecordList {
         return this.records.get(this.records.size() - 1);
     }
 
+    /**
+     * Finds all records for a specific election.
+     *
+     * @param electionId The election ID.
+     * @return List of matching records.
+     */
     public List<VoteRecord> findByElection(Long electionId) {
         List<VoteRecord> result = new ArrayList<>();
 
@@ -88,6 +113,12 @@ public class VoteRecordList {
         return result;
     }
 
+    /**
+     * Finds all records for a specific user.
+     *
+     * @param userId The user ID.
+     * @return List of matching records.
+     */
     public List<VoteRecord> findByUser(Long userId) {
         List<VoteRecord> result = new ArrayList<>();
 
@@ -101,6 +132,12 @@ public class VoteRecordList {
         return result;
     }
 
+    /**
+     * Finds a record by its vote hash.
+     *
+     * @param voteHash The hash string.
+     * @return The VoteRecord if found, null otherwise.
+     */
     public VoteRecord findByHash(String voteHash) {
         for (int i = 0; i < this.records.size(); i++) {
             VoteRecord record = this.records.get(i);
@@ -111,6 +148,11 @@ public class VoteRecordList {
         return null;
     }
 
+    /**
+     * Retrieves all records currently in the list.
+     *
+     * @return List of all VoteRecords.
+     */
     public List<VoteRecord> getAllRecords() {
         List<VoteRecord> result = new ArrayList<>();
         for (int i = 0; i < this.records.size(); i++) {
@@ -119,6 +161,13 @@ public class VoteRecordList {
         return result;
     }
 
+    /**
+     * Finds records within a specific date range.
+     *
+     * @param start The start timestamp (inclusive).
+     * @param end   The end timestamp (inclusive).
+     * @return List of matching records.
+     */
     public List<VoteRecord> findByDateRange(LocalDateTime start, LocalDateTime end) {
         List<VoteRecord> result = new ArrayList<>();
 
@@ -134,14 +183,29 @@ public class VoteRecordList {
         return result;
     }
 
+    /**
+     * Returns the total number of records.
+     *
+     * @return list size.
+     */
     public int size() {
         return this.records.size();
     }
 
+    /**
+     * Checks if the list is empty.
+     *
+     * @return true if empty.
+     */
     public boolean isEmpty() {
         return this.records.isEmpty();
     }
 
+    /**
+     * Retrieves statistics about the records.
+     *
+     * @return RecordStatistics object.
+     */
     public RecordStatistics getStatistics() {
         if (this.records.isEmpty()) {
             return new RecordStatistics(0, null, null, 0);

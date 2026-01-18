@@ -28,6 +28,11 @@ public class BinarySearchTree<T extends Comparable<T>> implements CustomTree<T> 
         this.size = 0;
     }
 
+    /**
+     * Inserts a value into the BST maintaining the search property.
+     *
+     * @param value The value to insert.
+     */
     @Override
     public void insert(T value) {
         root = insertRecursive(root, value);
@@ -35,6 +40,13 @@ public class BinarySearchTree<T extends Comparable<T>> implements CustomTree<T> 
         log.debug("Elemento insertado: {}. Tamaño actual: {}", value, size);
     }
 
+    /**
+     * Recursive helper to insert a value.
+     *
+     * @param node  The current node.
+     * @param value The value to insert.
+     * @return The updated node.
+     */
     private TreeNode<T> insertRecursive(TreeNode<T> node, T value) {
         if (node == null) {
             return new TreeNode<>(value);
@@ -51,11 +63,24 @@ public class BinarySearchTree<T extends Comparable<T>> implements CustomTree<T> 
         return node;
     }
 
+    /**
+     * Searches for a value in the BST.
+     *
+     * @param value The value to search for.
+     * @return true if the value exists, false otherwise.
+     */
     @Override
     public boolean search(T value) {
         return searchRecursive(root, value);
     }
 
+    /**
+     * Recursive helper to search for a value.
+     *
+     * @param node  The current node.
+     * @param value The value to search for.
+     * @return true if found.
+     */
     private boolean searchRecursive(TreeNode<T> node, T value) {
         if (node == null) {
             return false;
@@ -72,6 +97,11 @@ public class BinarySearchTree<T extends Comparable<T>> implements CustomTree<T> 
         }
     }
 
+    /**
+     * Deletes a value from the BST if it exists.
+     *
+     * @param value The value to delete.
+     */
     @Override
     public void delete(T value) {
         if (search(value)) {
@@ -81,6 +111,13 @@ public class BinarySearchTree<T extends Comparable<T>> implements CustomTree<T> 
         }
     }
 
+    /**
+     * Recursive helper to delete a value.
+     *
+     * @param node  The current node.
+     * @param value The value to delete.
+     * @return The updated node (potentially null or replaced).
+     */
     private TreeNode<T> deleteRecursive(TreeNode<T> node, T value) {
         if (node == null) {
             return null;
@@ -112,6 +149,12 @@ public class BinarySearchTree<T extends Comparable<T>> implements CustomTree<T> 
         return node;
     }
 
+    /**
+     * Finds the minimum value in the BST.
+     *
+     * @return The minimum value.
+     * @throws IllegalStateException if the tree is empty.
+     */
     @Override
     public T findMin() {
         if (isEmpty()) {
@@ -120,6 +163,12 @@ public class BinarySearchTree<T extends Comparable<T>> implements CustomTree<T> 
         return findMinRecursive(root);
     }
 
+    /**
+     * Recursive helper to find the minimum value.
+     *
+     * @param node The current node.
+     * @return The minimum value found.
+     */
     private T findMinRecursive(TreeNode<T> node) {
         if (node.getLeft() == null) {
             return node.getValue();
@@ -127,6 +176,12 @@ public class BinarySearchTree<T extends Comparable<T>> implements CustomTree<T> 
         return findMinRecursive(node.getLeft());
     }
 
+    /**
+     * Finds the maximum value in the BST.
+     *
+     * @return The maximum value.
+     * @throws IllegalStateException if the tree is empty.
+     */
     @Override
     public T findMax() {
         if (isEmpty()) {
@@ -135,6 +190,12 @@ public class BinarySearchTree<T extends Comparable<T>> implements CustomTree<T> 
         return findMaxRecursive(root);
     }
 
+    /**
+     * Recursive helper to find the maximum value.
+     *
+     * @param node The current node.
+     * @return The maximum value found.
+     */
     private T findMaxRecursive(TreeNode<T> node) {
         if (node.getRight() == null) {
             return node.getValue();
@@ -142,6 +203,11 @@ public class BinarySearchTree<T extends Comparable<T>> implements CustomTree<T> 
         return findMaxRecursive(node.getRight());
     }
 
+    /**
+     * Performs an in-order traversal (Left-Root-Right).
+     *
+     * @return List of values in ascending order.
+     */
     @Override
     public List<T> inorderTraversal() {
         List<T> result = new ArrayList<>();
@@ -149,6 +215,12 @@ public class BinarySearchTree<T extends Comparable<T>> implements CustomTree<T> 
         return result;
     }
 
+    /**
+     * Recursive helper for in-order traversal.
+     *
+     * @param node   The current node.
+     * @param result List to accumulate values.
+     */
     private void inorderRecursive(TreeNode<T> node, List<T> result) {
         if (node != null) {
             inorderRecursive(node.getLeft(), result);
@@ -157,6 +229,11 @@ public class BinarySearchTree<T extends Comparable<T>> implements CustomTree<T> 
         }
     }
 
+    /**
+     * Performs a pre-order traversal (Root-Left-Right).
+     *
+     * @return List of values in pre-order.
+     */
     @Override
     public List<T> preorderTraversal() {
         List<T> result = new ArrayList<>();
@@ -164,6 +241,12 @@ public class BinarySearchTree<T extends Comparable<T>> implements CustomTree<T> 
         return result;
     }
 
+    /**
+     * Recursive helper for pre-order traversal.
+     *
+     * @param node   The current node.
+     * @param result List to accumulate values.
+     */
     private void preorderRecursive(TreeNode<T> node, List<T> result) {
         if (node != null) {
             result.add(node.getValue());
@@ -172,6 +255,11 @@ public class BinarySearchTree<T extends Comparable<T>> implements CustomTree<T> 
         }
     }
 
+    /**
+     * Performs a post-order traversal (Left-Right-Root).
+     *
+     * @return List of values in post-order.
+     */
     @Override
     public List<T> postorderTraversal() {
         List<T> result = new ArrayList<>();
@@ -179,6 +267,12 @@ public class BinarySearchTree<T extends Comparable<T>> implements CustomTree<T> 
         return result;
     }
 
+    /**
+     * Recursive helper for post-order traversal.
+     *
+     * @param node   The current node.
+     * @param result List to accumulate values.
+     */
     private void postorderRecursive(TreeNode<T> node, List<T> result) {
         if (node != null) {
             postorderRecursive(node.getLeft(), result);
@@ -187,11 +281,22 @@ public class BinarySearchTree<T extends Comparable<T>> implements CustomTree<T> 
         }
     }
 
+    /**
+     * Calculates the height of the tree.
+     *
+     * @return The height (max depth) of the tree.
+     */
     @Override
     public int height() {
         return heightRecursive(root);
     }
 
+    /**
+     * Recursive helper to calculate height.
+     *
+     * @param node The current node.
+     * @return The height of the subtree rooted at node.
+     */
     private int heightRecursive(TreeNode<T> node) {
         if (node == null) {
             return 0;
@@ -203,11 +308,21 @@ public class BinarySearchTree<T extends Comparable<T>> implements CustomTree<T> 
         return Math.max(leftHeight, rightHeight) + 1;
     }
 
+    /**
+     * Returns the total number of nodes in the tree.
+     *
+     * @return The size of the tree.
+     */
     @Override
     public int size() {
         return size;
     }
 
+    /**
+     * Checks if the tree is empty.
+     *
+     * @return true if the tree contains no nodes.
+     */
     @Override
     public boolean isEmpty() {
         return size == 0;
@@ -224,6 +339,12 @@ public class BinarySearchTree<T extends Comparable<T>> implements CustomTree<T> 
         return isBalancedRecursive(root);
     }
 
+    /**
+     * Recursive helper to check balance.
+     *
+     * @param node The current node.
+     * @return true if the subtree rooted at node is balanced.
+     */
     private boolean isBalancedRecursive(TreeNode<T> node) {
         if (node == null) {
             return true;

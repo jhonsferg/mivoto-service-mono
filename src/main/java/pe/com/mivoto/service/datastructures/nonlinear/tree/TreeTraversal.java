@@ -21,6 +21,13 @@ public class TreeTraversal {
         return result;
     }
 
+    /**
+     * Recursive helper for in-order traversal.
+     *
+     * @param node   The current node.
+     * @param result List to accumulate values.
+     * @param <T>    The type of value in the tree.
+     */
     private static <T extends Comparable<T>> void inOrderRecursive(TreeNode<T> node, List<T> result) {
         if (node != null) {
             inOrderRecursive(node.getLeft(), result);
@@ -42,6 +49,13 @@ public class TreeTraversal {
         return result;
     }
 
+    /**
+     * Recursive helper for pre-order traversal.
+     *
+     * @param node   The current node.
+     * @param result List to accumulate values.
+     * @param <T>    The type of value in the tree.
+     */
     private static <T extends Comparable<T>> void preOrderRecursive(TreeNode<T> node, List<T> result) {
         if (node != null) {
             result.add(node.getValue());
@@ -63,6 +77,13 @@ public class TreeTraversal {
         return result;
     }
 
+    /**
+     * Recursive helper for post-order traversal.
+     *
+     * @param node   The current node.
+     * @param result List to accumulate values.
+     * @param <T>    The type of value in the tree.
+     */
     private static <T extends Comparable<T>> void postOrderRecursive(TreeNode<T> node, List<T> result) {
         if (node != null) {
             postOrderRecursive(node.getLeft(), result);

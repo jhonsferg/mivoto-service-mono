@@ -42,6 +42,13 @@ public class AVLTree<T extends Comparable<T>> implements CustomTree<T> {
         }
     }
 
+    /**
+     * Recursive helper to insert a value into the subtree.
+     *
+     * @param node  The root of the subtree.
+     * @param value The value to insert.
+     * @return The new root of the subtree.
+     */
     private TreeNode<T> insert(TreeNode<T> node, T value) {
         if (node == null) {
             return new TreeNode<>(value);
@@ -94,6 +101,13 @@ public class AVLTree<T extends Comparable<T>> implements CustomTree<T> {
         }
     }
 
+    /**
+     * Recursive helper to delete a value from the subtree.
+     *
+     * @param root  The root of the subtree.
+     * @param value The value to delete.
+     * @return The new root of the subtree.
+     */
     private TreeNode<T> delete(TreeNode<T> root, T value) {
         if (root == null) {
             return root;
@@ -165,6 +179,13 @@ public class AVLTree<T extends Comparable<T>> implements CustomTree<T> {
         return searchRecursive(root, value) != null;
     }
 
+    /**
+     * Recursive helper to search for a value.
+     *
+     * @param node  The root of the subtree.
+     * @param value The value to search for.
+     * @return The node containing the value, or null if not found.
+     */
     private TreeNode<T> searchRecursive(TreeNode<T> node, T value) {
         if (node == null || node.getValue().equals(value)) {
             return node;
@@ -286,6 +307,12 @@ public class AVLTree<T extends Comparable<T>> implements CustomTree<T> {
         return root;
     }
 
+    /**
+     * Helper to get the height of a node safely.
+     *
+     * @param node The node.
+     * @return The height, or 0 if node is null.
+     */
     private int height(TreeNode<T> node) {
         if (node == null) {
             return 0;
@@ -293,6 +320,12 @@ public class AVLTree<T extends Comparable<T>> implements CustomTree<T> {
         return node.getHeight();
     }
 
+    /**
+     * Calculates the balance factor of a node.
+     *
+     * @param node The node.
+     * @return The balance factor (left height - right height).
+     */
     private int getBalance(TreeNode<T> node) {
         if (node == null) {
             return 0;
@@ -300,6 +333,12 @@ public class AVLTree<T extends Comparable<T>> implements CustomTree<T> {
         return height(node.getLeft()) - height(node.getRight());
     }
 
+    /**
+     * Performs a right rotation on the subtree rooted at y.
+     *
+     * @param y The root of the subtree to rotate.
+     * @return The new root of the subtree.
+     */
     private TreeNode<T> rightRotate(TreeNode<T> y) {
         TreeNode<T> x = y.getLeft();
         TreeNode<T> T2 = x.getRight();
@@ -313,6 +352,12 @@ public class AVLTree<T extends Comparable<T>> implements CustomTree<T> {
         return x;
     }
 
+    /**
+     * Performs a left rotation on the subtree rooted at x.
+     *
+     * @param x The root of the subtree to rotate.
+     * @return The new root of the subtree.
+     */
     private TreeNode<T> leftRotate(TreeNode<T> x) {
         TreeNode<T> y = x.getRight();
         TreeNode<T> T2 = y.getLeft();
@@ -326,6 +371,12 @@ public class AVLTree<T extends Comparable<T>> implements CustomTree<T> {
         return y;
     }
 
+    /**
+     * Finds the node with the minimum value in a subtree.
+     *
+     * @param node The root of the subtree.
+     * @return The node with the minimum value.
+     */
     private TreeNode<T> minValueNode(TreeNode<T> node) {
         TreeNode<T> current = node;
         while (current.getLeft() != null) {
@@ -334,6 +385,12 @@ public class AVLTree<T extends Comparable<T>> implements CustomTree<T> {
         return current;
     }
 
+    /**
+     * Finds the node with the maximum value in a subtree.
+     *
+     * @param node The root of the subtree.
+     * @return The node with the maximum value.
+     */
     private TreeNode<T> maxValueNode(TreeNode<T> node) {
         TreeNode<T> current = node;
         while (current.getRight() != null) {

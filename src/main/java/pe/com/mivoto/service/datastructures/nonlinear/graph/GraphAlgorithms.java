@@ -29,8 +29,17 @@ public class GraphAlgorithms {
         return result;
     }
 
+    /**
+     * Recursive DFS helper for topological sort.
+     *
+     * @param vertex  The current vertex.
+     * @param graph   The graph.
+     * @param visited Set of visited vertices.
+     * @param stack   Stack to store sorted vertices.
+     * @param <T>     The type of vertex data.
+     */
     private static <T> void topologicalSortDFS(T vertex, Graph<T> graph,
-                                               Set<T> visited, Stack<T> stack) {
+            Set<T> visited, Stack<T> stack) {
         visited.add(vertex);
 
         for (T neighbor : graph.getNeighbors(vertex)) {
@@ -64,8 +73,17 @@ public class GraphAlgorithms {
         return components;
     }
 
+    /**
+     * Recursive DFS helper to explore a connected component.
+     *
+     * @param vertex    The current vertex.
+     * @param graph     The graph.
+     * @param visited   Set of visited vertices.
+     * @param component Set to accumulate vertices of the current component.
+     * @param <T>       The type of vertex data.
+     */
     private static <T> void dfsComponent(T vertex, Graph<T> graph,
-                                         Set<T> visited, Set<T> component) {
+            Set<T> visited, Set<T> component) {
         visited.add(vertex);
         component.add(vertex);
 
@@ -97,6 +115,15 @@ public class GraphAlgorithms {
         return true;
     }
 
+    /**
+     * BFS helper for 2-coloring (bipartite check).
+     *
+     * @param start  The starting vertex.
+     * @param graph  The graph.
+     * @param colors Map of vertex colors (0 or 1).
+     * @param <T>    The type of vertex data.
+     * @return true if current component is bipartite.
+     */
     private static <T> boolean isBipartiteBFS(T start, Graph<T> graph, Map<T, Integer> colors) {
         Queue<T> queue = new LinkedList<>();
         colors.put(start, 0);
@@ -119,6 +146,13 @@ public class GraphAlgorithms {
         return true;
     }
 
+    /**
+     * Helper to retrieve all vertices from the graph safely.
+     *
+     * @param graph The graph.
+     * @param <T>   The type of vertex data.
+     * @return Set of vertices.
+     */
     private static <T> Set<T> getVertices(Graph<T> graph) {
         return graph.getAllVertices();
     }
