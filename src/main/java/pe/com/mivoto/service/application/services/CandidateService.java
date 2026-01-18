@@ -24,7 +24,7 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CandidateService {
+public class CandidateService implements pe.com.mivoto.service.domain.ports.in.CandidateUseCase {
     private final CandidateRepository candidateRepository;
     private final ElectionRepository electionRepository;
     private final AuditService auditService;
