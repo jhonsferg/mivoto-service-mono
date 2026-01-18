@@ -72,6 +72,11 @@ public class HealthController {
         return ResponseEntity.ok(ApiResponseDto.success(status));
     }
 
+    /**
+     * Compiles status of internal data structures.
+     *
+     * @return Status object for data structures.
+     */
     private DataStructuresStatus getDataStructuresStatus() {
         return DataStructuresStatus.builder()
                 .voteQueue("UP")

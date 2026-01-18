@@ -93,6 +93,12 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponseDto.success("Contraseña cambiada exitosamente", null));
     }
 
+    /**
+     * Extracts the client IP address from the request.
+     *
+     * @param request The HTTP servlet request.
+     * @return The client IP address.
+     */
     private String getClientIP(HttpServletRequest request) {
         String xfHeader = request.getHeader("X-Forwarded-For");
         if (xfHeader == null) {
@@ -101,6 +107,12 @@ public class AuthController {
         return xfHeader.split(",")[0];
     }
 
+    /**
+     * Extracts the JWT token from the Authorization header.
+     *
+     * @param authHeader The Authorization header.
+     * @return The token string.
+     */
     private String extractToken(String authHeader) {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7);
@@ -108,6 +120,12 @@ public class AuthController {
         return authHeader;
     }
 
+    /**
+     * Retrieves the user associated with a session.
+     *
+     * @param session The voting session.
+     * @return The user.
+     */
     private User getUserFromSession(VotingSession session) {
         return User.builder().build();
     }

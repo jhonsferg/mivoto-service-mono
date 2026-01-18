@@ -140,11 +140,23 @@ public class VotingController {
         return ResponseEntity.ok(ApiResponseDto.success(0L));
     }
 
+    /**
+     * Extracts user ID from the JWT token.
+     *
+     * @param authHeader The Authorization header.
+     * @return The user ID.
+     */
     private Long getUserIdFromToken(String authHeader) {
         String token = extractToken(authHeader);
         return jwtTokenProvider.getUserIdFromToken(token);
     }
 
+    /**
+     * Extracts the JWT token from the Authorization header.
+     *
+     * @param authHeader The Authorization header.
+     * @return The token string.
+     */
     private String extractToken(String authHeader) {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7);
@@ -152,6 +164,12 @@ public class VotingController {
         return authHeader;
     }
 
+    /**
+     * Extracts the client IP address from the request.
+     *
+     * @param request The HTTP servlet request.
+     * @return The client IP address.
+     */
     private String getClientIP(HttpServletRequest request) {
         String xfHeader = request.getHeader("X-Forwarded-For");
         if (xfHeader == null) {

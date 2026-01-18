@@ -283,11 +283,23 @@ public class ElectionController {
         return ResponseEntity.ok(ApiResponseDto.success(response));
     }
 
+    /**
+     * Extracts user ID from the JWT token.
+     *
+     * @param authHeader The Authorization header.
+     * @return The user ID.
+     */
     private Long getUserIdFromToken(String authHeader) {
         String token = extractToken(authHeader);
         return jwtTokenProvider.getUserIdFromToken(token);
     }
 
+    /**
+     * Extracts the JWT token from the Authorization header.
+     *
+     * @param authHeader The Authorization header.
+     * @return The token string.
+     */
     private String extractToken(String authHeader) {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7);
