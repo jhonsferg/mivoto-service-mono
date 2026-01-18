@@ -7,7 +7,6 @@ import pe.com.mivoto.service.datastructures.interfaces.CustomGraph;
 
 import java.util.*;
 
-@Slf4j
 /**
  * Generic implementation of a Graph data structure.
  * Supports both directed and undirected graphs, with weighted edges.
@@ -15,6 +14,7 @@ import java.util.*;
  * @param <T> The type of data stored in the graph vertices. Must implement
  *            equals/hashCode correctly.
  */
+@Slf4j
 public class Graph<T> implements CustomGraph<T> {
 
     private final Map<T, GraphNode<T>> vertices;
