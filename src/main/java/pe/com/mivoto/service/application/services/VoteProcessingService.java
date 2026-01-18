@@ -57,14 +57,7 @@ public class VoteProcessingService {
     public void processVoteAsync(Vote vote) {
         try {
             log.debug("Procesando voto asíncrono - ID: {}", vote.getId());
-            // In a real scenario, this would call votingService.processVote or similar,
-            // but VotingService is not exposed here to avoid circular dependency
-            // potentially?
-            // Actually VotingService IS injected. But VotingService.processVote is private.
-            // Maybe it should just log? Or call a public method?
-            // The current implementation just logs.
-            // TODO: Implement actual processing logic if needed or ensure VotingService
-            // handles it.
+            votingService.processVote(vote);
         } catch (Exception e) {
             log.error("Error procesando voto asíncrono", e);
             voteQueue.enqueueVote(vote);
