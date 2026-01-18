@@ -5,12 +5,21 @@ import pe.com.mivoto.service.datastructures.interfaces.CustomQueue;
 
 import java.util.NoSuchElementException;
 
+/**
+ * Custom implementation of a FIFO (First-In-First-Out) queue.
+ * Implements the CustomQueue interface using a linked list structure.
+ *
+ * @param <T> The type of elements stored in the queue.
+ */
 @Slf4j
 public class CustomQueueImpl<T> implements CustomQueue<T> {
     private QueueNode<T> front;
     private QueueNode<T> rear;
     private int size;
 
+    /**
+     * Constructs an empty queue.
+     */
     public CustomQueueImpl() {
         this.front = null;
         this.rear = null;
