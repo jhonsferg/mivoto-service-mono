@@ -14,6 +14,8 @@ import pe.com.mivoto.service.domain.ports.out.CandidateRepository;
 import pe.com.mivoto.service.domain.ports.out.ElectionRepository;
 import pe.com.mivoto.service.domain.ports.out.VoteRepository;
 
+import pe.com.mivoto.service.infrastructure.persistence.redis.ElectionCacheRepository;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +35,7 @@ public class ElectionManagementService implements ElectionUseCase {
     private final ElectionRepository electionRepository;
     private final CandidateRepository candidateRepository;
     private final VoteRepository voteRepository;
+    private final ElectionCacheRepository electionCacheRepository;
     private final AuditService auditService;
 
     private final ElectionGraph electionGraph;
@@ -86,6 +89,11 @@ public class ElectionManagementService implements ElectionUseCase {
         existing.setUpdatedAt(LocalDateTime.now());
 
         Election updated = this.electionRepository.update(existing);
+
+        // Update cache
+        this.electionCacheRepository.save(updated);
+        this.electionCacheRepository.deleteActiveList(); // Invalidate list potential changes
+
         this.auditService.logElectionUpdated(electionId);
 
         return updated;
@@ -98,8 +106,13 @@ public class ElectionManagementService implements ElectionUseCase {
      * @return The Election object.
      */
     public Election getElectionById(Long electionId) {
-        return this.electionRepository.findById(electionId)
-                .orElseThrow(() -> new InvalidElectionException("Elección no encontrada"));
+        return this.electionCacheRepository.findById(electionId)
+                .orElseGet(() -> {
+                    Election election = this.electionRepository.findById(electionId)
+                            .orElseThrow(() -> new InvalidElectionException("Elección no encontrada"));
+                    this.electionCacheRepository.save(election);
+                    return election;
+                });
     }
 
     /**
@@ -108,7 +121,12 @@ public class ElectionManagementService implements ElectionUseCase {
      * @return List of active elections.
      */
     public List<Election> getActiveElections() {
-        return this.electionRepository.findActiveElections();
+        return this.electionCacheRepository.findActiveList()
+                .orElseGet(() -> {
+                    List<Election> elections = this.electionRepository.findActiveElections();
+                    this.electionCacheRepository.saveActiveList(elections);
+                    return elections;
+                });
     }
 
     /**
@@ -139,7 +157,12 @@ public class ElectionManagementService implements ElectionUseCase {
         }
 
         election.start();
-        this.electionRepository.update(election);
+        Election updated = this.electionRepository.update(election);
+
+        // Update cache
+        this.electionCacheRepository.save(updated);
+        this.electionCacheRepository.deleteActiveList();
+
         this.auditService.logElectionStarted(electionId);
 
         log.info("Elección iniciada: {}", electionId);
@@ -159,7 +182,12 @@ public class ElectionManagementService implements ElectionUseCase {
         }
 
         election.close();
-        this.electionRepository.update(election);
+        Election updated = this.electionRepository.update(election);
+
+        // Update cache
+        this.electionCacheRepository.save(updated);
+        this.electionCacheRepository.deleteActiveList();
+
         this.auditService.logElectionClosed(electionId);
 
         log.info("Elección cerrada: {}", electionId);
@@ -181,7 +209,13 @@ public class ElectionManagementService implements ElectionUseCase {
         }
 
         election.cancel();
-        this.electionRepository.update(election);
+        Election updated = this.electionRepository.update(election);
+
+        // Update cache
+        this.electionCacheRepository.save(updated);
+        // Cancelled elections might have been active
+        this.electionCacheRepository.deleteActiveList();
+
         this.auditService.logElectionCancelled(electionId, reason);
     }
 
