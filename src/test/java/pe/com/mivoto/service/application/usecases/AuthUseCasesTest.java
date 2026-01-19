@@ -29,6 +29,7 @@ class AuthUseCasesTest {
     private LoginUseCaseImpl loginUseCase;
     private LogoutUseCaseImpl logoutUseCase;
     private ValidateSessionUseCaseImpl validateSessionUseCase;
+    private pe.com.mivoto.service.application.usecases.auth.RefreshTokenUseCaseImpl refreshTokenUseCase;
 
     /**
      * Sets up the test environment by initializing use cases with mocked services.
@@ -38,6 +39,8 @@ class AuthUseCasesTest {
         loginUseCase = new LoginUseCaseImpl(authenticationService);
         logoutUseCase = new LogoutUseCaseImpl(authenticationService);
         validateSessionUseCase = new ValidateSessionUseCaseImpl(authenticationService);
+        refreshTokenUseCase = new pe.com.mivoto.service.application.usecases.auth.RefreshTokenUseCaseImpl(
+                authenticationService);
     }
 
     /**
@@ -76,6 +79,20 @@ class AuthUseCasesTest {
         logoutUseCase.execute(token);
 
         verify(authenticationService).logout(token);
+    }
+
+    @Test
+    @DisplayName("Should refresh token successfully")
+    void testRefreshTokenExecution() {
+        String refreshToken = "refresh-token";
+        VotingSession expectedSession = new VotingSession();
+        when(authenticationService.refreshToken(refreshToken)).thenReturn(expectedSession);
+
+        VotingSession result = refreshTokenUseCase.execute(refreshToken);
+
+        assertNotNull(result);
+        assertEquals(expectedSession, result);
+        verify(authenticationService).refreshToken(refreshToken);
     }
 
     /**
