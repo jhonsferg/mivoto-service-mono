@@ -19,7 +19,7 @@ services:
     networks:
       - mivoto-dev-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-mivoto}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-mivoto}" ]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -64,7 +64,7 @@ services:
     networks:
       - mivoto-dev-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -109,6 +109,23 @@ services:
       redis:
         condition: service_healthy
 
+  # SonarQube - Code Quality
+  sonarqube:
+    image: sonarqube:community
+    container_name: mivoto-sonarqube-dev
+    restart: unless-stopped
+    environment:
+      TZ: America/Lima
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
+    ports:
+      - "${SONARQUBE_PORT:-9000}:9000"
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+    networks:
+      - mivoto-dev-network
+
 networks:
   mivoto-dev-network:
     driver: bridge
@@ -121,3 +138,9 @@ volumes:
     name: mivoto_redis_dev_data
   pgadmin_data:
     name: mivoto_pgadmin_dev_data
+  sonarqube_data:
+    name: mivoto_sonarqube_dev_data
+  sonarqube_extensions:
+    name: mivoto_sonarqube_dev_extensions
+  sonarqube_logs:
+    name: mivoto_sonarqube_dev_logs
