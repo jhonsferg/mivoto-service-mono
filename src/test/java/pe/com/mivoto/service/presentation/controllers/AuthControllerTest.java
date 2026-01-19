@@ -12,8 +12,10 @@ import org.springframework.http.ResponseEntity;
 import pe.com.mivoto.service.application.usecases.auth.LoginUseCaseImpl;
 import pe.com.mivoto.service.application.usecases.auth.LogoutUseCaseImpl;
 import pe.com.mivoto.service.application.usecases.auth.RefreshTokenUseCaseImpl;
+import pe.com.mivoto.service.application.usecases.user.GetUserProfileUseCaseImpl;
 import pe.com.mivoto.service.domain.model.User;
 import pe.com.mivoto.service.domain.model.VotingSession;
+import pe.com.mivoto.service.presentation.dto.response.UserDto;
 import pe.com.mivoto.service.presentation.dto.request.LoginRequestDto;
 import pe.com.mivoto.service.presentation.dto.request.RefreshTokenRequestDto;
 import pe.com.mivoto.service.presentation.dto.response.ApiResponseDto;
@@ -40,6 +42,8 @@ class AuthControllerTest {
     @Mock
     private RefreshTokenUseCaseImpl refreshTokenUseCase;
     @Mock
+    private GetUserProfileUseCaseImpl getUserProfileUseCase;
+    @Mock
     private AuthDtoMapper authDtoMapper;
     @Mock
     private HttpServletRequest httpRequest;
@@ -48,7 +52,8 @@ class AuthControllerTest {
 
     @BeforeEach
     void setUp() {
-        authController = new AuthController(loginUseCase, logoutUseCase, refreshTokenUseCase, authDtoMapper);
+        authController = new AuthController(loginUseCase, logoutUseCase, refreshTokenUseCase, getUserProfileUseCase,
+                authDtoMapper);
     }
 
     /**
@@ -122,5 +127,25 @@ class AuthControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(loginResponse, response.getBody().getData());
+    }
+
+    /**
+     * Tests the me endpoint.
+     */
+    @Test
+    @DisplayName("Should returning authenticated user")
+    void testMe() {
+        String authHeader = "Bearer valid-token";
+        User user = User.builder().id(1L).build();
+        UserDto userDto = UserDto.builder().id(1L).build();
+
+        when(getUserProfileUseCase.execute("valid-token")).thenReturn(user);
+        when(authDtoMapper.toUserDto(user)).thenReturn(userDto);
+
+        ResponseEntity<ApiResponseDto<UserDto>> response = authController.me(authHeader);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(userDto, response.getBody().getData());
     }
 }
