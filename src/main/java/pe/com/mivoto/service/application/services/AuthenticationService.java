@@ -11,6 +11,7 @@ import pe.com.mivoto.service.domain.model.VotingSession;
 import pe.com.mivoto.service.domain.ports.out.SessionRepository;
 import pe.com.mivoto.service.domain.ports.out.UserRepository;
 import pe.com.mivoto.service.infrastructure.security.jwt.JwtTokenProvider;
+import pe.com.mivoto.service.infrastructure.persistence.redis.UserCacheRepository;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -30,6 +31,7 @@ public class AuthenticationService implements pe.com.mivoto.service.domain.ports
     private final SessionRepository sessionRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserCacheRepository userCacheRepository;
     private final AuditService auditService;
 
     /**
@@ -71,6 +73,10 @@ public class AuthenticationService implements pe.com.mivoto.service.domain.ports
         user.updateLastLogin();
         this.userRepository.update(user);
         VotingSession session = createSession(user, ipAddress, userAgent);
+
+        // Cache user profile
+        this.userCacheRepository.save(user);
+
         this.auditService.logSuccessfulLogin(user.getId(), ipAddress);
 
         log.info("Usuario autenticado exitosamente: {}", username);
@@ -119,6 +125,10 @@ public class AuthenticationService implements pe.com.mivoto.service.domain.ports
 
         session.invalidate();
         this.sessionRepository.update(session);
+
+        // Remove from cache
+        this.userCacheRepository.delete(session.getUserId());
+
         this.auditService.logLogout(session.getUserId());
 
         log.info("Sesión cerrada para usuario: {}", session.getUserId());
@@ -204,6 +214,10 @@ public class AuthenticationService implements pe.com.mivoto.service.domain.ports
         user.setUpdatedAt(LocalDateTime.now());
         this.userRepository.update(user);
         this.sessionRepository.invalidateAllUserSessions(userId);
+
+        // Remove from cache to force refresh with new data (if any)
+        this.userCacheRepository.delete(userId);
+
         this.auditService.logPasswordChange(userId);
 
         log.info("Contraseña cambiada exitosamente para usuario: {}", userId);
