@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import pe.com.mivoto.service.application.usecases.auth.LoginUseCaseImpl;
 import pe.com.mivoto.service.application.usecases.auth.LogoutUseCaseImpl;
 import pe.com.mivoto.service.application.usecases.auth.RefreshTokenUseCaseImpl;
+import pe.com.mivoto.service.application.usecases.user.GetUserProfileUseCaseImpl;
 import pe.com.mivoto.service.domain.model.User;
 import pe.com.mivoto.service.domain.model.VotingSession;
+import pe.com.mivoto.service.presentation.dto.response.UserDto;
 import pe.com.mivoto.service.presentation.dto.request.ChangePasswordRequestDto;
 import pe.com.mivoto.service.presentation.dto.request.LoginRequestDto;
 import pe.com.mivoto.service.presentation.dto.request.RefreshTokenRequestDto;
@@ -33,6 +35,7 @@ public class AuthController {
     private final LoginUseCaseImpl loginUseCase;
     private final LogoutUseCaseImpl logoutUseCase;
     private final RefreshTokenUseCaseImpl refreshTokenUseCase;
+    private final GetUserProfileUseCaseImpl getUserProfileUseCase;
     private final AuthDtoMapper authDtoMapper;
 
     /**
@@ -86,6 +89,29 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponseDto.success("Token refrescado", response));
     }
 
+    /**
+     * Retrieves the authenticated user's profile information.
+     *
+     * @param authHeader The Authorization header containing the JWT token.
+     * @return ResponseEntity containing the user details.
+     */
+    @GetMapping("/me")
+    @Operation(summary = "Obtener perfil", description = "Obtiene la información del usuario autenticado")
+    public ResponseEntity<ApiResponseDto<UserDto>> me(@RequestHeader("Authorization") String authHeader) {
+        String token = extractToken(authHeader);
+        User user = getUserProfileUseCase.execute(token);
+        UserDto response = authDtoMapper.toUserDto(user);
+        return ResponseEntity.ok(ApiResponseDto.success("Perfil de usuario obtenido exitosamente", response));
+    }
+
+    /**
+     * Changes the password for the authenticated user.
+     *
+     * @param request    The password change request containing old and new
+     *                   passwords.
+     * @param authHeader The Authorization header containing the JWT token.
+     * @return ResponseEntity indicating successful password change.
+     */
     @PostMapping("/change-password")
     @Operation(summary = "Cambiar contraseña", description = "Cambia la contraseña del usuario actual")
     public ResponseEntity<ApiResponseDto<Void>> changePassword(@Valid @RequestBody ChangePasswordRequestDto request,
