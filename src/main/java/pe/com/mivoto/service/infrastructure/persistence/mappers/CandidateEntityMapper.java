@@ -3,6 +3,7 @@ package pe.com.mivoto.service.infrastructure.persistence.mappers;
 import org.springframework.stereotype.Component;
 import pe.com.mivoto.service.domain.model.Candidate;
 import pe.com.mivoto.service.infrastructure.persistence.entities.CandidateEntity;
+import pe.com.mivoto.service.infrastructure.persistence.entities.ElectionEntity;
 
 /**
  * Mapper for Candidate entity.
@@ -48,8 +49,13 @@ public class CandidateEntityMapper {
             return null;
         }
 
+        ElectionEntity election = domain.getElectionId() != null
+                ? ElectionEntity.builder().id(domain.getElectionId()).build()
+                : null;
+
         return CandidateEntity.builder()
                 .id(domain.getId())
+                .election(election)
                 .number(domain.getNumber())
                 .name(domain.getName())
                 .party(domain.getParty())

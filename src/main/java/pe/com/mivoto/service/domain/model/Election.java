@@ -132,6 +132,17 @@ public class Election {
     }
 
     /**
+     * Schedules the election if it is currently in DRAFT status.
+     * Updates the status to SCHEDULED and records the update time.
+     */
+    public void schedule() {
+        if (status == ElectionStatus.DRAFT) {
+            this.status = ElectionStatus.SCHEDULED;
+            this.updatedAt = LocalDateTime.now();
+        }
+    }
+
+    /**
      * Activates the election if it is currently scheduled.
      * Updates the status to ACTIVE and records the update time.
      */

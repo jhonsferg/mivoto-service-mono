@@ -150,6 +150,30 @@ public class ElectionManagementService implements ElectionUseCase {
     }
 
     /**
+     * Schedules a draft election, transitioning its status to SCHEDULED.
+     *
+     * @param electionId The ID of the election to schedule.
+     */
+    @Transactional
+    public void scheduleElection(Long electionId) {
+        Election election = this.getElectionById(electionId);
+
+        if (election.getStatus() != ElectionStatus.DRAFT) {
+            throw new InvalidElectionException("Solo se pueden programar elecciones en estado DRAFT");
+        }
+
+        election.schedule();
+        Election updated = this.electionRepository.update(election);
+
+        this.electionCacheRepository.save(updated);
+        this.electionCacheRepository.deleteActiveList();
+
+        this.auditService.logElectionUpdated(electionId);
+
+        log.info("Elección programada: {}", electionId);
+    }
+
+    /**
      * Starts a scheduled election.
      *
      * @param electionId The ID of the election to start.

@@ -172,6 +172,22 @@ public class ElectionController {
     }
 
     /**
+     * Schedules a draft election.
+     *
+     * @param id The election ID.
+     * @return ResponseEntity indicating successful scheduling.
+     */
+    @PostMapping("/{id}/schedule")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Programar elección", description = "Programa una elección en estado DRAFT")
+    public ResponseEntity<ApiResponseDto<Void>> scheduleElection(@PathVariable Long id) {
+        log.info("Programando elección: {}", id);
+        electionManagementService.scheduleElection(id);
+        return ResponseEntity.ok(ApiResponseDto.success("Elección programada exitosamente", null));
+    }
+
+    /**
      * Starts a scheduled election.
      *
      * @param id The election ID.

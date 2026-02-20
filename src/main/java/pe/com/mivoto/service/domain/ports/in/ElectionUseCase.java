@@ -61,6 +61,13 @@ public interface ElectionUseCase {
     List<Election> getElectionsByStatus(pe.com.mivoto.service.domain.enums.ElectionStatus status);
 
     /**
+     * Schedules a draft election for a future date.
+     *
+     * @param electionId The election ID.
+     */
+    void scheduleElection(Long electionId);
+
+    /**
      * Officially starts a scheduled election.
      *
      * @param electionId The election ID.
