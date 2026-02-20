@@ -62,6 +62,7 @@ public class UserRepositoryAdapter implements UserRepository {
      * @return Optional containing the user if found.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public Optional<User> findById(Long id) {
         return jpaUserRepository.findById(id)
                 .map(userEntityMapper::toDomain);
@@ -74,6 +75,7 @@ public class UserRepositoryAdapter implements UserRepository {
      * @return Optional containing the user if found.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public Optional<User> findByDocumentNumber(String documentNumber) {
         return jpaUserRepository.findByDocumentNumber(documentNumber)
                 .map(userEntityMapper::toDomain);
@@ -86,6 +88,7 @@ public class UserRepositoryAdapter implements UserRepository {
      * @return Optional containing the user if found.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public Optional<User> findByEmail(String email) {
         return jpaUserRepository.findByEmail(email)
                 .map(userEntityMapper::toDomain);
@@ -98,6 +101,7 @@ public class UserRepositoryAdapter implements UserRepository {
      * @return Optional containing the user if found.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public Optional<User> findByUsername(String username) {
         return jpaUserRepository.findByUsername(username)
                 .map(userEntityMapper::toDomain);
@@ -109,6 +113,7 @@ public class UserRepositoryAdapter implements UserRepository {
      * @return List of all users.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<User> findAll() {
         return jpaUserRepository.findAll().stream()
                 .map(userEntityMapper::toDomain)
@@ -122,6 +127,7 @@ public class UserRepositoryAdapter implements UserRepository {
      * @return List of users.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<User> findByRole(UserRole role) {
         return jpaUserRepository.findByRole(role).stream()
                 .map(userEntityMapper::toDomain)
@@ -134,6 +140,7 @@ public class UserRepositoryAdapter implements UserRepository {
      * @return List of active users.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<User> findActiveUsers() {
         return jpaUserRepository.findByActiveTrue().stream()
                 .map(userEntityMapper::toDomain)

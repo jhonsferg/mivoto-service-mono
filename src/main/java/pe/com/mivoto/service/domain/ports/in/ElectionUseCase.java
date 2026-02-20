@@ -39,6 +39,13 @@ public interface ElectionUseCase {
     Election getElectionById(Long electionId);
 
     /**
+     * Retrieves all elections.
+     *
+     * @return List of all elections.
+     */
+    List<Election> getAllElections();
+
+    /**
      * Retrieves all elections currently in ACTIVE status.
      *
      * @return List of active elections.

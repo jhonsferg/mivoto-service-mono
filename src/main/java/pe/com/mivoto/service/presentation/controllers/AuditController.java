@@ -33,6 +33,19 @@ public class AuditController {
     private final AuditService auditService;
 
     /**
+     * Retrieves all audit logs.
+     *
+     * @return ResponseEntity containing a list of all audit logs.
+     */
+    @GetMapping
+    @Operation(summary = "Listar auditorías", description = "Obtiene todos los logs de auditoría del sistema")
+    public ResponseEntity<ApiResponseDto<List<AuditLog>>> getAllAuditLogs() {
+        log.info("Obteniendo todos los logs de auditoría");
+        List<AuditLog> logs = auditService.getAllAuditLogs();
+        return ResponseEntity.ok(ApiResponseDto.success(logs));
+    }
+
+    /**
      * Retrieves audit logs for a specific user.
      *
      * @param userId The ID of the user.

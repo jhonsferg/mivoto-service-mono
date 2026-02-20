@@ -60,6 +60,7 @@ public class DistrictRepositoryAdapter implements DistrictRepository {
      * @return Optional containing the district if found.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public Optional<District> findById(Long id) {
         return jpaDistrictRepository.findById(id)
                 .map(districtEntityMapper::toDomain);
@@ -72,6 +73,7 @@ public class DistrictRepositoryAdapter implements DistrictRepository {
      * @return Optional containing the district if found.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public Optional<District> findByCode(String code) {
         return jpaDistrictRepository.findByCode(code)
                 .map(districtEntityMapper::toDomain);
@@ -83,6 +85,7 @@ public class DistrictRepositoryAdapter implements DistrictRepository {
      * @return List of all districts.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<District> findAll() {
         return jpaDistrictRepository.findAll().stream()
                 .map(districtEntityMapper::toDomain)
@@ -96,6 +99,7 @@ public class DistrictRepositoryAdapter implements DistrictRepository {
      * @return List of matching districts.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<District> findByType(String type) {
         return jpaDistrictRepository.findByType(type).stream()
                 .map(districtEntityMapper::toDomain)
@@ -109,6 +113,7 @@ public class DistrictRepositoryAdapter implements DistrictRepository {
      * @return List of child districts.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<District> findByParentDistrictId(Long parentDistrictId) {
         return jpaDistrictRepository.findByParentDistrictId(parentDistrictId).stream()
                 .map(districtEntityMapper::toDomain)
@@ -121,6 +126,7 @@ public class DistrictRepositoryAdapter implements DistrictRepository {
      * @return List of root districts.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<District> findRootDistricts() {
         return jpaDistrictRepository.findRootDistricts().stream()
                 .map(districtEntityMapper::toDomain)
@@ -133,6 +139,7 @@ public class DistrictRepositoryAdapter implements DistrictRepository {
      * @return List of active districts.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<District> findActiveDistricts() {
         return jpaDistrictRepository.findByActiveTrue().stream()
                 .map(districtEntityMapper::toDomain)
@@ -146,6 +153,7 @@ public class DistrictRepositoryAdapter implements DistrictRepository {
      * @return List of matching districts.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<District> findByNameContaining(String name) {
         return jpaDistrictRepository.findByNameContainingIgnoreCase(name).stream()
                 .map(districtEntityMapper::toDomain)

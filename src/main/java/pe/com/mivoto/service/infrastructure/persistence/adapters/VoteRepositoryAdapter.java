@@ -69,6 +69,7 @@ public class VoteRepositoryAdapter implements VoteRepository {
      * @return Optional containing the vote if found.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public Optional<Vote> findById(Long id) {
         return jpaVoteRepository.findById(id)
                 .map(voteEntityMapper::toDomain);
@@ -81,6 +82,7 @@ public class VoteRepositoryAdapter implements VoteRepository {
      * @return Optional containing the vote if found.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public Optional<Vote> findByVoteHash(String voteHash) {
         return jpaVoteRepository.findByVoteHash(voteHash)
                 .map(voteEntityMapper::toDomain);
@@ -93,6 +95,7 @@ public class VoteRepositoryAdapter implements VoteRepository {
      * @return List of user's votes.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<Vote> findByUserId(Long userId) {
         return jpaVoteRepository.findByUserId(userId).stream()
                 .map(voteEntityMapper::toDomain)
@@ -106,6 +109,7 @@ public class VoteRepositoryAdapter implements VoteRepository {
      * @return List of votes.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<Vote> findByElectionId(Long electionId) {
         return jpaVoteRepository.findByElectionId(electionId).stream()
                 .map(voteEntityMapper::toDomain)
@@ -119,6 +123,7 @@ public class VoteRepositoryAdapter implements VoteRepository {
      * @return List of votes.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<Vote> findByCandidateId(Long candidateId) {
         return jpaVoteRepository.findByCandidateId(candidateId).stream()
                 .map(voteEntityMapper::toDomain)
@@ -145,6 +150,7 @@ public class VoteRepositoryAdapter implements VoteRepository {
      * @return Optional containing the vote if found.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public Optional<Vote> findByUserIdAndElectionId(Long userId, Long electionId) {
         return jpaVoteRepository.findByUserIdAndElectionId(userId, electionId)
                 .map(voteEntityMapper::toDomain);
@@ -178,6 +184,7 @@ public class VoteRepositoryAdapter implements VoteRepository {
      * @return List of all votes.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<Vote> findAll() {
         return jpaVoteRepository.findAll().stream()
                 .map(voteEntityMapper::toDomain)
@@ -191,6 +198,7 @@ public class VoteRepositoryAdapter implements VoteRepository {
      * @return List of matching votes.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<Vote> findByStatus(VoteStatus status) {
         return jpaVoteRepository.findByStatus(status).stream()
                 .map(voteEntityMapper::toDomain)
@@ -205,6 +213,7 @@ public class VoteRepositoryAdapter implements VoteRepository {
      * @return List of matching votes.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<Vote> findByVotedAtBetween(LocalDateTime startDate, LocalDateTime endDate) {
         return jpaVoteRepository.findByVotedAtBetween(startDate, endDate).stream()
                 .map(voteEntityMapper::toDomain)
@@ -242,6 +251,7 @@ public class VoteRepositoryAdapter implements VoteRepository {
      * @return Optional containing the record if found.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public Optional<VoteRecord> findVoteRecordByHash(String voteHash) {
         return jpaVoteRecordRepository.findByVoteHash(voteHash)
                 .map(voteRecordEntityMapper::toDomain);
@@ -254,6 +264,7 @@ public class VoteRepositoryAdapter implements VoteRepository {
      * @return List of vote records.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<VoteRecord> findVoteRecordsByUserId(Long userId) {
         return jpaVoteRecordRepository.findByUserId(userId).stream()
                 .map(voteRecordEntityMapper::toDomain)
@@ -267,6 +278,7 @@ public class VoteRepositoryAdapter implements VoteRepository {
      * @return List of vote records.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<VoteRecord> findVoteRecordsByElectionId(Long electionId) {
         return jpaVoteRecordRepository.findByElectionId(electionId).stream()
                 .map(voteRecordEntityMapper::toDomain)
@@ -279,6 +291,7 @@ public class VoteRepositoryAdapter implements VoteRepository {
      * @return List of all vote records.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<VoteRecord> findAllVoteRecords() {
         return jpaVoteRecordRepository.findAll().stream()
                 .map(voteRecordEntityMapper::toDomain)

@@ -116,6 +116,16 @@ public class ElectionManagementService implements ElectionUseCase {
     }
 
     /**
+     * Retrieves all elections.
+     *
+     * @return List of all elections.
+     */
+    @Transactional(readOnly = true)
+    public List<Election> getAllElections() {
+        return this.electionRepository.findAll();
+    }
+
+    /**
      * Retrieves all elections that are currently active.
      *
      * @return List of active elections.

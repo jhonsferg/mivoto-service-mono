@@ -62,6 +62,7 @@ public class CandidateRepositoryAdapter implements CandidateRepository {
      * @return Optional containing the candidate if found.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public Optional<Candidate> findById(Long id) {
         return jpaCandidateRepository.findById(id)
                 .map(candidateEntityMapper::toDomain);
@@ -73,6 +74,7 @@ public class CandidateRepositoryAdapter implements CandidateRepository {
      * @return List of all candidates.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<Candidate> findAll() {
         return jpaCandidateRepository.findAll().stream()
                 .map(candidateEntityMapper::toDomain)
@@ -86,6 +88,7 @@ public class CandidateRepositoryAdapter implements CandidateRepository {
      * @return List of candidates.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<Candidate> findByElectionId(Long electionId) {
         return jpaCandidateRepository.findByElectionId(electionId).stream()
                 .map(candidateEntityMapper::toDomain)
@@ -100,6 +103,7 @@ public class CandidateRepositoryAdapter implements CandidateRepository {
      * @return Optional containing the candidate if found.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public Optional<Candidate> findByElectionIdAndNumber(Long electionId, Integer number) {
         return jpaCandidateRepository.findByElectionIdAndNumber(electionId, number)
                 .map(candidateEntityMapper::toDomain);
@@ -112,6 +116,7 @@ public class CandidateRepositoryAdapter implements CandidateRepository {
      * @return List of active candidates.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<Candidate> findActiveByElectionId(Long electionId) {
         return jpaCandidateRepository.findActiveByElectionId(electionId).stream()
                 .map(candidateEntityMapper::toDomain)
@@ -125,6 +130,7 @@ public class CandidateRepositoryAdapter implements CandidateRepository {
      * @return List of candidates.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<Candidate> findByParty(String party) {
         return jpaCandidateRepository.findByParty(party).stream()
                 .map(candidateEntityMapper::toDomain)
@@ -138,6 +144,7 @@ public class CandidateRepositoryAdapter implements CandidateRepository {
      * @return List of matching candidates.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<Candidate> findByNameContaining(String name) {
         return jpaCandidateRepository.findByNameContainingIgnoreCase(name).stream()
                 .map(candidateEntityMapper::toDomain)
@@ -184,6 +191,7 @@ public class CandidateRepositoryAdapter implements CandidateRepository {
      * @return List of candidates sorted by votes (descending).
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<Candidate> findByElectionIdOrderByVoteCountDesc(Long electionId) {
         return jpaCandidateRepository.findByElectionIdOrderByVoteCountDesc(electionId).stream()
                 .map(candidateEntityMapper::toDomain)

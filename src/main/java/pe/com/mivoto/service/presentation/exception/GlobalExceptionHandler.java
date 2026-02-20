@@ -9,6 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import pe.com.mivoto.service.domain.exceptions.*;
 import pe.com.mivoto.service.presentation.dto.response.ErrorResponseDto;
 
@@ -246,6 +247,27 @@ public class GlobalExceptionHandler {
                                 .timestamp(LocalDateTime.now())
                                 .build();
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+        }
+
+        /**
+         * Handles NoResourceFoundException (no handler/static resource for path).
+         *
+         * @param ex      The exception.
+         * @param request The web request.
+         * @return A ResponseEntity with NOT_FOUND status.
+         */
+        @ExceptionHandler(NoResourceFoundException.class)
+        public ResponseEntity<ErrorResponseDto> handleNoResourceFoundException(NoResourceFoundException ex,
+                        WebRequest request) {
+                log.warn("Recurso no encontrado: {}", ex.getMessage());
+                ErrorResponseDto errorResponse = ErrorResponseDto.builder()
+                                .status(HttpStatus.NOT_FOUND.value())
+                                .error("Not Found")
+                                .message("El recurso solicitado no existe")
+                                .path(request.getDescription(false).replace("uri=", ""))
+                                .timestamp(LocalDateTime.now())
+                                .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
 
         /**

@@ -334,6 +334,15 @@ public class AuditService implements pe.com.mivoto.service.domain.ports.in.Audit
     }
 
     /**
+     * Retrieves all audit logs.
+     *
+     * @return List of all audit logs.
+     */
+    public List<AuditLog> getAllAuditLogs() {
+        return this.auditRepository.findAll();
+    }
+
+    /**
      * Retrieves the audit trail for a specific user.
      *
      * @param userId The ID of the user.

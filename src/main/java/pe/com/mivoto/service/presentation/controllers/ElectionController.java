@@ -84,10 +84,11 @@ public class ElectionController {
     public ResponseEntity<ApiResponseDto<List<ElectionResponseDto>>> getAllElections(
             @RequestHeader(value = "Authorization", required = false) String authHeader) {
         log.info("Obteniendo todas las elecciones");
-        List<Election> elections = electionManagementService.getElectionsByStatus(null);
+        List<Election> elections = electionManagementService.getAllElections();
         List<ElectionResponseDto> response = elections.stream()
                 .map(election -> {
                     boolean hasVoted = false;
+                    log.info("Elección: {} =======================================", election.getId());
                     if (authHeader != null) {
                         Long userId = getUserIdFromToken(authHeader);
                         hasVoted = votingService.hasVoted(userId, election.getId());

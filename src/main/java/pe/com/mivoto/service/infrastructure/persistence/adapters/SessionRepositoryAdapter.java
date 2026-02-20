@@ -61,6 +61,7 @@ public class SessionRepositoryAdapter implements SessionRepository {
      * @return Optional containing the session if found.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public Optional<VotingSession> findById(Long id) {
         return jpaVotingSessionRepository.findById(id)
                 .map(votingSessionEntityMapper::toDomain);
@@ -73,6 +74,7 @@ public class SessionRepositoryAdapter implements SessionRepository {
      * @return Optional containing the session if found.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public Optional<VotingSession> findBySessionToken(String sessionToken) {
         return jpaVotingSessionRepository.findBySessionToken(sessionToken)
                 .map(votingSessionEntityMapper::toDomain);
@@ -85,6 +87,7 @@ public class SessionRepositoryAdapter implements SessionRepository {
      * @return Optional containing the session if found.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public Optional<VotingSession> findByRefreshToken(String refreshToken) {
         return jpaVotingSessionRepository.findByRefreshToken(refreshToken)
                 .map(votingSessionEntityMapper::toDomain);
@@ -97,6 +100,7 @@ public class SessionRepositoryAdapter implements SessionRepository {
      * @return List of user's sessions.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<VotingSession> findByUserId(Long userId) {
         return jpaVotingSessionRepository.findByUserId(userId).stream()
                 .map(votingSessionEntityMapper::toDomain)
@@ -110,6 +114,7 @@ public class SessionRepositoryAdapter implements SessionRepository {
      * @return List of active sessions.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<VotingSession> findActiveByUserId(Long userId) {
         return jpaVotingSessionRepository.findActiveByUserId(userId).stream()
                 .map(votingSessionEntityMapper::toDomain)
@@ -122,6 +127,7 @@ public class SessionRepositoryAdapter implements SessionRepository {
      * @return List of active sessions.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<VotingSession> findAllActiveSessions() {
         return jpaVotingSessionRepository.findAllActiveSessions().stream()
                 .map(votingSessionEntityMapper::toDomain)
@@ -134,6 +140,7 @@ public class SessionRepositoryAdapter implements SessionRepository {
      * @return List of expired sessions.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<VotingSession> findExpiredSessions() {
         return jpaVotingSessionRepository.findExpiredSessions(LocalDateTime.now()).stream()
                 .map(votingSessionEntityMapper::toDomain)

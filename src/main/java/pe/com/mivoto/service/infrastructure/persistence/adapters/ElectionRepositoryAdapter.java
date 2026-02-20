@@ -62,6 +62,7 @@ public class ElectionRepositoryAdapter implements ElectionRepository {
      * @return Optional containing the election if found.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public Optional<Election> findById(Long id) {
         return jpaElectionRepository.findById(id)
                 .map(electionEntityMapper::toDomain);
@@ -73,6 +74,7 @@ public class ElectionRepositoryAdapter implements ElectionRepository {
      * @return List of all elections.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<Election> findAll() {
         return jpaElectionRepository.findAll().stream()
                 .map(electionEntityMapper::toDomain)
@@ -86,6 +88,7 @@ public class ElectionRepositoryAdapter implements ElectionRepository {
      * @return List of matching elections.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<Election> findByStatus(ElectionStatus status) {
         return jpaElectionRepository.findByStatus(status).stream()
                 .map(electionEntityMapper::toDomain)
@@ -98,6 +101,7 @@ public class ElectionRepositoryAdapter implements ElectionRepository {
      * @return List of active elections.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<Election> findActiveElections() {
         return jpaElectionRepository.findActiveElections(LocalDateTime.now()).stream()
                 .map(electionEntityMapper::toDomain)
@@ -110,6 +114,7 @@ public class ElectionRepositoryAdapter implements ElectionRepository {
      * @return List of scheduled elections.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<Election> findScheduledElections() {
         return jpaElectionRepository.findScheduledElections().stream()
                 .map(electionEntityMapper::toDomain)
@@ -124,6 +129,7 @@ public class ElectionRepositoryAdapter implements ElectionRepository {
      * @return List of elections in the range.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<Election> findByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
         return jpaElectionRepository.findByDateRange(startDate, endDate).stream()
                 .map(electionEntityMapper::toDomain)
@@ -137,6 +143,7 @@ public class ElectionRepositoryAdapter implements ElectionRepository {
      * @return List of elections.
      */
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<Election> findByCreatedBy(Long userId) {
         return jpaElectionRepository.findByCreatedBy(userId).stream()
                 .map(electionEntityMapper::toDomain)
