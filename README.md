@@ -272,6 +272,22 @@ mvn verify
 mvn jacoco:report
 ```
 
+## 🌱 Semillas (Seeds)
+
+Para cargar datos iniciales de prueba (usuarios, elecciones, candidatos, etc.) a la base de datos, ejecuta el script `src/main/resources/init.sql`.
+
+**Opción 1: Usando Docker Compose (Recomendado)**
+Si estás ejecutando la base de datos con Docker, puedes inyectar el archivo directamente al contenedor `mivoto-postgres-dev`:
+```bash
+docker exec -i mivoto-postgres-dev psql -U postgres -d mivoto < src/main/resources/init.sql
+```
+
+**Opción 2: Usando CLI de PostgreSQL (psql)**
+Si tienes PostgreSQL instalado localmente o prefieres usar la CLI:
+```bash
+PGPASSWORD=postgres psql -U postgres -h localhost -p 5432 -d mivoto -f src/main/resources/init.sql
+```
+
 ## 👥 Usuarios por Defecto
 
 ### Administrador
