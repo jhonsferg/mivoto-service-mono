@@ -153,6 +153,6 @@ public class AuthController {
      * @return The user.
      */
     private User getUserFromSession(VotingSession session) {
-        return User.builder().build();
+        return getUserProfileUseCase.execute(session.getSessionToken());
     }
 }
