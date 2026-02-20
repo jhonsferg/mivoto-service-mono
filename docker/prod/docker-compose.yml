@@ -56,7 +56,7 @@ services:
       SPRING_PROFILES_ACTIVE: prod
       JWT_SECRET: ${JWT_SECRET:-VERY_LONG_AND_SECURE_PRODUCTION_SECRET_KEY_FOR_JWT_SIGNING}
     ports:
-      - "8082:8080"
+      - "${PORT:-8082}:8080"
     networks:
       - mivoto-prod-network
     depends_on:

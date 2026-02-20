@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.*;
 
 /**
@@ -81,7 +82,7 @@ class AuthControllerTest {
         // We mock the mapper to return a response based on that.
 
         LoginResponseDto loginResponse = new LoginResponseDto();
-        when(authDtoMapper.toLoginResponse(any(VotingSession.class), any(User.class))).thenReturn(loginResponse);
+        when(authDtoMapper.toLoginResponse(any(VotingSession.class), nullable(User.class))).thenReturn(loginResponse);
 
         ResponseEntity<ApiResponseDto<LoginResponseDto>> response = authController.login(request, httpRequest);
 
@@ -120,7 +121,7 @@ class AuthControllerTest {
         when(refreshTokenUseCase.execute("refresh-token")).thenReturn(session);
 
         LoginResponseDto loginResponse = new LoginResponseDto();
-        when(authDtoMapper.toLoginResponse(any(VotingSession.class), any(User.class))).thenReturn(loginResponse);
+        when(authDtoMapper.toLoginResponse(any(VotingSession.class), nullable(User.class))).thenReturn(loginResponse);
 
         ResponseEntity<ApiResponseDto<LoginResponseDto>> response = authController.refreshToken(request);
 

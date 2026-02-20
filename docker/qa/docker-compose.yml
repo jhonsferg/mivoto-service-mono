@@ -55,7 +55,7 @@ services:
       SPRING_PROFILES_ACTIVE: qa
       JWT_SECRET: ${JWT_SECRET:-qaSecretKeyThatIsStrongerThanDev123456789}
     ports:
-      - "8081:8080"
+      - "${PORT:-8081}:8080"
     networks:
       - mivoto-qa-network
     depends_on:
