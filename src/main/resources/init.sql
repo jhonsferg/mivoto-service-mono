@@ -16,6 +16,10 @@ INSERT INTO users (document_number, first_name, last_name, email, password, role
 ('34567890', 'Juan', 'Pérez', 'juan.perez@mivoto.pe', '$2a$10$aRbnNtHe2zW248R7J7ZBee2j4pU5aHDGIka04vcXKXBILz2l3uJ5a', 'ADMIN', true, '2025-01-17 12:00:00', '2025-01-17 12:00:00', '2026-01-29 16:45:00'),
 ('45678901', 'Ana', 'Torres', 'ana.torres@mivoto.pe', '$2a$10$aRbnNtHe2zW248R7J7ZBee2j4pU5aHDGIka04vcXKXBILz2l3uJ5a', 'ADMIN', true, '2025-01-18 13:00:00', '2025-01-18 13:00:00', '2026-01-31 11:20:00'),
 ('56789012', 'Pedro', 'Sánchez', 'pedro.sanchez@mivoto.pe', '$2a$10$aRbnNtHe2zW248R7J7ZBee2j4pU5aHDGIka04vcXKXBILz2l3uJ5a', 'ADMIN', false, '2025-01-19 14:00:00', '2025-01-19 14:00:00', '2025-12-20 10:00:00'),
+('56789013', 'Jonatan', 'Tafur', 'jonatan.tafur@mivoto.pe', '$2a$10$aRbnNtHe2zW248R7J7ZBee2j4pU5aHDGIka04vcXKXBILz2l3uJ5a', 'ADMIN', false, '2025-01-19 14:00:00', '2025-01-19 14:00:00', '2025-12-20 10:00:00'),
+('56789014', 'Jhon', ' ', 'jhon@mivoto.pe', '$2a$10$aRbnNtHe2zW248R7J7ZBee2j4pU5aHDGIka04vcXKXBILz2l3uJ5a', 'ADMIN', false, '2025-01-19 14:00:00', '2025-01-19 14:00:00', '2025-12-20 10:00:00'),
+('56789015', 'Nicolas', ' ', 'nicolas@mivoto.pe', '$2a$10$aRbnNtHe2zW248R7J7ZBee2j4pU5aHDGIka04vcXKXBILz2l3uJ5a', 'ADMIN', false, '2025-01-19 14:00:00', '2025-01-19 14:00:00', '2025-12-20 10:00:00'),
+('56789016', 'Wilber', 'Carrascal', 'wilber.carrascal@gmail.com', '$2b$10$ZgVR4iFwiRVo0W43pjOk7OvulMuQRhPyDUfp5Z4USfK2UtaCtsF9a', 'ADMIN', false, '2025-01-19 14:00:00', '2025-01-19 14:00:00', '2025-12-20 10:00:00'),
 
 -- SUPERVISOR Users (3)
 ('67890123', 'Luis', 'Ramírez', 'luis.ramirez@mivoto.pe', '$2a$10$aRbnNtHe2zW248R7J7ZBee2j4pU5aHDGIka04vcXKXBILz2l3uJ5a', 'SUPERVISOR', true, '2025-01-20 15:00:00', '2025-01-20 15:00:00', '2026-01-30 18:30:00'),
