@@ -294,10 +294,11 @@ public class ElectionManagementService implements ElectionUseCase {
         Long totalVotes = this.voteRepository.countByElectionId(electionId);
         List<Candidate> candidates = this.candidateRepository.findByElectionIdOrderByVoteCountDesc(electionId);
         Candidate leadingCandidate = candidates.isEmpty() ? null : candidates.get(0);
-        Double participationRate = 0.0; // TODO: Calculate based on eligible voters count if available
+        // participationRate requires a total eligible-voters count which is not yet tracked in the system.
+        // Return null so the client can display "N/A" instead of a misleading 0%.
 
         return new pe.com.mivoto.service.domain.ports.in.ElectionUseCase.ElectionStatistics(totalVotes, totalVotes, 0L,
-                participationRate, leadingCandidate);
+                null, candidates.size(), leadingCandidate);
     }
 
     /**

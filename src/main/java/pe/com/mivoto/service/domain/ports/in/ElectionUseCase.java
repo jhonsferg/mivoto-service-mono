@@ -120,7 +120,8 @@ public interface ElectionUseCase {
      * @param totalVotes        Total votes cast in the election.
      * @param totalValidVotes   Number of votes that passed integrity checks.
      * @param totalInvalidVotes Number of votes rejected or failed integrity checks.
-     * @param participationRate Percentage of registered voters who participated.
+     * @param participationRate Percentage of registered voters who participated (null if eligible voters are unknown).
+     * @param totalCandidates   Number of candidates participating in the election.
      * @param leadingCandidate  The candidate currently in the lead.
      */
     record ElectionStatistics(
@@ -128,6 +129,7 @@ public interface ElectionUseCase {
             Long totalValidVotes,
             Long totalInvalidVotes,
             Double participationRate,
+            Integer totalCandidates,
             Candidate leadingCandidate) {
     }
 }
