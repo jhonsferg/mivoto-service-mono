@@ -7,14 +7,11 @@ spring:
   
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:
         format_sql: true
-
-  flyway:
-    enabled: false
 
 jwt:
   secret: ${JWT_SECRET:localSecretKeyForJWTTokenGeneration123456789}
