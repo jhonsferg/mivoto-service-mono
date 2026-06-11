@@ -15,10 +15,10 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "vote_records", indexes = {
-        @Index(name = "idx_vote_id", columnList = "vote_id"),
-        @Index(name = "idx_user_id", columnList = "user_id"),
-        @Index(name = "idx_election_id", columnList = "election_id"),
-        @Index(name = "idx_vote_hash", columnList = "vote_hash")
+        @Index(name = "idx_record_vote_id", columnList = "vote_id"),
+        @Index(name = "idx_record_user_id", columnList = "user_id"),
+        @Index(name = "idx_record_election_id", columnList = "election_id"),
+        @Index(name = "idx_record_vote_hash", columnList = "vote_hash")
 })
 @Data
 @Builder
