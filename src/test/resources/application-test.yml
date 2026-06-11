@@ -15,7 +15,5 @@ spring:
       hibernate:
         hbm2ddl:
           halt_on_error: false
-  flyway:
-    enabled: false
   cache:
     type: none
