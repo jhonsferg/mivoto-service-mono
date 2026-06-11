@@ -18,8 +18,8 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "candidates", indexes = {
-        @Index(name = "idx_election_id", columnList = "election_id"),
-        @Index(name = "idx_election_number", columnList = "election_id, number")
+        @Index(name = "idx_candidate_election_id", columnList = "election_id"),
+        @Index(name = "idx_candidate_election_number", columnList = "election_id, number")
 }, uniqueConstraints = {
         @UniqueConstraint(columnNames = {"election_id", "number"})
 })
