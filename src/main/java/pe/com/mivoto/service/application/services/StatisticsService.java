@@ -11,8 +11,15 @@ import pe.com.mivoto.service.domain.ports.out.ElectionRepository;
 import pe.com.mivoto.service.domain.ports.out.UserRepository;
 import pe.com.mivoto.service.domain.ports.out.VoteRepository;
 
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedMap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Multiset;
+import com.google.common.collect.Multimaps;
+
 import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -64,12 +71,17 @@ public class StatisticsService {
         List<Candidate> candidates = this.candidateRepository.findByElectionIdOrderByVoteCountDesc(electionId);
 
         Candidate winner = candidates.isEmpty() ? null : candidates.get(0);
-        Map<String, Long> votesByParty = new HashMap<>();
-        for (Candidate candidate : candidates) {
-            String party = candidate.getParty();
-            Long votes = this.voteRepository.countByCandidateId(candidate.getId());
-            votesByParty.merge(party, votes, Long::sum);
-        }
+
+        // Guava: group candidates by party, then sum votes per group
+        ListMultimap<String, Candidate> byParty = Multimaps.index(candidates,
+                c -> c.getParty() != null ? c.getParty() : "Sin partido");
+        ImmutableMap<String, Long> votesByParty = ImmutableMap.copyOf(
+                Multimaps.asMap(byParty).entrySet().stream().collect(
+                        java.util.stream.Collectors.toMap(
+                                Map.Entry::getKey,
+                                e -> e.getValue().stream()
+                                        .mapToLong(c -> this.voteRepository.countByCandidateId(c.getId()))
+                                        .sum())));
 
         return new ElectionStatistics(electionId, election.getTitle(), totalVotes, candidates.size(), winner,
                 votesByParty, LocalDateTime.now());
@@ -106,15 +118,17 @@ public class StatisticsService {
      * @return Map of Hour (0-23) to vote count.
      */
     public Map<Integer, Long> getVotingParticipationByHour(Long electionId) {
-        Map<Integer, Long> participation = new HashMap<>();
         List<Vote> votes = this.voteRepository.findByElectionId(electionId);
 
-        for (Vote vote : votes) {
-            int hour = vote.getVotedAt().getHour();
-            participation.merge(hour, 1L, Long::sum);
-        }
+        // Guava Multiset to count votes per hour, then emit a sorted immutable map
+        Multiset<Integer> hourCounts = HashMultiset.create();
+        votes.forEach(v -> hourCounts.add(v.getVotedAt().getHour()));
 
-        return participation;
+        return hourCounts.entrySet().stream()
+                .collect(ImmutableSortedMap.toImmutableSortedMap(
+                        Comparator.naturalOrder(),
+                        Multiset.Entry::getElement,
+                        e -> (long) e.getCount()));
     }
 
     /**
