@@ -50,26 +50,6 @@ services:
       - "-c"
       - "max_wal_size=4GB"
 
-  # Redis Cache
-  redis:
-    image: redis:7.2.4-alpine
-    container_name: mivoto-redis-dev
-    restart: unless-stopped
-    environment:
-      TZ: America/Lima
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - mivoto-dev-network
-    healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
-
   # pgAdmin - PostgreSQL Management Tool
   pgadmin:
     image: dpage/pgadmin4:8.2
@@ -91,22 +71,6 @@ services:
       - mivoto-dev-network
     depends_on:
       postgres:
-        condition: service_healthy
-
-  # Redis Commander - Redis Management Tool
-  redis-commander:
-    image: rediscommander/redis-commander:latest
-    container_name: mivoto-redis-commander-dev
-    restart: unless-stopped
-    environment:
-      TZ: America/Lima
-      REDIS_HOSTS: local:redis:${REDIS_PORT:-6379}
-    ports:
-      - "${REDIS_COMMANDER_PORT:-8082}:8081"
-    networks:
-      - mivoto-dev-network
-    depends_on:
-      redis:
         condition: service_healthy
 
   # SonarQube - Code Quality
@@ -134,8 +98,6 @@ networks:
 volumes:
   postgres_data:
     name: mivoto_postgres_dev_data
-  redis_data:
-    name: mivoto_redis_dev_data
   pgadmin_data:
     name: mivoto_pgadmin_dev_data
   sonarqube_data:

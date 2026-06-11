@@ -11,7 +11,6 @@ import pe.com.mivoto.service.domain.model.Candidate;
 import pe.com.mivoto.service.domain.model.Election;
 import pe.com.mivoto.service.domain.ports.out.CandidateRepository;
 import pe.com.mivoto.service.domain.ports.out.ElectionRepository;
-import pe.com.mivoto.service.infrastructure.persistence.redis.CandidateCacheRepository;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +18,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,8 +28,6 @@ class CandidateServiceTest {
     @Mock
     private ElectionRepository electionRepository;
     @Mock
-    private CandidateCacheRepository candidateCacheRepository;
-    @Mock
     private AuditService auditService;
     @Mock
     private CandidateSearchTree candidateSearchTree;
@@ -40,43 +36,23 @@ class CandidateServiceTest {
     private CandidateService candidateService;
 
     @Test
-    @DisplayName("Should return candidates from cache if available")
-    void testGetCandidatesByElection_CacheHit() {
-        Long electionId = 1L;
-        List<Candidate> cachedList = Collections
-                .singletonList(Candidate.builder().id(10L).electionId(electionId).build());
-
-        when(candidateCacheRepository.findByElection(electionId)).thenReturn(Optional.of(cachedList));
-
-        List<Candidate> result = candidateService.getCandidatesByElection(electionId);
-
-        assertNotNull(result);
-        assertEquals(cachedList, result);
-        verify(candidateCacheRepository).findByElection(electionId);
-        verify(candidateRepository, never()).findByElectionId(any());
-    }
-
-    @Test
-    @DisplayName("Should fetch candidates from DB and cache if not in cache")
-    void testGetCandidatesByElection_CacheMiss() {
+    @DisplayName("Should return candidates from DB")
+    void testGetCandidatesByElection_ReturnsFromDB() {
         Long electionId = 1L;
         List<Candidate> dbList = Collections.singletonList(Candidate.builder().id(10L).electionId(electionId).build());
 
-        when(candidateCacheRepository.findByElection(electionId)).thenReturn(Optional.empty());
         when(candidateRepository.findByElectionId(electionId)).thenReturn(dbList);
 
         List<Candidate> result = candidateService.getCandidatesByElection(electionId);
 
         assertNotNull(result);
         assertEquals(dbList, result);
-        verify(candidateCacheRepository).findByElection(electionId);
         verify(candidateRepository).findByElectionId(electionId);
-        verify(candidateCacheRepository).saveByElection(electionId, dbList);
     }
 
     @Test
-    @DisplayName("Should invalidate cache on register candidate")
-    void testRegisterCandidate_InvalidatesCache() {
+    @DisplayName("Should register candidate and persist")
+    void testRegisterCandidate_Persists() {
         Long electionId = 1L;
         Candidate candidate = Candidate.builder().electionId(electionId).number(1).build();
         Election election = Election.builder()
@@ -92,6 +68,6 @@ class CandidateServiceTest {
 
         candidateService.registerCandidate(candidate);
 
-        verify(candidateCacheRepository).deleteByElection(electionId);
+        verify(candidateRepository).save(candidate);
     }
 }

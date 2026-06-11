@@ -19,7 +19,3 @@ spring:
     enabled: false
   cache:
     type: none
-  data:
-    redis:
-      repositories:
-        enabled: false

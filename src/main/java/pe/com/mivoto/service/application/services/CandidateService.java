@@ -10,8 +10,6 @@ import pe.com.mivoto.service.domain.model.Candidate;
 import pe.com.mivoto.service.domain.model.Election;
 import pe.com.mivoto.service.domain.ports.out.CandidateRepository;
 import pe.com.mivoto.service.domain.ports.out.ElectionRepository;
-import pe.com.mivoto.service.infrastructure.persistence.redis.CandidateCacheRepository;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +26,6 @@ import java.util.Optional;
 public class CandidateService implements pe.com.mivoto.service.domain.ports.in.CandidateUseCase {
     private final CandidateRepository candidateRepository;
     private final ElectionRepository electionRepository;
-    private final CandidateCacheRepository candidateCacheRepository;
     private final AuditService auditService;
 
     private final CandidateSearchTree candidateSearchTree;
@@ -66,9 +63,6 @@ public class CandidateService implements pe.com.mivoto.service.domain.ports.in.C
         this.candidateSearchTree.insert(savedCandidate);
         this.candidateSearchTree.insert(savedCandidate);
 
-        // Invalidate cache for this election
-        this.candidateCacheRepository.deleteByElection(candidate.getElectionId());
-
         this.auditService.logCandidateAdded(savedCandidate.getId(), candidate.getElectionId());
 
         log.info("Candidato registrado con ID: {}", savedCandidate.getId());
@@ -100,9 +94,6 @@ public class CandidateService implements pe.com.mivoto.service.domain.ports.in.C
         this.candidateSearchTree.insert(updated);
         this.candidateSearchTree.insert(updated);
 
-        // Invalidate cache
-        this.candidateCacheRepository.deleteByElection(updated.getElectionId());
-
         this.auditService.logCandidateUpdated(candidateId);
 
         return updated;
@@ -126,12 +117,7 @@ public class CandidateService implements pe.com.mivoto.service.domain.ports.in.C
      * @return List of candidates.
      */
     public List<Candidate> getCandidatesByElection(Long electionId) {
-        return this.candidateCacheRepository.findByElection(electionId)
-                .orElseGet(() -> {
-                    List<Candidate> candidates = this.candidateRepository.findByElectionId(electionId);
-                    this.candidateCacheRepository.saveByElection(electionId, candidates);
-                    return candidates;
-                });
+        return this.candidateRepository.findByElectionId(electionId);
     }
 
     /**
@@ -172,9 +158,6 @@ public class CandidateService implements pe.com.mivoto.service.domain.ports.in.C
         this.candidateRepository.update(candidate);
         this.candidateRepository.update(candidate);
 
-        // Invalidate cache
-        this.candidateCacheRepository.deleteByElection(candidate.getElectionId());
-
         this.auditService.logCandidateActivated(candidateId);
     }
 
@@ -191,9 +174,6 @@ public class CandidateService implements pe.com.mivoto.service.domain.ports.in.C
         candidate.deactivate();
         this.candidateRepository.update(candidate);
         this.candidateRepository.update(candidate);
-
-        // Invalidate cache
-        this.candidateCacheRepository.deleteByElection(candidate.getElectionId());
 
         this.auditService.logCandidateDeactivated(candidateId);
     }
@@ -220,9 +200,6 @@ public class CandidateService implements pe.com.mivoto.service.domain.ports.in.C
         this.candidateSearchTree.delete(candidate.getNumber());
         this.candidateRepository.deleteById(candidateId);
         this.candidateRepository.deleteById(candidateId);
-
-        // Invalidate cache
-        this.candidateCacheRepository.deleteByElection(candidate.getElectionId());
 
         this.auditService.logCandidateDeleted(candidateId);
     }

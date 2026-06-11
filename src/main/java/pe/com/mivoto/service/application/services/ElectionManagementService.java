@@ -14,8 +14,6 @@ import pe.com.mivoto.service.domain.ports.out.CandidateRepository;
 import pe.com.mivoto.service.domain.ports.out.ElectionRepository;
 import pe.com.mivoto.service.domain.ports.out.VoteRepository;
 
-import pe.com.mivoto.service.infrastructure.persistence.redis.ElectionCacheRepository;
-
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +33,6 @@ public class ElectionManagementService implements ElectionUseCase {
     private final ElectionRepository electionRepository;
     private final CandidateRepository candidateRepository;
     private final VoteRepository voteRepository;
-    private final ElectionCacheRepository electionCacheRepository;
     private final AuditService auditService;
 
     private final ElectionGraph electionGraph;
@@ -90,10 +87,6 @@ public class ElectionManagementService implements ElectionUseCase {
 
         Election updated = this.electionRepository.update(existing);
 
-        // Update cache
-        this.electionCacheRepository.save(updated);
-        this.electionCacheRepository.deleteActiveList(); // Invalidate list potential changes
-
         this.auditService.logElectionUpdated(electionId);
 
         return updated;
@@ -106,13 +99,8 @@ public class ElectionManagementService implements ElectionUseCase {
      * @return The Election object.
      */
     public Election getElectionById(Long electionId) {
-        return this.electionCacheRepository.findById(electionId)
-                .orElseGet(() -> {
-                    Election election = this.electionRepository.findById(electionId)
-                            .orElseThrow(() -> new InvalidElectionException("Elección no encontrada"));
-                    this.electionCacheRepository.save(election);
-                    return election;
-                });
+        return this.electionRepository.findById(electionId)
+                .orElseThrow(() -> new InvalidElectionException("Elección no encontrada"));
     }
 
     /**
@@ -131,12 +119,7 @@ public class ElectionManagementService implements ElectionUseCase {
      * @return List of active elections.
      */
     public List<Election> getActiveElections() {
-        return this.electionCacheRepository.findActiveList()
-                .orElseGet(() -> {
-                    List<Election> elections = this.electionRepository.findActiveElections();
-                    this.electionCacheRepository.saveActiveList(elections);
-                    return elections;
-                });
+        return this.electionRepository.findActiveElections();
     }
 
     /**
@@ -163,10 +146,7 @@ public class ElectionManagementService implements ElectionUseCase {
         }
 
         election.schedule();
-        Election updated = this.electionRepository.update(election);
-
-        this.electionCacheRepository.save(updated);
-        this.electionCacheRepository.deleteActiveList();
+        this.electionRepository.update(election);
 
         this.auditService.logElectionUpdated(electionId);
 
@@ -191,11 +171,7 @@ public class ElectionManagementService implements ElectionUseCase {
         }
 
         election.start();
-        Election updated = this.electionRepository.update(election);
-
-        // Update cache
-        this.electionCacheRepository.save(updated);
-        this.electionCacheRepository.deleteActiveList();
+        this.electionRepository.update(election);
 
         this.auditService.logElectionStarted(electionId);
 
@@ -216,11 +192,7 @@ public class ElectionManagementService implements ElectionUseCase {
         }
 
         election.close();
-        Election updated = this.electionRepository.update(election);
-
-        // Update cache
-        this.electionCacheRepository.save(updated);
-        this.electionCacheRepository.deleteActiveList();
+        this.electionRepository.update(election);
 
         this.auditService.logElectionClosed(electionId);
 
@@ -243,12 +215,7 @@ public class ElectionManagementService implements ElectionUseCase {
         }
 
         election.cancel();
-        Election updated = this.electionRepository.update(election);
-
-        // Update cache
-        this.electionCacheRepository.save(updated);
-        // Cancelled elections might have been active
-        this.electionCacheRepository.deleteActiveList();
+        this.electionRepository.update(election);
 
         this.auditService.logElectionCancelled(electionId, reason);
     }
