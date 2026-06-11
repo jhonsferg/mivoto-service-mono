@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "voting_sessions", indexes = {
-        @Index(name = "idx_user_id", columnList = "user_id"),
+        @Index(name = "idx_session_user_id", columnList = "user_id"),
         @Index(name = "idx_session_token", columnList = "session_token"),
         @Index(name = "idx_refresh_token", columnList = "refresh_token")
 })
