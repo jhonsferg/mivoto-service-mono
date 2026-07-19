@@ -10,7 +10,9 @@ import pe.com.mivoto.service.infrastructure.persistence.entities.AuditLogEntity;
 import pe.com.mivoto.service.infrastructure.persistence.mappers.AuditEntityMapper;
 import pe.com.mivoto.service.infrastructure.persistence.repositories.JpaAuditLogRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -113,8 +115,10 @@ public class AuditRepositoryAdapter implements AuditRepository {
      * @return List of logs in the range.
      */
     @Override
-    public List<AuditLog> findByTimestampBetween(LocalDateTime startDate, LocalDateTime endDate) {
-        return jpaAuditLogRepository.findByTimestampBetween(startDate, endDate).stream()
+    public List<AuditLog> findByTimestampBetween(LocalDate startDate, LocalDate endDate) {
+        LocalDateTime start = startDate.atStartOfDay();
+        LocalDateTime end = endDate.atTime(LocalTime.MAX);
+        return jpaAuditLogRepository.findByTimestampBetween(start, end).stream()
                 .map(auditEntityMapper::toDomain)
                 .collect(Collectors.toList());
     }

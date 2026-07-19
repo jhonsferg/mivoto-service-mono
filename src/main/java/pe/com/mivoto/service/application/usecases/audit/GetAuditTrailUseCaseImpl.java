@@ -7,6 +7,7 @@ import pe.com.mivoto.service.application.services.AuditService;
 import pe.com.mivoto.service.domain.enums.AuditAction;
 import pe.com.mivoto.service.domain.model.AuditLog;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -62,7 +63,7 @@ public class GetAuditTrailUseCaseImpl {
      * @param endDate   End date.
      * @return List of audit logs.
      */
-    public List<AuditLog> executeByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+    public List<AuditLog> executeByDateRange(LocalDate startDate, LocalDate endDate) {
         log.info("Ejecutando caso de uso: GetAuditTrail por rango de fechas");
         return this.auditService.getAuditTrailByDateRange(startDate, endDate);
     }

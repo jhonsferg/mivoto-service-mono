@@ -3,6 +3,7 @@ package pe.com.mivoto.service.domain.ports.in;
 import pe.com.mivoto.service.domain.enums.AuditAction;
 import pe.com.mivoto.service.domain.model.AuditLog;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -56,7 +57,7 @@ public interface AuditUseCase {
      * @param endDate   End of the range.
      * @return List of audit logs.
      */
-    List<AuditLog> getAuditTrailByDateRange(LocalDateTime startDate, LocalDateTime endDate);
+    List<AuditLog> getAuditTrailByDateRange(LocalDate startDate, LocalDate endDate);
 
     /**
      * Retrieves logs considered critical for system security or integrity.
@@ -87,7 +88,7 @@ public interface AuditUseCase {
      * @param endDate   End date for the report data.
      * @return An AuditReport containing aggregated statistics.
      */
-    AuditReport generateAuditReport(LocalDateTime startDate, LocalDateTime endDate);
+    AuditReport generateAuditReport(LocalDate startDate, LocalDate endDate);
 
     /**
      * Record containing aggregated audit statistics for reporting.

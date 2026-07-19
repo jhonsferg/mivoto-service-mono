@@ -2,8 +2,13 @@ package pe.com.mivoto.service.application.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.server.ResponseStatusException;
 import pe.com.mivoto.service.datastructures.implementations.ElectionGraph;
 import pe.com.mivoto.service.domain.enums.ElectionStatus;
 import pe.com.mivoto.service.domain.exceptions.InvalidElectionException;
@@ -18,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Application service for managing election lifecycles.
@@ -130,6 +136,19 @@ public class ElectionManagementService implements ElectionUseCase {
      */
     public List<Election> getElectionsByStatus(ElectionStatus status) {
         return this.electionRepository.findByStatus(status);
+    }
+
+    public void deleteElectionById(String id) {
+        try {
+            long electionId = Long.parseLong(id);
+            Optional<Election> election = this.electionRepository.findById(electionId);
+            if (election.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found election with id " + id);
+            this.electionRepository.deleteById(electionId);
+        } catch (NumberFormatException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid id format");
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error has occurred");
+        }
     }
 
     /**

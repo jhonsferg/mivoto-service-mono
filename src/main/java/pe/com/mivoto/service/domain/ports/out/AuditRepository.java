@@ -1,8 +1,10 @@
 package pe.com.mivoto.service.domain.ports.out;
 
+import org.springframework.data.jpa.repository.Query;
 import pe.com.mivoto.service.domain.enums.AuditAction;
 import pe.com.mivoto.service.domain.model.AuditLog;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -68,7 +70,7 @@ public interface AuditRepository {
      * @param endDate   The end of the range.
      * @return A list of audit logs.
      */
-    List<AuditLog> findByTimestampBetween(LocalDateTime startDate, LocalDateTime endDate);
+    List<AuditLog> findByTimestampBetween(LocalDate startDate, LocalDate endDate);
 
     /**
      * Retrieves the most recent audit logs up to a specified limit.

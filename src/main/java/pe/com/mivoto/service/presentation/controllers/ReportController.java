@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pe.com.mivoto.service.application.services.ExcelExportService;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -51,8 +52,8 @@ public class ReportController {
             summary = "Reporte de auditoría",
             description = "Descarga un archivo Excel con los logs de auditoría en el rango de fechas indicado")
     public ResponseEntity<byte[]> auditReport(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         log.info("Descargando reporte de auditoría {} - {}", startDate, endDate);
         byte[] content = excelExportService.generateAuditReport(startDate, endDate);
         String filename = String.format("auditoria_%s.xlsx", LocalDateTime.now().format(FILE_TS));

@@ -1,10 +1,9 @@
 spring:
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/mivoto_dev}
-    username: ${DATABASE_USER:postgres}
-    password: ${DATABASE_PASSWORD:postgres}
+    url: jdbc:postgresql://ep-twilight-lake-achyn9dw-pooler.sa-east-1.aws.neon.tech/mivotodb?sslmode=require&channel_binding=require
+    username: mivoto
+    password: npg_hQDZiyP04RtS
     driver-class-name: org.postgresql.Driver
-
   h2:
     console:
       enabled: true
@@ -12,12 +11,10 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: none
     show-sql: true
 
 logging:
   level:
-    root: DEBUG
+    root: WARN
     pe.com.mivoto.service: DEBUG
-    org.springframework.web: DEBUG
-    org.springframework.security: DEBUG

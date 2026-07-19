@@ -12,6 +12,7 @@ import pe.com.mivoto.service.application.usecases.audit.GetAuditTrailUseCaseImpl
 import pe.com.mivoto.service.domain.enums.AuditAction;
 import pe.com.mivoto.service.domain.model.AuditLog;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -100,7 +101,7 @@ class AuditUseCasesTest {
     @Test
     @DisplayName("Should get audit trail by date range")
     void testGetByDateRange() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDate now = LocalDate.now();
         List<AuditLog> expected = Collections.singletonList(new AuditLog());
         when(auditService.getAuditTrailByDateRange(now, now)).thenReturn(expected);
 

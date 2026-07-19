@@ -14,6 +14,7 @@ import pe.com.mivoto.service.domain.enums.AuditAction;
 import pe.com.mivoto.service.domain.model.AuditLog;
 import pe.com.mivoto.service.presentation.dto.response.ApiResponseDto;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -99,8 +100,8 @@ public class AuditController {
     @GetMapping("/date-range")
     @Operation(summary = "Auditoría por rango de fechas", description = "Obtiene logs en un período de tiempo")
     public ResponseEntity<ApiResponseDto<List<AuditLog>>> getAuditTrailByDateRange(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate endDate) {
         log.info("Obteniendo auditoría desde {} hasta {}", startDate, endDate);
         List<AuditLog> logs = auditService.getAuditTrailByDateRange(startDate, endDate);
         return ResponseEntity.ok(ApiResponseDto.success(logs));
@@ -155,8 +156,8 @@ public class AuditController {
     @GetMapping("/report")
     @Operation(summary = "Generar reporte", description = "Genera un reporte de auditoría")
     public ResponseEntity<ApiResponseDto<AuditService.AuditReport>> generateAuditReport(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate endDate) {
         log.info("Generando reporte de auditoría desde {} hasta {}", startDate, endDate);
         AuditService.AuditReport report = auditService.generateAuditReport(startDate, endDate);
         return ResponseEntity.ok(ApiResponseDto.success(report));

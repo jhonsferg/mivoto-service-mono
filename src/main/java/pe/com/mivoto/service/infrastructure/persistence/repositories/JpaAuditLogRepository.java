@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import pe.com.mivoto.service.domain.enums.AuditAction;
 import pe.com.mivoto.service.infrastructure.persistence.entities.AuditLogEntity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 

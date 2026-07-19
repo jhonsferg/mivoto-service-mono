@@ -3,15 +3,28 @@ package pe.com.mivoto.service.application.services;
 import com.google.common.collect.ImmutableList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.*;
+
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import org.springframework.stereotype.Service;
 import pe.com.mivoto.service.domain.model.AuditLog;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
@@ -43,13 +56,17 @@ public class ExcelExportService {
         }
     }
 
-    public byte[] generateAuditReport(LocalDateTime startDate, LocalDateTime endDate) {
+    public byte[] generateAuditReport(LocalDate startDate, LocalDate endDate) {
         log.info("Generando Excel de auditoría {} - {}", startDate, endDate);
         List<AuditLog> logs = auditService.getAuditTrailByDateRange(startDate, endDate);
 
+        LocalDateTime start = startDate.atStartOfDay();
+        LocalDateTime end = endDate.atTime(LocalTime.MAX);
+
+        log.info("Creando libro excel...");
         try (Workbook wb = new XSSFWorkbook()) {
             buildAuditLogsSheet(wb, wb.createSheet("Logs de Auditoría"), logs);
-            buildAuditSummarySheet(wb, wb.createSheet("Resumen"), logs, startDate, endDate);
+            buildAuditSummarySheet(wb, wb.createSheet("Resumen"), logs, start, end);
             return toBytes(wb);
         } catch (IOException e) {
             throw new RuntimeException("Error generando reporte de auditoría", e);
@@ -172,8 +189,7 @@ public class ExcelExportService {
         for (int i = 0; i <= 7; i++) sheet.autoSizeColumn(i);
     }
 
-    private void buildAuditSummarySheet(Workbook wb, Sheet sheet, List<AuditLog> logs,
-            LocalDateTime startDate, LocalDateTime endDate) {
+    private void buildAuditSummarySheet(Workbook wb, Sheet sheet, List<AuditLog> logs, LocalDateTime startDate, LocalDateTime endDate) {
 
         CellStyle headerStyle = createHeaderStyle(wb);
         CellStyle titleStyle = createTitleStyle(wb);
@@ -187,8 +203,7 @@ public class ExcelExportService {
 
         Row periodRow = sheet.createRow(row++);
         periodRow.createCell(0).setCellValue("Período:");
-        periodRow.createCell(1).setCellValue(
-                startDate.format(DISPLAY_FORMAT) + " — " + endDate.format(DISPLAY_FORMAT));
+        periodRow.createCell(1).setCellValue(startDate.format(DISPLAY_FORMAT) + " — " + endDate.format(DISPLAY_FORMAT));
 
         addKV(sheet, row++, "Total Acciones:", logs.size());
         addKV(sheet, row++, "Acciones Críticas:", (int) logs.stream().filter(AuditLog::isCritical).count());

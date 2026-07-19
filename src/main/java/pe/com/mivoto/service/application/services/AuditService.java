@@ -10,6 +10,7 @@ import pe.com.mivoto.service.domain.enums.AuditAction;
 import pe.com.mivoto.service.domain.model.AuditLog;
 import pe.com.mivoto.service.domain.ports.out.AuditRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -380,7 +381,7 @@ public class AuditService implements pe.com.mivoto.service.domain.ports.in.Audit
      * @param endDate   The end of the range.
      * @return List of audit logs in the range.
      */
-    public List<AuditLog> getAuditTrailByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+    public List<AuditLog> getAuditTrailByDateRange(LocalDate startDate, LocalDate endDate) {
         return this.auditRepository.findByTimestampBetween(startDate, endDate);
     }
 
@@ -428,7 +429,7 @@ public class AuditService implements pe.com.mivoto.service.domain.ports.in.Audit
      * @return The generated AuditReport containing statistics and recent logs.
      */
     @Override
-    public AuditReport generateAuditReport(LocalDateTime startDate, LocalDateTime endDate) {
+    public AuditReport generateAuditReport(LocalDate startDate, LocalDate endDate) {
         List<AuditLog> logs = getAuditTrailByDateRange(startDate, endDate);
 
         long totalActions = logs.size();

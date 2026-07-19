@@ -301,6 +301,20 @@ public class ElectionController {
     }
 
     /**
+     * Recover a election by id and delete using the entity.
+     *
+     * @param id The election id.
+     * @return ResponseEntity empty.
+     */
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Eliminar elección por id", description = "Busqueda de elección por id y su eliminación")
+    public ResponseEntity<ApiResponseDto<Void>> deleteElectionById(@PathVariable String id, @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        log.info("Eliminando elección con id: {}", id);
+        electionManagementService.deleteElectionById(id);
+        return ResponseEntity.ok(ApiResponseDto.success(null));
+    }
+
+    /**
      * Extracts user ID from the JWT token.
      *
      * @param authHeader The Authorization header.
